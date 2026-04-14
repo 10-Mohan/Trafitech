@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  @apply bg-slate-50 text-slate-800 antialiased dark:bg-[#050b14] dark:text-slate-100;
+  background-color: #f8fafc;
+}
+
+body.dark {
+  background: radial-gradient(circle at 50% 10%, #1e293b 0%, #050b14 80%);
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-white border border-slate-200 shadow-md dark:bg-brand-panel/60 dark:backdrop-blur-xl dark:border-white/10 dark:shadow-xl;
+  }
+
+  .glass-card {
+    @apply bg-white border border-slate-200 hover:shadow-lg hover:border-slate-300 transition-all duration-300 dark:bg-white/5 dark:backdrop-blur-md dark:border-white/5 dark:hover:bg-white/10;
+  }
+
+  .text-glow {
+    text-shadow: none;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-700/50 rounded-full hover:bg-slate-600;
+}

@@ -1,0 +1,81 @@
+[
+  {
+    "slot": {
+      "id": "mall-6",
+      "title": "P-6",
+      "status": "free",
+      "vehicleId": null
+    },
+    "parkingZone": {
+      "id": "mall",
+      "pos": [
+        12.733538512786113,
+        77.71020716268265
+      ],
+      "label": "City Mall Parking",
+      "available": 12,
+      "price": 75,
+      "amenities": [
+        "Covered",
+        "EV Charging",
+        "24/7"
+      ],
+      "originalPrice": 50,
+      "distance": 0.3106638804999708
+    },
+    "date": "2026-03-21",
+    "startTime": "14:00",
+    "endTime": "16:00",
+    "duration": 2,
+    "vehicleNumber": "KA-51 FF 0211",
+    "vehicleType": "car",
+    "totalPrice": 150,
+    "bookingId": "BK1774097688089",
+    "timestamp": "2026-03-21T12:54:48.089Z",
+    "paymentId": "mock_tx_1774097693353",
+    "paymentMethod": "card",
+    "paymentStatus": "completed",
+    "paidAt": "2026-03-21T12:54:53.353Z",
+    "_id": "1774097693387"
+  },
+  {
+    "slot": {
+      "id": "mall-3",
+      "title": "P-3",
+      "status": "free",
+      "vehicleId": null
+    },
+    "parkingZone": {
+      "id": "mall",
+      "pos": [
+        12.777671780289142,
+        77.6883473905781
+      ],
+      "label": "City Mall Parking",
+      "available": 12,
+      "price": 50,
+      "amenities": [
+        "Covered",
+        "EV Charging",
+        "24/7"
+      ],
+      "originalPrice": 50,
+      "distance": 0.3106374745540926
+    },
+    "date": "2026-04-14",
+    "startTime": "14:00",
+    "endTime": "16:00",
+    "duration": 2,
+    "vehicleNumber": "KA-01",
+    "vehicleType": "car",
+    "totalPrice": 100,
+    "bookingId": "BK1776132580156",
+    "timestamp": "2026-04-14T02:09:40.156Z",
+    "paymentId": "mock_tx_1776132585988",
+    "paymentMethod": "card",
+    "paymentStatus": "completed",
+    "paidAt": "2026-04-14T02:09:45.988Z",
+    "user": "seed001",
+    "_id": "1776132586052"
+  }
+]

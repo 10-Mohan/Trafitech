@@ -1,0 +1,15 @@
+{
+  "short_name": "TraffiTech",
+  "name": "TraffiTech: Smart Traffic & Parking",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "type": "image/svg+xml",
+      "sizes": "32x32"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0ea5e9",
+  "background_color": "#0f172a"
+}

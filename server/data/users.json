@@ -1,0 +1,38 @@
+[
+  {
+    "_id": "seed001",
+    "username": "test_user",
+    "email": "test@traffitech.com",
+    "password": "$2b$10$aXJnjXBPqn4pXAxBF4uPQuGMlgKPok46iy6ZHLxXhaMnrjs12arK6",
+    "role": "user",
+    "createdAt": "2026-02-18T01:30:00.000Z"
+  },
+  {
+    "role": "user",
+    "username": "test",
+    "email": "test@example.com",
+    "password": "$2b$10$enW35JFVIFgotxcjDMn6Leb8xwdtfUPxqcLnDcobf6h.EkmARBHU2",
+    "_id": "1774096231837"
+  },
+  {
+    "role": "user",
+    "username": "testuser",
+    "email": "test1@example.com",
+    "password": "$2b$10$XhsgtV8G.ySbZSI.yYSKk.7vVCQBIK3NDNvoUtkPUFl1YeGnqM.pq",
+    "_id": "1774096519566"
+  },
+  {
+    "role": "user",
+    "username": "testuser1",
+    "email": "test1@example.com",
+    "password": "$2b$10$U/ImmN8P/LvlIpYrCwruRugieu9NZnKxNzoAaakMf4vEzgjg0d.2.",
+    "_id": "1774096757215"
+  },
+  {
+    "role": "user",
+    "username": "test",
+    "email": "test@example.com",
+    "password": "$2b$10$OWVS461YYIKfNBhY2AE4wuxe3j2.sGTGSW2P/0s4t3dQJhM4/paHe",
+    "_id": "1774263007920"
+  }
+]
