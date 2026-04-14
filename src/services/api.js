@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api';
+const API_URL = import.meta.env.PROD ? 'https://trafitech.onrender.com/api' : '/api';
 
 const handleResponse = async (response) => {
     if (!response.ok) {
