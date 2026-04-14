@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.PROD ? 'https://trafitech.onrender.com/api' : '/api';
+const API_URL = 'https://trafitech.onrender.com/api';
 
 const handleResponse = async (response) => {
     if (!response.ok) {

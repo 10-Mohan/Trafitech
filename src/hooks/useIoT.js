@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = import.meta.env.PROD ? 'https://trafitech.onrender.com' : '/';
+const SOCKET_URL = 'https://trafitech.onrender.com';
 
 export const useIoT = () => {
     const [iotData, setIotData] = useState(null);
