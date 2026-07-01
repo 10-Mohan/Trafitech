@@ -82,76 +82,101 @@ const LiveCityMap = () => {
     ];
 
     return (
-        <div className="w-full h-96 min-h-[400px] rounded-xl overflow-hidden relative z-0 bg-slate-900 ring-1 ring-white/10">
-            {/* Map Container */}
-            <MapContainer center={userPosition} zoom={15} scrollWheelZoom={true} className="w-full h-full" style={{ background: '#0f172a', height: '100%', minHeight: '400px', width: '100%' }}>
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
+        <div className="w-full rounded-xl relative z-0 bg-slate-900 ring-1 ring-white/10 flex flex-col overflow-hidden">
+            {/* Map Wrapper */}
+            <div className="w-full h-96 min-h-[400px] relative overflow-hidden">
+                {/* Map Container */}
+                <MapContainer center={userPosition} zoom={15} scrollWheelZoom={true} className="w-full h-full" style={{ background: '#0f172a', height: '100%', minHeight: '400px', width: '100%' }}>
+                    <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
 
-                <RecenterMap position={userPosition} />
+                    <RecenterMap position={userPosition} />
 
-                {/* User Location */}
-                <Marker position={userPosition} icon={customIcon('user')}>
-                    <Popup className="glass-popup"><div className="text-brand-blue font-bold">You are Here</div></Popup>
-                </Marker>
-                <Circle center={userPosition} radius={500} pathOptions={{ color: '#00f3ff', fillColor: '#00f3ff', fillOpacity: 0.1 }} />
+                    {/* User Location */}
+                    <Marker position={userPosition} icon={customIcon('user')}>
+                        <Popup className="glass-popup"><div className="text-brand-blue font-bold">You are Here</div></Popup>
+                    </Marker>
+                    <Circle center={userPosition} radius={500} pathOptions={{ color: '#00f3ff', fillColor: '#00f3ff', fillOpacity: 0.1 }} />
 
-                {/* Traffic Signals */}
-                {trafficPoints.map(point => (
-                    <Marker key={point.id} position={point.pos} icon={customIcon(point.status)}>
-                        <Popup className="glass-popup">
-                            <div className="text-slate-900 font-bold">{point.label}</div>
-                            <div className={clsx("text-xs font-bold uppercase", point.status === 'red' ? "text-red-600" : "text-green-600")}>
-                                Signal: {point.status}
+                    {/* Traffic Signals */}
+                    {trafficPoints.map(point => (
+                        <Marker key={point.id} position={point.pos} icon={customIcon(point.status)}>
+                            <Popup className="glass-popup">
+                                <div className="text-slate-900 font-bold">{point.label}</div>
+                                <div className={clsx("text-xs font-bold uppercase", point.status === 'red' ? "text-red-600" : "text-green-600")}>
+                                    Signal: {point.status}
+                                </div>
+                            </Popup>
+                        </Marker>
+                    ))}
+
+                    {/* Parking Spots */}
+                    {parkingSpots.map(spot => (
+                        <Marker key={spot.id} position={spot.pos} icon={customIcon('parking')}>
+                            <Popup className="glass-popup">
+                                <div className="text-slate-900 font-bold">{spot.label}</div>
+                                <div className="text-purple-700 font-bold text-xs">{spot.available > 0 ? `${spot.available} Slots Free` : 'FULL'}</div>
+                            </Popup>
+                        </Marker>
+                    ))}
+                </MapContainer>
+
+                {/* Status Overlays */}
+                <div className="absolute top-4 right-4 z-[400] flex flex-col gap-3 items-end">
+                    {/* GPS Status */}
+                    <div className="glass-panel px-3 py-2 rounded-xl flex items-center gap-3 border border-white/20 shadow-2xl">
+                        {status === 'locating' && <Loader2 size={16} className="animate-spin text-brand-blue" />}
+                        {status === 'ready' && <LocateFixed size={16} className="text-brand-green animate-pulse-fast" />}
+                        {status === 'error' && <span className="w-3 h-3 rounded-full bg-brand-red shadow-[0_0_10px_#ff0055]"></span>}
+                        <span className="text-sm font-bold tracking-tight text-slate-800 dark:text-white uppercase">
+                            {status === 'locating' ? "Bypassing Firewall..." : status === 'ready' ? "Encrypted GPS Link" : "Signal Jammed"}
+                        </span>
+                    </div>
+
+                    {/* Map Legend (Desktop/Tablet only) */}
+                    <div className="hidden md:block glass-panel p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-2xl min-w-[180px] animate-in slide-in-from-right-4 duration-500">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 mb-3 ml-1">Traffic Intelligence</h4>
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-3 group cursor-help">
+                                <div className="w-4 h-4 rounded-full border-2 border-white bg-brand-blue shadow-[0_0_10px_rgba(0,243,255,0.6)] animate-pulse"></div>
+                                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-slate-800 dark:text-white transition-colors">Current Ops Center</span>
                             </div>
-                        </Popup>
-                    </Marker>
-                ))}
-
-                {/* Parking Spots */}
-                {parkingSpots.map(spot => (
-                    <Marker key={spot.id} position={spot.pos} icon={customIcon('parking')}>
-                        <Popup className="glass-popup">
-                            <div className="text-slate-900 font-bold">{spot.label}</div>
-                            <div className="text-purple-700 font-bold text-xs">{spot.available > 0 ? `${spot.available} Slots Free` : 'FULL'}</div>
-                        </Popup>
-                    </Marker>
-                ))}
-            </MapContainer>
-
-            {/* Status Overlays */}
-            <div className="absolute top-4 right-4 z-[400] flex flex-col gap-3 items-end">
-                {/* GPS Status */}
-                <div className="glass-panel px-3 py-2 rounded-xl flex items-center gap-3 border border-white/20 shadow-2xl">
-                    {status === 'locating' && <Loader2 size={16} className="animate-spin text-brand-blue" />}
-                    {status === 'ready' && <LocateFixed size={16} className="text-brand-green animate-pulse-fast" />}
-                    {status === 'error' && <span className="w-3 h-3 rounded-full bg-brand-red shadow-[0_0_10px_#ff0055]"></span>}
-                    <span className="text-sm font-bold tracking-tight text-slate-800 dark:text-white uppercase">
-                        {status === 'locating' ? "Bypassing Firewall..." : status === 'ready' ? "Encrypted GPS Link" : "Signal Jammed"}
-                    </span>
+                            <div className="flex items-center gap-3 group cursor-help">
+                                <div className="w-4 h-4 rounded-full border-2 border-white bg-brand-purple shadow-[0_0_10px_rgba(188,19,254,0.6)]"></div>
+                                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-slate-800 dark:text-white transition-colors">Tactical Parking</span>
+                            </div>
+                            <div className="flex items-center gap-3 group cursor-help">
+                                <div className="flex gap-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-brand-red shadow-[0_0_5px_#ff0055]"></div>
+                                    <div className="w-2.5 h-2.5 rounded-full bg-brand-green shadow-[0_0_5px_#00ff9d]"></div>
+                                </div>
+                                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-slate-800 dark:text-white transition-colors">Signal Nodes</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                {/* Map Legend */}
-                <div className="glass-panel p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-2xl min-w-[180px] animate-in slide-in-from-right-4 duration-500">
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 mb-3 ml-1">Traffic Intelligence</h4>
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-3 group cursor-help">
-                            <div className="w-4 h-4 rounded-full border-2 border-white bg-brand-blue shadow-[0_0_10px_rgba(0,243,255,0.6)] animate-pulse"></div>
-                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-slate-800 dark:text-white transition-colors">Current Ops Center</span>
+            {/* Mobile Map Legend (Visible only on Mobile below md breakpoint) */}
+            <div className="md:hidden p-4 bg-white/5 border-t border-slate-200 dark:border-white/10 flex flex-col gap-3">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 ml-1">Traffic Intelligence</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded-full border-2 border-white bg-brand-blue shadow-[0_0_8px_rgba(0,243,255,0.6)] animate-pulse flex-shrink-0"></div>
+                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Current Ops Center</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded-full border-2 border-white bg-brand-purple shadow-[0_0_8px_rgba(188,19,254,0.6)] flex-shrink-0"></div>
+                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Tactical Parking</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="flex gap-1 flex-shrink-0">
+                            <div className="w-2.5 h-2.5 rounded-full bg-brand-red shadow-[0_0_5px_#ff0055]"></div>
+                            <div className="w-2.5 h-2.5 rounded-full bg-brand-green shadow-[0_0_5px_#00ff9d]"></div>
                         </div>
-                        <div className="flex items-center gap-3 group cursor-help">
-                            <div className="w-4 h-4 rounded-full border-2 border-white bg-brand-purple shadow-[0_0_10px_rgba(188,19,254,0.6)]"></div>
-                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-slate-800 dark:text-white transition-colors">Tactical Parking</span>
-                        </div>
-                        <div className="flex items-center gap-3 group cursor-help">
-                            <div className="flex gap-1.5">
-                                <div className="w-2.5 h-2.5 rounded-full bg-brand-red shadow-[0_0_5px_#ff0055]"></div>
-                                <div className="w-2.5 h-2.5 rounded-full bg-brand-green shadow-[0_0_5px_#00ff9d]"></div>
-                            </div>
-                            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-slate-800 dark:text-white transition-colors">Signal Nodes</span>
-                        </div>
+                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Signal Nodes</span>
                     </div>
                 </div>
             </div>
