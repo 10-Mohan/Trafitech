@@ -113,7 +113,7 @@ const Dashboard = () => {
                                 <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 border-l-2 border-brand-red border-l-red-500">
                                     <AlertTriangle size={16} className="text-red-400 mt-1" />
                                     <div>
-                                        <p className="text-sm text-slate-200 font-medium">Congestion Detected</p>
+                                        <p className="text-sm text-slate-800 dark:text-slate-200 font-medium">Congestion Detected</p>
                                         <p className="text-xs text-slate-500 dark:text-slate-400">Zone A-12 • {i * 2} mins ago</p>
                                     </div>
                                 </div>

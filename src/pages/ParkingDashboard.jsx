@@ -536,7 +536,7 @@ const ParkingDashboard = () => {
                                 <span className="text-slate-800 dark:text-white font-medium">₹{selectedParkingZone?.price || 50}/hr</span>
                             </div>
                             <div className="flex justify-between text-sm pt-3 border-t border-slate-200 dark:border-white/10">
-                                <span className="text-slate-200 font-bold">Total Amount</span>
+                                <span className="text-slate-800 dark:text-slate-200 font-bold">Total Amount</span>
                                 <span className="text-xl font-bold text-brand-blue">₹{exitSlot.amount}</span>
                             </div>
                         </div>
