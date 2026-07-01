@@ -1,4 +1,4 @@
-const API_URL = 'https://trafitech.onrender.com/api';
+const API_URL = '/api';
 
 const handleResponse = async (response) => {
     if (!response.ok) {

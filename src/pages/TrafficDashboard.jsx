@@ -104,7 +104,7 @@ const TrafficDashboard = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <div className="flex items-center gap-3">
-                        <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent italic">Trafi Tech Control Center</h1>
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 bg-clip-text text-transparent italic">Trafi Tech Control Center</h1>
                         {connected && (
                             <div className="flex items-center gap-2 px-3 py-1 bg-brand-green/10 border border-brand-green/20 rounded-full">
                                 <span className="relative flex h-2 w-2">

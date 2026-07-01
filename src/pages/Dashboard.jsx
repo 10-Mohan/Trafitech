@@ -39,7 +39,7 @@ const Dashboard = () => {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">City Overview</h1>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">City Overview</h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-1">Real-time monitoring system active</p>
                 </div>
                 <div className="text-right">

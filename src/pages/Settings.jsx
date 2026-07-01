@@ -56,7 +56,7 @@ const Settings = () => {
         <div className="max-w-4xl mx-auto space-y-6 pb-10">
             <div className="flex justify-between items-end">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">System Configuration</h1>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">System Configuration</h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-1">Manage simulation parameters and alerts.</p>
                 </div>
                 <button

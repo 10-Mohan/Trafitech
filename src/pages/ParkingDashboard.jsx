@@ -256,7 +256,7 @@ const ParkingDashboard = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-end mb-4">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">Smart Parking Zone</h1>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">Smart Parking Zone</h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-1">Select an available slot to reserve.</p>
                 </div>
                 <div className="flex flex-col items-end gap-2 text-sm font-medium">

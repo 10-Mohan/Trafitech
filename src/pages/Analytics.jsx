@@ -40,7 +40,7 @@ const Analytics = () => {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">System Analytics</h1>
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">System Analytics</h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-1">Data insights for urban planning optimization.</p>
                 </div>
                 <button className="flex items-center gap-2 px-4 py-2 bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 rounded-lg text-sm text-slate-600 dark:text-slate-300 transition-colors">
