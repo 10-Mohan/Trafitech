@@ -73,6 +73,23 @@ graph TD
 
 ---
 
+## 📈 Future Scope & Large-Scale Optimizations
+Based on the physical and digital systems optimization domain, we have designed a roadmap detailing three large-scale features:
+
+1. **🚚 Freight & Logistics Priority Routing (Supply Chain)**
+   * **Concept:** Integration with registered delivery truck fleets (e.g., Amazon, FedEx). The system recognizes these logistics vehicles on approaching corridors and coordinates the traffic grid to provide "Priority Green" windows.
+   * **Impact:** Drastically reduces delivery delay overhead, lowers idling fuel waste, and optimizes supply chain flow inside heavy commercial zones.
+   
+2. **💡 IoT-Based Smart Streetlighting (Infrastructure Energy Management)**
+   * **Concept:** Linking physical city streetlighting grids directly to TraffiTech's traffic density sensors. When zero traffic is detected during off-peak night hours, streetlights dim by 50% automatically and ramp back to 100% brightness as vehicles approach.
+   * **Impact:** Slashes city energy costs and grid loads by up to 40% while keeping roads safely lit.
+
+3. **📐 Urban Planning Simulator (Virtual Layout Builder)**
+   * **Concept:** A sandbox simulation mode built into the admin control panel. It allows traffic engineers to test route redesigns (e.g., adding roundabouts or modifying parking garages) against historical volume trends.
+   * **Impact:** Enables predictive urban planning before spending capital resources on physical roadway redesign.
+
+---
+
 ## 🚀 Live Access Links
 *   **Live Application URL:** [https://trafitech-git-main-10-mohans-projects.vercel.app/](https://trafitech-git-main-10-mohans-projects.vercel.app/)
 *   **GitHub Code Repository:** [https://github.com/10-Mohan/Trafitech](https://github.com/10-Mohan/Trafitech)

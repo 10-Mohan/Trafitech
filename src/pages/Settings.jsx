@@ -44,7 +44,10 @@ const Settings = () => {
         dynamicTiming: true,
         emailAlerts: false,
         smsAlerts: true,
-        dataLogging: true
+        dataLogging: true,
+        freightPriority: true,
+        smartLighting: true,
+        urbanSim: false
     });
 
     const handleSave = () => {
@@ -107,6 +110,28 @@ const Settings = () => {
                         description="Summary of traffic stats at 23:59 daily."
                         active={settings.emailAlerts}
                         onToggle={() => setSettings({ ...settings, emailAlerts: !settings.emailAlerts })}
+                    />
+                </Section>
+
+                {/* Infrastructure & Logistics */}
+                <Section icon={Smartphone} title="Infrastructure & Logistics">
+                    <Toggle
+                        label="Freight Priority Routing"
+                        description="Prioritize green corridors for registered delivery trucks."
+                        active={settings.freightPriority}
+                        onToggle={() => setSettings({ ...settings, freightPriority: !settings.freightPriority })}
+                    />
+                    <Toggle
+                        label="IoT Smart Streetlights"
+                        description="Dim streetlights when sensors report zero traffic flow."
+                        active={settings.smartLighting}
+                        onToggle={() => setSettings({ ...settings, smartLighting: !settings.smartLighting })}
+                    />
+                    <Toggle
+                        label="Urban Planning Simulator"
+                        description="Enable virtual layout builder for traffic pattern simulation."
+                        active={settings.urbanSim}
+                        onToggle={() => setSettings({ ...settings, urbanSim: !settings.urbanSim })}
                     />
                 </Section>
 

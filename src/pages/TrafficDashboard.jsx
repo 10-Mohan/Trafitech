@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sliders, AlertCircle, ShieldAlert, Bot } from 'lucide-react';
+import { Sliders, AlertCircle, ShieldAlert, Bot, Truck } from 'lucide-react';
 import IntersectionMap from '../components/traffic/IntersectionMap';
 import SignalControl from '../components/traffic/SignalControl';
 import { clsx } from 'clsx';
@@ -179,6 +179,28 @@ const TrafficDashboard = () => {
                         >
                             Apply Optimization
                         </button>
+                    </div>
+
+                    <div className="glass-panel p-6 rounded-2xl border-l-4 border-brand-blue">
+                        <div className="flex items-center gap-2 mb-2 text-brand-blue">
+                            <Truck size={20} />
+                            <h3 className="font-bold">Freight & Logistics Pass</h3>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                                Real-time corridor priority for registered delivery trucks.
+                            </p>
+                            <div className="p-3 rounded-lg bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 space-y-1.5">
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="font-semibold text-slate-700 dark:text-slate-300">Amazon #421 (Northbound)</span>
+                                    <span className="px-2 py-0.5 rounded bg-brand-green/20 text-brand-green font-bold uppercase text-[9px]">Priority Green</span>
+                                </div>
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="font-semibold text-slate-700 dark:text-slate-300">FedEx #109 (Westbound)</span>
+                                    <span className="px-2 py-0.5 rounded bg-brand-green/20 text-brand-green font-bold uppercase text-[9px]">Priority Green</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
