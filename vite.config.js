@@ -1,16 +1,9 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { VitePWA } from 'vite-plugin-pwa'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    /* VitePWA({
-      registerType: 'autoUpdate',
-      ... (commented out to debug white screen)
-    }) */
-  ],
+  plugins: [react()],
   server: {
     host: true,
     port: 5173,
@@ -27,4 +20,16 @@ export default defineConfig({
       },
     },
   },
-})
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/__tests__/setup.js'],
+    css: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: ['node_modules/', 'dist/', 'src/__tests__/'],
+    },
+  },
+});
+

@@ -42,6 +42,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/webhooks', require('./routes/webhooks'));
+app.use('/api/rapids-analytics', require('./routes/rapidsAnalytics'));
 
 // Basic Route
 app.get('/', (req, res) => {

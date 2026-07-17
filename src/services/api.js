@@ -69,3 +69,36 @@ export const bookingAPI = {
         return handleResponse(response);
     }
 };
+
+export const rapidsAnalyticsAPI = {
+    getData: async () => {
+        const response = await fetch(`${API_URL}/rapids-analytics/data`, {
+            headers: getHeaders()
+        });
+        return handleResponse(response);
+    },
+    runBenchmark: async () => {
+        const response = await fetch(`${API_URL}/rapids-analytics/run-benchmark`, {
+            method: 'POST',
+            headers: getHeaders()
+        });
+        return handleResponse(response);
+    },
+    query: async (sqlQuery) => {
+        const response = await fetch(`${API_URL}/rapids-analytics/query`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ query: sqlQuery })
+        });
+        return handleResponse(response);
+    },
+    askGemini: async (prompt, dataContext) => {
+        const response = await fetch(`${API_URL}/rapids-analytics/gemini`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify({ prompt, dataContext })
+        });
+        return handleResponse(response);
+    }
+};
+

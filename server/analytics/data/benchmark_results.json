@@ -1,0 +1,38 @@
+[
+  {
+    "size": 10000,
+    "cpuTimeMs": 9.31,
+    "gpuTimeMs": 1.07,
+    "speedupFactor": 8.7
+  },
+  {
+    "size": 50000,
+    "cpuTimeMs": 21.95,
+    "gpuTimeMs": 0.86,
+    "speedupFactor": 25.6
+  },
+  {
+    "size": 100000,
+    "cpuTimeMs": 44.99,
+    "gpuTimeMs": 0.71,
+    "speedupFactor": 63.4
+  },
+  {
+    "size": 500000,
+    "cpuTimeMs": 32.78,
+    "gpuTimeMs": 0.41,
+    "speedupFactor": 79.6
+  },
+  {
+    "size": 1000000,
+    "cpuTimeMs": 2480.92,
+    "gpuTimeMs": 29.87,
+    "speedupFactor": 86.0
+  },
+  {
+    "size": 10000000,
+    "cpuTimeMs": 25681.74,
+    "gpuTimeMs": 273.46999999999997,
+    "speedupFactor": 93.3
+  }
+]

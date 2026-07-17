@@ -10,7 +10,22 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dev-dist
 *.local
+
+# =============================================
+# SECRETS — NEVER COMMIT THESE
+# =============================================
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
+
+# Test coverage reports
+coverage
+.nyc_output
 
 # Editor directories and files
 .vscode/*

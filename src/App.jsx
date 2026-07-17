@@ -8,6 +8,7 @@ import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
 import ParkingAnalytics from './pages/ParkingAnalytics';
 import BookingHistory from './components/parking/BookingHistory';
+import AcceleratedAnalytics from './pages/AcceleratedAnalytics';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import AdminUsers from './pages/AdminUsers';
@@ -43,6 +44,7 @@ function App() {
               <Route path="traffic" element={<TrafficDashboard />} />
               <Route path="parking" element={<ParkingDashboard />} />
               <Route path="analytics" element={<Analytics />} />
+              <Route path="rapids-analytics" element={<AcceleratedAnalytics />} />
               <Route path="parking-analytics" element={<ParkingAnalytics />} />
               <Route path="booking-history" element={<BookingHistory />} />
               <Route path="settings" element={<Settings />} />

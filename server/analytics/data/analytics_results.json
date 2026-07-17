@@ -1,0 +1,101 @@
+{
+  "timestamp": "2026-07-04T01:54:04Z",
+  "totalRows": 100000,
+  "hardware": "Standard CPU (Pandas)",
+  "metrics": {
+    "ingestTimeSec": 0.2215,
+    "processingTimeSec": 0.0527,
+    "aggTimeSec": 0.0353,
+    "botTimeSec": 0.0193,
+    "totalTimeSec": 0.3288
+  },
+  "corridors": [
+    {
+      "name": "Corridor A (Downtown Express)",
+      "avgSpeed": 45.5,
+      "avgVolume": 62,
+      "congestionRisk": 40.7,
+      "recommendedTuning": 22,
+      "avgWaitTime": 62.9,
+      "co2EmissionsKg": 513
+    },
+    {
+      "name": "Corridor B (Westside Arterial)",
+      "avgSpeed": 28.6,
+      "avgVolume": 72,
+      "congestionRisk": 56.2,
+      "recommendedTuning": 22,
+      "avgWaitTime": 70.2,
+      "co2EmissionsKg": 777
+    },
+    {
+      "name": "Corridor C (University Way)",
+      "avgSpeed": 25.6,
+      "avgVolume": 45,
+      "congestionRisk": 47.7,
+      "recommendedTuning": 22,
+      "avgWaitTime": 49.6,
+      "co2EmissionsKg": 505
+    },
+    {
+      "name": "Corridor D (Industrial Loop)",
+      "avgSpeed": 39.2,
+      "avgVolume": 46,
+      "congestionRisk": 38.7,
+      "recommendedTuning": 22,
+      "avgWaitTime": 50.4,
+      "co2EmissionsKg": 420
+    },
+    {
+      "name": "Corridor E (Airport Bypass)",
+      "avgSpeed": 43.9,
+      "avgVolume": 67,
+      "congestionRisk": 43.9,
+      "recommendedTuning": 22,
+      "avgWaitTime": 66.0,
+      "co2EmissionsKg": 565
+    }
+  ],
+  "bottlenecks": [
+    {
+      "intersectionId": "INT-145",
+      "corridor": "Corridor E (Airport Bypass)",
+      "avgSpeed": 19.4,
+      "avgVolume": 96,
+      "congestionRisk": 94.9,
+      "recommendedTuning": 19
+    },
+    {
+      "intersectionId": "INT-144",
+      "corridor": "Corridor E (Airport Bypass)",
+      "avgSpeed": 19.6,
+      "avgVolume": 105,
+      "congestionRisk": 93.5,
+      "recommendedTuning": 19
+    },
+    {
+      "intersectionId": "INT-143",
+      "corridor": "Corridor E (Airport Bypass)",
+      "avgSpeed": 20.1,
+      "avgVolume": 96,
+      "congestionRisk": 92.2,
+      "recommendedTuning": 18
+    },
+    {
+      "intersectionId": "INT-142",
+      "corridor": "Corridor E (Airport Bypass)",
+      "avgSpeed": 19.4,
+      "avgVolume": 94,
+      "congestionRisk": 90.3,
+      "recommendedTuning": 17
+    },
+    {
+      "intersectionId": "INT-141",
+      "corridor": "Corridor E (Airport Bypass)",
+      "avgSpeed": 19.8,
+      "avgVolume": 99,
+      "congestionRisk": 90.2,
+      "recommendedTuning": 17
+    }
+  ]
+}

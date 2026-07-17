@@ -1,0 +1,7 @@
+node_modules
+dist
+dev-dist
+public
+data/*.json
+*.lock
+package-lock.json
