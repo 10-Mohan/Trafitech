@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, Car, CircleParking, AlertTriangle, TrendingUp, Lightbulb, MapPin, Navigation } from 'lucide-react';
+import { Activity, Car, CircleParking, AlertTriangle, TrendingUp, Lightbulb, MapPin, Navigation, Leaf } from 'lucide-react';
 import LiveCityMap from '../components/traffic/LiveCityMap';
 import { useNotifications } from '../components/notifications/NotificationSystem';
 
@@ -49,7 +49,7 @@ const Dashboard = () => {
             </div>
 
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-6">
                 <StatCard
                     icon={Lightbulb}
                     title="Smart Lighting Savings"
@@ -80,6 +80,14 @@ const Dashboard = () => {
                     value="1,245"
                     subtext="Detected across 12 zones"
                     color="green"
+                />
+                <StatCard
+                    icon={Leaf}
+                    title="CO₂ Saved"
+                    value="248.5 kg"
+                    subtext="AI signal optimization"
+                    color="green"
+                    trend="-15% CO₂"
                 />
                 <StatCard
                     icon={AlertTriangle}

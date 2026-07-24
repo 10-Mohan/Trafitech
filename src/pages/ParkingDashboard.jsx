@@ -35,6 +35,7 @@ const ParkingDashboard = () => {
     const [currentBooking, setCurrentBooking] = useState(null);
     const [completedBooking, setCompletedBooking] = useState(null);
     const [sortByDistance, setSortByDistance] = useState(true);
+    const [filterEV, setFilterEV] = useState(false);
 
     // Dynamic Surge Pricing Logic
     const currentHour = new Date().getHours();
@@ -132,21 +133,21 @@ const ParkingDashboard = () => {
         }
     }, [parkingSpots]);
 
-    // Mock data generator for parking slots
+    // Mock data generator for parking slots (now supports EV charging spots)
     const generateSlots = (zoneId) => {
-        // Use zoneId to create somewhat deterministic patterns if needed, 
-        // or just random for now but refreshed on zone change
         const count = 24;
         return Array.from({ length: count }, (_, i) => {
             const isReserved = Math.random() > 0.8;
             const isOccupied = Math.random() > 0.6;
-            // Ensure at least some are free
+            // Every 4th slot is an EV Charging spot
+            const isEV = (i + 1) % 4 === 0;
             const status = isReserved ? 'reserved' : isOccupied ? 'occupied' : 'free';
 
             return {
                 id: `${zoneId}-${i + 1}`,
                 title: `P-${i + 1}`,
                 status: status,
+                isEV: isEV,
                 vehicleId: status !== 'free' ? `KA-0${Math.floor(Math.random() * 9)}-${1000 + i}` : null
             };
         });
@@ -382,16 +383,44 @@ const ParkingDashboard = () => {
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden">
                 <div className="lg:col-span-2 overflow-y-auto pr-2 custom-scrollbar">
                     {selectedParkingZone && (
-                        <div className="mb-4 flex items-center gap-2 animate-in fade-in slide-in-from-left-4">
-                            <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-                                Slots at <span className="text-brand-blue">{selectedParkingZone.label}</span>
-                            </h2>
-                            <span className="px-2 py-0.5 bg-white/10 rounded text-xs text-slate-500 dark:text-slate-400 font-mono">
-                                Zone {selectedParkingZone.id.toUpperCase()}
-                            </span>
+                        <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-left-4">
+                            <div className="flex items-center gap-2">
+                                <h2 className="text-xl font-bold text-slate-800 dark:text-white">
+                                    Slots at <span className="text-brand-blue">{selectedParkingZone.label}</span>
+                                </h2>
+                                <span className="px-2 py-0.5 bg-white/10 rounded text-xs text-slate-500 dark:text-slate-400 font-mono">
+                                    Zone {selectedParkingZone.id.toUpperCase()}
+                                </span>
+                            </div>
+
+                            {/* EV Filter Toggle */}
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setFilterEV(false)}
+                                    className={clsx(
+                                        "px-3 py-1.5 rounded-lg text-xs font-bold transition-all border",
+                                        !filterEV
+                                            ? "bg-brand-blue text-brand-dark border-brand-blue shadow-[0_0_10px_rgba(0,243,255,0.2)]"
+                                            : "bg-white shadow-sm border-slate-200 dark:border-white/10 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-700"
+                                    )}
+                                >
+                                    All Slots
+                                </button>
+                                <button
+                                    onClick={() => setFilterEV(true)}
+                                    className={clsx(
+                                        "px-3 py-1.5 rounded-lg text-xs font-bold transition-all border flex items-center gap-1",
+                                        filterEV
+                                            ? "bg-brand-blue text-brand-dark border-brand-blue shadow-[0_0_10px_rgba(0,243,255,0.2)]"
+                                            : "bg-white shadow-sm border-slate-200 dark:border-white/10 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-700"
+                                    )}
+                                >
+                                    ⚡ EV Slots Only
+                                </button>
+                            </div>
                         </div>
                     )}
-                    <SlotGrid slots={slots} onSlotClick={handleSlotClick} />
+                    <SlotGrid slots={filterEV ? slots.filter(s => s.isEV) : slots} onSlotClick={handleSlotClick} />
                 </div>
 
                 {/* Booking Panel */}
@@ -416,14 +445,33 @@ const ParkingDashboard = () => {
 
                             {!selectedSlot ? (
                                 <div className="text-center py-10 text-slate-500 dark:text-slate-400">
-                                    <p>Click on a <span className="text-brand-green font-bold">Green</span> slot<br />to start booking.</p>
+                                    <p>Click on an available slot<br />to start booking.</p>
                                 </div>
                             ) : selectedSlot.status === 'free' ? (
                                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
                                     <div className="flex justify-between items-center bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 p-4 rounded-lg">
                                         <span className="text-slate-500 dark:text-slate-400">Slot Number</span>
-                                        <span className="text-2xl font-bold text-slate-800 dark:text-white">{selectedSlot.title}</span>
+                                        <span className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                            {selectedSlot.isEV && <Zap size={18} className="text-brand-blue animate-pulse" />}
+                                            {selectedSlot.title}
+                                        </span>
                                     </div>
+
+                                    {selectedSlot.isEV && (
+                                        <div className="p-3 rounded-lg bg-brand-blue/10 border border-brand-blue/20 space-y-1.5">
+                                            <div className="flex justify-between text-xs text-brand-blue font-bold">
+                                                <span>⚡ EV Fast Charger</span>
+                                                <span>Active</span>
+                                            </div>
+                                            <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                                                Rate: 22 kW AC Type-2 Charger. Charging session starts automatically upon validation.
+                                            </p>
+                                            <div className="flex justify-between text-xs border-t border-brand-blue/10 pt-1.5">
+                                                <span className="text-slate-500 dark:text-slate-400">Charging Rate</span>
+                                                <span className="font-semibold text-slate-800 dark:text-white">₹12/kWh</span>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
@@ -455,8 +503,27 @@ const ParkingDashboard = () => {
                                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
                                     <div className="flex justify-between items-center bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 p-4 rounded-lg">
                                         <span className="text-slate-500 dark:text-slate-400">Slot Number</span>
-                                        <span className="text-2xl font-bold text-slate-800 dark:text-white">{selectedSlot.title}</span>
+                                        <span className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                            {selectedSlot.isEV && <Zap size={18} className="text-brand-blue" />}
+                                            {selectedSlot.title}
+                                        </span>
                                     </div>
+
+                                    {selectedSlot.isEV && selectedSlot.status === 'occupied' && (
+                                        <div className="p-3 rounded-lg bg-brand-blue/5 border border-slate-200 dark:border-white/5 space-y-2">
+                                            <div className="flex justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
+                                                <span>⚡ Charging Session</span>
+                                                <span className="text-brand-green">Progressing</span>
+                                            </div>
+                                            <div className="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                                                <div className="bg-brand-blue h-full animate-pulse" style={{ width: '68%' }}></div>
+                                            </div>
+                                            <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400">
+                                                <span>Charge: 68%</span>
+                                                <span>Power: 14.8 kW</span>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     <div className="p-4 bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 rounded-xl space-y-2">
                                         <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest">Current Status</p>

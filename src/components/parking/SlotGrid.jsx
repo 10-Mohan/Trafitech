@@ -1,6 +1,7 @@
 import React from 'react';
 import { clsx } from 'clsx';
 import { motion } from 'framer-motion';
+import { Zap } from 'lucide-react';
 
 const SlotGrid = ({ slots, onSlotClick }) => {
     return (
@@ -28,6 +29,13 @@ const SlotGrid = ({ slots, onSlotClick }) => {
                                 "bg-gradient-to-b from-transparent to-brand-yellow"
                     )}></div>
 
+                    {/* EV Charging Badge */}
+                    {slot.isEV && (
+                        <div className="absolute top-2 right-2 p-1 bg-brand-blue/20 text-brand-blue rounded-full border border-brand-blue/30" title="EV Charging Point">
+                            <Zap size={10} className="animate-pulse" />
+                        </div>
+                    )}
+
                     <span className={clsx(
                         "text-2xl font-bold z-10",
                         slot.status === 'free' ? "text-brand-green drop-shadow-[0_0_8px_rgba(0,255,157,0.5)]" :
@@ -37,13 +45,18 @@ const SlotGrid = ({ slots, onSlotClick }) => {
                         {slot.title}
                     </span>
 
-                    <span className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-2 z-10 font-medium">
+                    <span className="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 mt-2 z-10 font-medium flex items-center gap-1">
                         {slot.status}
+                        {slot.isEV && <span className="text-[9px] text-brand-blue">(EV)</span>}
                     </span>
 
                     {slot.status === 'occupied' && (
                         <div className="absolute inset-0 flex items-center justify-center z-20 bg-black/50 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                            <span className="text-xs font-bold text-slate-800 dark:text-white">Occupied<br />{slot.vehicleId || '---'}</span>
+                            <span className="text-xs font-bold text-slate-800 dark:text-white text-center">
+                                {slot.isEV ? '⚡ Charging' : 'Occupied'}
+                                <br />
+                                {slot.vehicleId || '---'}
+                            </span>
                         </div>
                     )}
                 </motion.button>

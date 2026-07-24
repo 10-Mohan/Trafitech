@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Car, CircleParking, BarChart3, Settings, ShieldAlert, History, PieChart, LogOut, User as UserIcon, X, Cpu } from 'lucide-react';
+import React from 'react';
+import { LayoutDashboard, Car, CircleParking, BarChart3, Settings, ShieldAlert, History, PieChart, LogOut, User as UserIcon, X, Cpu, Eye } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,6 +18,7 @@ const Sidebar = () => {
     const navItems = [
         { icon: LayoutDashboard, label: 'Overview', path: '/' },
         { icon: Car, label: 'Traffic Control', path: '/traffic' },
+        { icon: Eye, label: 'Computer Vision', path: '/traffic-cv' },
         { icon: CircleParking, label: 'Smart Parking', path: '/parking' },
         { icon: History, label: 'Booking History', path: '/booking-history' },
         { icon: BarChart3, label: 'Analytics', path: '/analytics' },
