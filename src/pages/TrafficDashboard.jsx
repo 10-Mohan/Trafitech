@@ -250,7 +250,7 @@ const TrafficDashboard = () => {
                         </div>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                             {['N', 'S', 'E', 'W'].map((dir) => {
-                                const labels = { N: 'North Entrance', S: 'South Exit', E: 'East Gate', W: 'West Link' };
+                                const labels = { N: 'North', S: 'South', E: 'East', W: 'West' };
                                 return (
                                     <button
                                         key={dir}
