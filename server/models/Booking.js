@@ -8,7 +8,7 @@ const bookingSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     bookingId: { type: String, required: true, unique: true },
     slotId: { type: String, required: true },
-    parkingZone: { label: String, price: Number },
+    parkingZone: { id: String, label: String, price: Number },
     date: { type: String, required: true },
     startTime: String,
     endTime: String,
@@ -72,6 +72,13 @@ class Booking {
     get totalPrice() { return this.data.totalPrice; }
     get paymentStatus() { return this.data.paymentStatus; }
     get paymentId() { return this.data.paymentId; }
+    get timestamp() { return this.data.timestamp; }
+    get user() { return this.data.user; }
+    get slot() { return this.data.slot; }
+
+    toJSON() {
+        return this.data;
+    }
 
     set paymentStatus(val) {
         this.data.paymentStatus = val;
@@ -83,7 +90,6 @@ class Booking {
 
     async save() {
         if (Booking.isMongoConnected()) {
-            // Mongoose save logic
             const mongoBooking = new MongooseBooking(this.data);
             return await mongoBooking.save();
         }

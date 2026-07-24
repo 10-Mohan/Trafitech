@@ -100,6 +100,10 @@ class User {
         return await bcrypt.compare(candidatePassword, hash);
     }
 
+    toJSON() {
+        return this.data;
+    }
+
     async save() {
         if (User.isMongoConnected()) {
             const mongoUser = new MongooseUser(this.data);

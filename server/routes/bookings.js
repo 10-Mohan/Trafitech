@@ -35,10 +35,10 @@ router.get('/active-slots', async (req, res) => {
     }
 });
 
-// Create a booking with double-booking collision checks
 router.post('/', auth, async (req, res) => {
     try {
-        const { slotId, date, startTime, endTime, parkingZone, duration } = req.body;
+        const { slot, slotId: bodySlotId, date, startTime, endTime, parkingZone, duration } = req.body;
+        const slotId = bodySlotId || slot?.title;
 
         if (!slotId || !date || !startTime || !endTime) {
             return res.status(400).json({ message: 'Missing booking details' });
@@ -68,6 +68,7 @@ router.post('/', auth, async (req, res) => {
 
         const newBooking = new Booking({
             ...req.body,
+            slotId: slotId,
             totalPrice: calculatedPrice,
             user: req.user.id,
             timestamp: new Date()
