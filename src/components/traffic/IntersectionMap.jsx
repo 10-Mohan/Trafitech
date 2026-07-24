@@ -78,8 +78,8 @@ const IntersectionMap = ({ signals, density, emergencySource }) => {
 
             {emergencySource === 'W' && (
                 <motion.div
-                    className="absolute top-[51%] left-0 w-12 h-8 bg-white rounded-md border-2 border-slate-200 z-30 flex items-center justify-between px-1 shadow-[0_0_30px_rgba(239,68,68,0.8)]"
-                    animate={{ x: ['-20%', '120%'] }}
+                    className="absolute top-[51%] w-12 h-8 bg-white rounded-md border-2 border-slate-200 z-30 flex items-center justify-between px-1 shadow-[0_0_30px_rgba(239,68,68,0.8)]"
+                    animate={{ left: ['-15%', '115%'] }}
                     transition={{ duration: 1.1, repeat: Infinity, ease: "linear" }}
                 >
                     <div className="flex flex-col h-full py-1 justify-between">
@@ -92,8 +92,8 @@ const IntersectionMap = ({ signals, density, emergencySource }) => {
 
             {emergencySource === 'E' && (
                 <motion.div
-                    className="absolute top-[47%] left-0 w-12 h-8 bg-white rounded-md border-2 border-slate-200 z-30 flex items-center justify-between px-1 shadow-[0_0_30px_rgba(239,68,68,0.8)] rotate-180"
-                    animate={{ x: ['120%', '-20%'] }}
+                    className="absolute top-[47%] w-12 h-8 bg-white rounded-md border-2 border-slate-200 z-30 flex items-center justify-between px-1 shadow-[0_0_30px_rgba(239,68,68,0.8)] rotate-180"
+                    animate={{ left: ['115%', '-15%'] }}
                     transition={{ duration: 1.1, repeat: Infinity, ease: "linear" }}
                 >
                     <div className="flex flex-col h-full py-1 justify-between">
