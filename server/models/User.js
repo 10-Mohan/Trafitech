@@ -108,6 +108,9 @@ class User {
         if (User.isMongoConnected()) {
             const mongoUser = new MongooseUser(this.data);
             const saved = await mongoUser.save();
+            this.data = saved.toObject ? saved.toObject() : saved;
+            this._id = saved._id;
+            this.data._id = saved._id;
             return saved;
         }
 

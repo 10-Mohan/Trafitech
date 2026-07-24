@@ -91,7 +91,11 @@ class Booking {
     async save() {
         if (Booking.isMongoConnected()) {
             const mongoBooking = new MongooseBooking(this.data);
-            return await mongoBooking.save();
+            const saved = await mongoBooking.save();
+            this.data = saved.toObject ? saved.toObject() : saved;
+            this._id = saved._id;
+            this.data._id = saved._id;
+            return saved;
         }
 
         if (this.data._id) {

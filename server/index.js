@@ -4,8 +4,10 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const SimulationService = require('./utils/SimulationService');
 
+const path = require('path');
+
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const server = require('http').createServer(app);
