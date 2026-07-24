@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Car, CircleParking, BarChart3, Settings, ShieldAlert, History, PieChart, LogOut, User as UserIcon, X, Cpu, Eye } from 'lucide-react';
+import { LayoutDashboard, Car, CircleParking, BarChart3, Settings, ShieldAlert, History, PieChart, LogOut, User as UserIcon, X, Cpu, Eye, Smartphone } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,6 +20,7 @@ const Sidebar = () => {
         { icon: Car, label: 'Traffic Control', path: '/traffic' },
         { icon: Eye, label: 'Computer Vision', path: '/traffic-cv' },
         { icon: CircleParking, label: 'Smart Parking', path: '/parking' },
+        { icon: Smartphone, label: 'Citizen Portal', path: '/citizen-portal' },
         { icon: History, label: 'Booking History', path: '/booking-history' },
         { icon: BarChart3, label: 'Analytics', path: '/analytics' },
         { icon: Cpu, label: 'RAPIDS Analytics', path: '/rapids-analytics' },

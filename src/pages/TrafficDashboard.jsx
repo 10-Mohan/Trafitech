@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Sliders, AlertCircle, ShieldAlert, Bot, Truck, Sun, CloudRain, CloudFog, Leaf } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Sliders, AlertCircle, ShieldAlert, Bot, Truck, Sun, CloudRain, CloudFog, Leaf, Volume2 } from 'lucide-react';
 import IntersectionMap from '../components/traffic/IntersectionMap';
 import SignalControl from '../components/traffic/SignalControl';
 import { clsx } from 'clsx';
@@ -16,9 +16,40 @@ const TrafficDashboard = () => {
     const [durations, setDurations] = useState({ N: 45, S: 45, E: 30, W: 30 });
     const [autoPilot, setAutoPilot] = useState(false);
     
-    // New Features: Weather & CO2 states
+    // New Features: Weather, CO2, Emergency route routing, Voice, and Audit Logs
     const [weather, setWeather] = useState('sunny');
     const [co2Saved, setCo2Saved] = useState(248.52);
+    const [emergencyDir, setEmergencyDir] = useState('N'); // N, S, E, W
+    const [auditLogs, setAuditLogs] = useState([
+        { id: 1, time: '13:20:05', msg: 'System initialized. Autopilot standing by.' }
+    ]);
+    const logContainerRef = useRef(null);
+
+    // Helper to announce alerts using Browser Text-to-Speech
+    const announceVoice = (text) => {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // cancel any ongoing speech
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.05;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+    };
+
+    // Helper to log administrative actions
+    const logAction = (msg) => {
+        const time = new Date().toTimeString().split(' ')[0];
+        setAuditLogs(prev => [
+            ...prev,
+            { id: Date.now(), time, msg }
+        ]);
+        // Auto scroll logs
+        setTimeout(() => {
+            if (logContainerRef.current) {
+                logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+            }
+        }, 100);
+    };
 
     // Simulate flowing traffic densities
     useEffect(() => {
@@ -68,14 +99,36 @@ const TrafficDashboard = () => {
     // Response to global emergency toggle
     useEffect(() => {
         if (emergencyMode) {
-            setSignals({ N: 'green', S: 'green', E: 'red', W: 'red' });
+            const greenSignals = { N: 'red', S: 'red', E: 'red', W: 'red' };
+            if (emergencyDir === 'N' || emergencyDir === 'S') {
+                greenSignals.N = 'green';
+                greenSignals.S = 'green';
+            } else {
+                greenSignals.E = 'green';
+                greenSignals.W = 'green';
+            }
+            setSignals(greenSignals);
             setAutoPilot(false); // Force off autopilot
-            info('EMERGENCY PREEMPTION ACTIVE', 'Clearing North-South corridor for EMT vehicle.');
+            
+            const alertMsg = `Emergency Preemption Corridor Active on ${emergencyDir === 'N' || emergencyDir === 'S' ? 'North-South' : 'East-West'} route.`;
+            info('EMERGENCY PREEMPTION ACTIVE', alertMsg);
+            announceVoice(`Emergency preemption active. Clearing lanes on the ${emergencyDir === 'N' || emergencyDir === 'S' ? 'North South' : 'East West'} corridor.`);
+            logAction(`🚨 EMT CORRIDOR override activated starting from ${emergencyDir === 'N' ? 'North' : emergencyDir === 'S' ? 'South' : emergencyDir === 'E' ? 'East' : 'West'}.`);
         } else {
             setSignals({ N: 'red', S: 'red', E: 'green', W: 'green' });
             info('Emergency Mode Deactivated', 'Resuming normal traffic operations.');
+            announceVoice('Emergency corridor cleared. Resuming standard traffic cycle.');
+            logAction('🍀 Emergency preemption override cleared. Resuming standard cycles.');
         }
     }, [emergencyMode]);
+
+    // Autopilot toggle audit logger
+    const handleAutopilotToggle = () => {
+        const nextState = !autoPilot;
+        setAutoPilot(nextState);
+        logAction(`🤖 Autopilot mode toggled ${nextState ? 'ON' : 'OFF'}.`);
+        announceVoice(`Autopilot mode ${nextState ? 'enabled' : 'disabled'}.`);
+    };
 
     // Weather selector alert
     const handleWeatherChange = (mode) => {
@@ -85,7 +138,14 @@ const TrafficDashboard = () => {
             rainy: 'Rainy Weather: Wet road precaution. Speed limit reduced to 45 km/h.',
             foggy: 'Foggy Weather: Low visibility. Speed limit reduced to 30 km/h. High visibility mode active.'
         };
+        const voiceAnnouncements = {
+            sunny: 'Weather updated to Sunny. Normal speed limits restored.',
+            rainy: 'Warning. Weather updated to Rain. Speed limits reduced to 45 kilometers per hour for wet roads.',
+            foggy: 'Warning. Weather updated to Fog. Visibility low. Speed limits reduced to 30 kilometers per hour.'
+        };
         info('Weather Environment Update', labels[mode]);
+        announceVoice(voiceAnnouncements[mode]);
+        logAction(`🌧️ Weather condition shifted to ${mode.toUpperCase()}. Speed limit calibrated to ${mode === 'sunny' ? '60' : mode === 'rainy' ? '45' : '30'} km/h.`);
     };
 
     // Local handler (triggers global toggle)
@@ -94,26 +154,21 @@ const TrafficDashboard = () => {
     };
 
     const applyOptimization = () => {
-        setDurations(prev => {
-            const newDurations = {
-                ...prev,
-                E: prev.E + 15,
-                W: prev.W + 15
-            };
-            return newDurations;
+        setDurations(prev => ({
+            ...prev,
+            E: prev.E + 15,
+            W: prev.W + 15
+        }));
+
+        setSignals({
+            E: 'green',
+            W: 'green',
+            N: 'red',
+            S: 'red'
         });
 
-        setSignals(prev => {
-            const newSignals = {
-                ...prev,
-                E: 'green',
-                W: 'green',
-                N: 'red',
-                S: 'red'
-            };
-            return newSignals;
-        });
-
+        announceVoice('Applying custom AI corridor optimization.');
+        logAction('💡 AI optimization applied: Increased East-West green cycle phase by 15s.');
         alert('✅ Optimization Applied!\n\n🟢 East-West signals set to GREEN\n⏱️ Duration increased by 15 seconds');
     };
 
@@ -177,12 +232,50 @@ const TrafficDashboard = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Map Visualization */}
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-2 space-y-4">
                     <IntersectionMap
                         signals={signals}
                         density={densities}
-                        emergencySource={emergencyMode ? 'N' : null}
+                        emergencySource={emergencyMode ? emergencyDir : null}
                     />
+
+                    {/* Interactive Emergency Route Selector Simulator */}
+                    <div className="glass-panel p-6 rounded-2xl">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                <Volume2 size={20} className="text-brand-blue" />
+                                Interactive Emergency Dispatcher
+                            </h3>
+                            <span className="text-xs text-slate-500 dark:text-slate-400">Preemption Routing Simulation</span>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {['N', 'S', 'E', 'W'].map((dir) => {
+                                const labels = { N: 'North Entrance', S: 'South Exit', E: 'East Gate', W: 'West Link' };
+                                return (
+                                    <button
+                                        key={dir}
+                                        onClick={() => {
+                                            setEmergencyDir(dir);
+                                            logAction(`Selected ${labels[dir]} corridor route for next emergency dispatch.`);
+                                            if (emergencyMode) {
+                                                // Trigger update dynamically if active
+                                                toggleEmergency();
+                                                setTimeout(() => toggleEmergency(), 100);
+                                            }
+                                        }}
+                                        className={clsx(
+                                            "py-2 px-3 rounded-lg border text-xs font-semibold transition-all",
+                                            emergencyDir === dir
+                                                ? "bg-brand-red/10 border-brand-red text-brand-red"
+                                                : "bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/10"
+                                        )}
+                                    >
+                                        {labels[dir]}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Controls Panel */}
@@ -195,7 +288,7 @@ const TrafficDashboard = () => {
                                 <h3 className="font-bold">Signal Management</h3>
                             </div>
                             <button
-                                onClick={() => setAutoPilot(!autoPilot)}
+                                onClick={handleAutopilotToggle}
                                 className={clsx("flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-bold transition-all", autoPilot ? "bg-brand-blue text-white shadow-lg shadow-brand-blue/30" : "bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/10")}
                             >
                                 <Bot size={16} /> {autoPilot ? "Auto-Pilot ON" : "Auto-Pilot OFF"}
@@ -253,6 +346,18 @@ const TrafficDashboard = () => {
                                 <CloudFog size={16} />
                                 Foggy
                             </button>
+                        </div>
+                    </div>
+
+                    {/* Municipal Activity Audit Logs Terminal Widget */}
+                    <div className="glass-panel p-6 rounded-2xl border border-white/5 bg-slate-950 font-mono text-[10px]">
+                        <h4 className="font-bold text-slate-400 uppercase tracking-widest border-b border-white/10 pb-2 mb-2">Municipal Activity Log</h4>
+                        <div ref={logContainerRef} className="space-y-1.5 h-[100px] overflow-y-auto custom-scrollbar select-text text-slate-300">
+                            {auditLogs.map((log) => (
+                                <p key={log.id} className="leading-tight">
+                                    <span className="text-slate-500">[{log.time}]</span> {log.msg}
+                                </p>
+                            ))}
                         </div>
                     </div>
 

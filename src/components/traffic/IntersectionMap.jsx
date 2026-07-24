@@ -47,18 +47,60 @@ const IntersectionMap = ({ signals, density, emergencySource }) => {
             <div className="absolute left-[34%] bottom-[40%] -rotate-90"><TrafficLight state={signals['W']} /></div>
             <div className="absolute right-[34%] top-[40%] rotate-90"><TrafficLight state={signals['E']} /></div>
 
-            {/* Emergency Vehicle */}
+            {/* Emergency Vehicle - Dynamic preemption corridors */}
             {emergencySource === 'N' && (
                 <motion.div
                     className="absolute top-0 left-[48%] w-8 h-12 bg-white rounded-md border-2 border-slate-200 z-30 flex flex-col items-center justify-between py-1 shadow-[0_0_30px_rgba(239,68,68,0.8)]"
                     animate={{ y: [-50, 600] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
                 >
                     <div className="flex w-full px-1 justify-between">
                         <div className="w-2 h-2 bg-red-500 rounded-full animate-[ping_0.5s_infinite] shadow-[0_0_10px_#ef4444]"></div>
                         <div className="w-2 h-2 bg-blue-500 rounded-full animate-[ping_0.5s_infinite_0.1s] shadow-[0_0_10px_#3b82f6]"></div>
                     </div>
                     <div className="w-4 h-4 text-[8px] font-bold text-red-600 flex items-center justify-center">EMT</div>
+                </motion.div>
+            )}
+
+            {emergencySource === 'S' && (
+                <motion.div
+                    className="absolute bottom-0 right-[48%] w-8 h-12 bg-white rounded-md border-2 border-slate-200 z-30 flex flex-col items-center justify-between py-1 shadow-[0_0_30px_rgba(239,68,68,0.8)] rotate-180"
+                    animate={{ y: [600, -50] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+                >
+                    <div className="flex w-full px-1 justify-between">
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-[ping_0.5s_infinite] shadow-[0_0_10px_#ef4444]"></div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-[ping_0.5s_infinite_0.1s] shadow-[0_0_10px_#3b82f6]"></div>
+                    </div>
+                    <div className="w-4 h-4 text-[8px] font-bold text-red-600 flex items-center justify-center">EMT</div>
+                </motion.div>
+            )}
+
+            {emergencySource === 'E' && (
+                <motion.div
+                    className="absolute top-[48%] right-0 w-12 h-8 bg-white rounded-md border-2 border-slate-200 z-30 flex items-center justify-between px-1 shadow-[0_0_30px_rgba(239,68,68,0.8)] rotate-90"
+                    animate={{ x: [800, -50] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+                >
+                    <div className="flex flex-col h-full py-1 justify-between">
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-[ping_0.5s_infinite] shadow-[0_0_10px_#ef4444]"></div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-[ping_0.5s_infinite_0.1s] shadow-[0_0_10px_#3b82f6]"></div>
+                    </div>
+                    <div className="text-[8px] font-bold text-red-600">EMT</div>
+                </motion.div>
+            )}
+
+            {emergencySource === 'W' && (
+                <motion.div
+                    className="absolute bottom-[48%] left-0 w-12 h-8 bg-white rounded-md border-2 border-slate-200 z-30 flex items-center justify-between px-1 shadow-[0_0_30px_rgba(239,68,68,0.8)] -rotate-90"
+                    animate={{ x: [-50, 800] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+                >
+                    <div className="flex flex-col h-full py-1 justify-between">
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-[ping_0.5s_infinite] shadow-[0_0_10px_#ef4444]"></div>
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-[ping_0.5s_infinite_0.1s] shadow-[0_0_10px_#3b82f6]"></div>
+                    </div>
+                    <div className="text-[8px] font-bold text-red-600">EMT</div>
                 </motion.div>
             )}
 

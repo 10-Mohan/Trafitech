@@ -162,6 +162,14 @@ const TrafficCV = () => {
         { id: Date.now(), msg: randomViolation, time: new Date().toLocaleTimeString() },
         ...prev.slice(0, 4),
       ]);
+
+      // Speech Synthesis announcement
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(`Alert. ${randomViolation}`);
+        utterance.rate = 1.05;
+        window.speechSynthesis.speak(utterance);
+      }
     }, 9000);
 
     return () => clearInterval(timer);

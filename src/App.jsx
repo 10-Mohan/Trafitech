@@ -10,6 +10,7 @@ import ParkingAnalytics from './pages/ParkingAnalytics';
 import BookingHistory from './components/parking/BookingHistory';
 import AcceleratedAnalytics from './pages/AcceleratedAnalytics';
 import TrafficCV from './pages/TrafficCV';
+import CitizenPortal from './pages/CitizenPortal';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import AdminUsers from './pages/AdminUsers';
@@ -45,6 +46,7 @@ function App() {
               <Route path="traffic" element={<TrafficDashboard />} />
               <Route path="traffic-cv" element={<TrafficCV />} />
               <Route path="parking" element={<ParkingDashboard />} />
+              <Route path="citizen-portal" element={<CitizenPortal />} />
               <Route path="analytics" element={<Analytics />} />
               <Route path="rapids-analytics" element={<AcceleratedAnalytics />} />
               <Route path="parking-analytics" element={<ParkingAnalytics />} />
