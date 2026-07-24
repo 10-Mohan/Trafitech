@@ -17,7 +17,7 @@ router.get('/', auth, async (req, res) => {
         });
         res.json(sorted);
     } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err.message });
+        res.status(500).json({ message: err.message || 'Server error', error: err.message });
     }
 });
 
@@ -29,13 +29,15 @@ router.get('/active-slots', async (req, res) => {
         const bookings = await Booking.find({ date: queryDate });
         // Filter by zoneId and active status
         const active = bookings.filter(b => {
-            const hasZoneId = b.data.parkingZone && b.data.parkingZone.id === zoneId;
-            const isActive = b.paymentStatus === 'paid' || b.paymentStatus === 'pending';
+            const bParkingZone = b.parkingZone || b.data?.parkingZone;
+            const bPaymentStatus = b.paymentStatus || b.data?.paymentStatus;
+            const hasZoneId = bParkingZone && bParkingZone.id === zoneId;
+            const isActive = bPaymentStatus === 'paid' || bPaymentStatus === 'pending';
             return hasZoneId && isActive;
         });
         res.json(active);
     } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err.message });
+        res.status(500).json({ message: err.message || 'Server error', error: err.message });
     }
 });
 
@@ -77,6 +79,7 @@ router.post('/', auth, async (req, res) => {
 
         const newBooking = new Booking({
             ...req.body,
+            bookingId: req.body.bookingId || `BK-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
             slotId: slotId,
             totalPrice: calculatedPrice,
             user: req.user.id,
@@ -86,7 +89,7 @@ router.post('/', auth, async (req, res) => {
         const booking = await newBooking.save();
         res.status(201).json(booking.data || booking);
     } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err.message });
+        res.status(500).json({ message: err.message || 'Server error', error: err.message });
     }
 });
 
@@ -129,7 +132,7 @@ router.post('/:id/cancel', auth, async (req, res) => {
         const updated = await booking.save();
         res.json({ message: 'Booking cancelled and refunded successfully', booking: updated.data || updated });
     } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err.message });
+        res.status(500).json({ message: err.message || 'Server error', error: err.message });
     }
 });
 
@@ -144,7 +147,7 @@ router.get('/all', [auth, admin], async (req, res) => {
         });
         res.json(sorted.map(b => b.data || b));
     } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err.message });
+        res.status(500).json({ message: err.message || 'Server error', error: err.message });
     }
 });
 
