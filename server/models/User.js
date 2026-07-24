@@ -78,6 +78,10 @@ class User {
         }
     }
 
+    get _id() {
+        return this.data._id;
+    }
+
     get role() {
         return this.data.role;
     }

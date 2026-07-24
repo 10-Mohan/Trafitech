@@ -62,6 +62,7 @@ class Booking {
         }
     }
 
+    get _id() { return this.data._id; }
     get bookingId() { return this.data.bookingId; }
     get slotId() { return this.data.slotId; }
     get parkingZone() { return this.data.parkingZone; }
