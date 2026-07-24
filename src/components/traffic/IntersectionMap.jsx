@@ -80,7 +80,7 @@ const IntersectionMap = ({ signals, density, emergencySource }) => {
                 <motion.div
                     className="absolute top-[51%] left-0 w-12 h-8 bg-white rounded-md border-2 border-slate-200 z-30 flex items-center justify-between px-1 shadow-[0_0_30px_rgba(239,68,68,0.8)]"
                     animate={{ x: ['-20%', '120%'] }}
-                    transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+                    transition={{ duration: 1.1, repeat: Infinity, ease: "linear" }}
                 >
                     <div className="flex flex-col h-full py-1 justify-between">
                         <div className="w-2 h-2 bg-red-500 rounded-full animate-[ping_0.5s_infinite] shadow-[0_0_10px_#ef4444]"></div>
@@ -94,7 +94,7 @@ const IntersectionMap = ({ signals, density, emergencySource }) => {
                 <motion.div
                     className="absolute top-[47%] left-0 w-12 h-8 bg-white rounded-md border-2 border-slate-200 z-30 flex items-center justify-between px-1 shadow-[0_0_30px_rgba(239,68,68,0.8)] rotate-180"
                     animate={{ x: ['120%', '-20%'] }}
-                    transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+                    transition={{ duration: 1.1, repeat: Infinity, ease: "linear" }}
                 >
                     <div className="flex flex-col h-full py-1 justify-between">
                         <div className="w-2 h-2 bg-red-500 rounded-full animate-[ping_0.5s_infinite] shadow-[0_0_10px_#ef4444]"></div>
