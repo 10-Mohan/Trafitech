@@ -27,6 +27,7 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
                 const booking = await Booking.findById(bookingId);
                 if (booking) {
                     booking.paymentStatus = 'paid';
+                    booking.paymentId = paymentIntent.id; // Record transaction ID for refunds
                     await booking.save();
                 }
             } catch (err) {

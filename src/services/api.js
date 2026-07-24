@@ -52,6 +52,12 @@ export const bookingAPI = {
         });
         return handleResponse(response);
     },
+    getActiveSlots: async (zoneId) => {
+        const response = await fetch(`${API_URL}/bookings/active-slots?zoneId=${zoneId}`, {
+            headers: getHeaders()
+        });
+        return handleResponse(response);
+    },
     create: async (bookingData) => {
         const response = await fetch(`${API_URL}/bookings`, {
             method: 'POST',
@@ -60,11 +66,18 @@ export const bookingAPI = {
         });
         return handleResponse(response);
     },
-    createPaymentIntent: async (amount) => {
+    cancel: async (bookingId) => {
+        const response = await fetch(`${API_URL}/bookings/${bookingId}/cancel`, {
+            method: 'POST',
+            headers: getHeaders()
+        });
+        return handleResponse(response);
+    },
+    createPaymentIntent: async (bookingId) => {
         const response = await fetch(`${API_URL}/payments/create-payment-intent`, {
             method: 'POST',
             headers: getHeaders(),
-            body: JSON.stringify({ amount })
+            body: JSON.stringify({ bookingId })
         });
         return handleResponse(response);
     }

@@ -54,6 +54,17 @@ class JsonDB {
         return newItem;
     }
 
+    async update(id, item) {
+        const data = await this.read();
+        const index = data.findIndex(x => x._id === id);
+        if (index !== -1) {
+            data[index] = { ...data[index], ...item };
+            await this.write(data);
+            return data[index];
+        }
+        return null;
+    }
+
     async findById(id) {
         return this.findOne({ _id: id });
     }

@@ -133,24 +133,61 @@ const ParkingDashboard = () => {
         }
     }, [parkingSpots]);
 
-    // Mock data generator for parking slots (now supports EV charging spots)
+    // Mock data generator fallback for parking slots
     const generateSlots = (zoneId) => {
         const count = 24;
         return Array.from({ length: count }, (_, i) => {
-            const isReserved = Math.random() > 0.8;
-            const isOccupied = Math.random() > 0.6;
-            // Every 4th slot is an EV Charging spot
             const isEV = (i + 1) % 4 === 0;
-            const status = isReserved ? 'reserved' : isOccupied ? 'occupied' : 'free';
-
+            const hash = (zoneId.charCodeAt(0) + i) % 10;
+            const status = hash < 3 ? 'occupied' : 'free';
             return {
                 id: `${zoneId}-${i + 1}`,
                 title: `P-${i + 1}`,
                 status: status,
                 isEV: isEV,
-                vehicleId: status !== 'free' ? `KA-0${Math.floor(Math.random() * 9)}-${1000 + i}` : null
+                vehicleId: status !== 'free' ? `KA-0${(hash % 9) + 1}-${1000 + i}` : null
             };
         });
+    };
+
+    const loadZoneSlots = async (zoneId) => {
+        try {
+            const activeBookings = await bookingAPI.getActiveSlots(zoneId);
+            const count = 24;
+            const generated = Array.from({ length: count }, (_, i) => {
+                const title = `P-${i + 1}`;
+                const isEV = (i + 1) % 4 === 0;
+                
+                // Find if there is an active booking for this slotId
+                const activeBooking = activeBookings.find(b => b.slotId === title);
+                let status = 'free';
+                let vehicleId = null;
+                
+                if (activeBooking) {
+                    status = activeBooking.paymentStatus === 'paid' ? 'occupied' : 'reserved';
+                    vehicleId = activeBooking.vehicleNumber || 'KA-01-MOCK';
+                } else {
+                    // Seed deterministic background cars (30% occupancy)
+                    const hash = (zoneId.charCodeAt(0) + i) % 10;
+                    if (hash < 3) {
+                        status = 'occupied';
+                        vehicleId = `KA-0${(hash % 9) + 1}-${1000 + i}`;
+                    }
+                }
+
+                return {
+                    id: `${zoneId}-${i + 1}`,
+                    title: title,
+                    status: status,
+                    isEV: isEV,
+                    vehicleId: vehicleId
+                };
+            });
+            setSlots(generated);
+        } catch (err) {
+            console.error("Error loading active slots:", err);
+            setSlots(generateSlots(zoneId));
+        }
     };
 
     const [slots, setSlots] = useState([]);
@@ -158,7 +195,7 @@ const ParkingDashboard = () => {
     // Update slots when zone changes
     useEffect(() => {
         if (selectedParkingZone) {
-            setSlots(generateSlots(selectedParkingZone.id));
+            loadZoneSlots(selectedParkingZone.id);
             setSelectedSlot(null); // Reset selection
         }
     }, [selectedParkingZone]);
@@ -214,18 +251,23 @@ const ParkingDashboard = () => {
 
     const handlePaymentSuccess = async (booking) => {
         try {
-            // Save to backend
-            await bookingAPI.create(booking);
+            // Save to backend and retrieve saved object
+            const savedBooking = await bookingAPI.create(booking);
 
             // Update slot status locally
             setSlots(slots.map(s => s.id === selectedSlot.id ? { ...s, status: 'reserved' } : s));
-            setCompletedBooking(booking);
+            setCompletedBooking(savedBooking);
             setShowPaymentModal(false);
 
             notifications.success(
                 'Booking Confirmed!',
                 `Your parking slot ${selectedSlot.title} has been reserved successfully and saved to your account.`
             );
+
+            // Fetch active slots again to show real-time database state
+            if (selectedParkingZone) {
+                loadZoneSlots(selectedParkingZone.id);
+            }
         } catch (err) {
             notifications.error('Booking Failed', err.message || 'Could not save booking to server.');
         }

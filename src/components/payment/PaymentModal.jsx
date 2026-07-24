@@ -23,7 +23,7 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
             // 1. Create Payment Intent on backend
             let clientSecret;
             try {
-                const response = await bookingAPI.createPaymentIntent(booking.totalPrice);
+                const response = await bookingAPI.createPaymentIntent(booking._id || booking.id);
                 clientSecret = response.clientSecret;
             } catch (backendErr) {
                 console.warn("Backend Stripe Error (Using Mock Fallback):", backendErr);

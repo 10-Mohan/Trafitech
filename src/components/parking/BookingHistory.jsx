@@ -29,7 +29,7 @@ const BookingHistory = () => {
         const bookingDateTime = new Date(`${booking.date}T${booking.startTime}`);
         const now = new Date();
 
-        if (booking.cancelled) return 'cancelled';
+        if (booking.cancelled || booking.paymentStatus === 'cancelled' || booking.paymentStatus === 'refunded') return 'cancelled';
         if (bookingDateTime > now) return 'upcoming';
         return 'completed';
     };
@@ -39,12 +39,20 @@ const BookingHistory = () => {
         return getBookingStatus(booking) === filter;
     });
 
-    const cancelBooking = (bookingId) => {
-        const updatedBookings = bookings.map(b =>
-            b.bookingId === bookingId ? { ...b, cancelled: true } : b
-        );
-        setBookings(updatedBookings);
-        localStorage.setItem('parkingBookings', JSON.stringify(updatedBookings));
+    const handleCancel = async (booking) => {
+        if (!window.confirm("Are you sure you want to cancel this booking and request a refund?")) return;
+        try {
+            const id = booking._id || booking.id;
+            await bookingAPI.cancel(id);
+            setBookings(prev => prev.map(b => 
+                (b._id === id || b.bookingId === booking.bookingId) 
+                    ? { ...b, paymentStatus: 'refunded', cancelled: true } 
+                    : b
+            ));
+        } catch (err) {
+            console.error("Cancellation Error:", err);
+            setError(err.message || 'Failed to cancel booking');
+        }
     };
 
     const statusConfig = {
@@ -196,7 +204,7 @@ const BookingHistory = () => {
 
                                     {status === 'upcoming' && !booking.cancelled && (
                                         <button
-                                            onClick={() => cancelBooking(booking.bookingId)}
+                                            onClick={() => handleCancel(booking)}
                                             className="px-4 py-2 bg-red-500/10 text-red-500 text-sm font-medium rounded-lg hover:bg-red-500/20 transition-all"
                                         >
                                             Cancel Booking
