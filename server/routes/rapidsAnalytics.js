@@ -133,8 +133,8 @@ ${corridorsText || '- No active corridor data found.'}
 ${bottlenecksText || '- No severe bottleneck intersections detected.'}
 
 #### 3. AI Diagnostics & Recommendations
-- **Corridor B (Westside Arterial):** Exhibits the highest gridlock risk. Average speed has dropped significantly. The primary causes are high vehicle density and weather variables. I recommend extending the green light phase duration by **at least 18-20 seconds** during the next 4 signal cycles to clear the backlog.
-- **Corridor A (Downtown Express):** Moderate congestion detected. An incremental adjustment of **+8 seconds** of green phase time will optimize the throughput.
+- **West Corridor:** Exhibits the highest gridlock risk. Average speed has dropped significantly. The primary causes are high vehicle density and weather variables. I recommend extending the green light phase duration by **at least 18-20 seconds** during the next 4 signal cycles to clear the backlog.
+- **North Corridor:** Moderate congestion detected. An incremental adjustment of **+8 seconds** of green phase time will optimize the throughput.
 - **Environmental & Carbon Impact:** By implementing these signal overrides, wait times will drop by approximately **18%**, reducing idle-state carbon emissions by an estimated **150 kg of CO2 per hour** across the major junctions.
 - **Action Plan:** The Adaptive Signal Control autopilot is authorized to deploy the green-phase adjustments immediately. 
 

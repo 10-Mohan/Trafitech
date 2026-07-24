@@ -16,11 +16,10 @@ except ImportError:
 
 # Constants for corridors
 CORRIDORS = [
-    'Corridor A (Downtown Express)',
-    'Corridor B (Westside Arterial)',
-    'Corridor C (University Way)',
-    'Corridor D (Industrial Loop)',
-    'Corridor E (Airport Bypass)'
+    'North Corridor',
+    'South Corridor',
+    'East Corridor',
+    'West Corridor'
 ]
 WEATHER_OPTIONS = ['Clear', 'Rainy', 'Foggy']
 
@@ -70,21 +69,18 @@ def generate_telemetry_data(num_rows, output_path):
             # Base speed changes by corridor and hour (rush hours: 8-10 AM, 5-7 PM)
             is_rush = (8 <= hour <= 10) or (17 <= hour <= 19)
             
-            if corridor == 'Corridor A (Downtown Express)':
+            if corridor == 'North Corridor':
                 base_speed = 25 if is_rush else 55
                 base_vol = random.randint(80, 140) if is_rush else random.randint(30, 70)
-            elif corridor == 'Corridor B (Westside Arterial)':
+            elif corridor == 'South Corridor':
                 base_speed = 15 if is_rush else 35
                 base_vol = random.randint(90, 150) if is_rush else random.randint(40, 80)
-            elif corridor == 'Corridor C (University Way)':
+            elif corridor == 'East Corridor':
                 base_speed = 18 if is_rush else 30
                 base_vol = random.randint(60, 110) if is_rush else random.randint(20, 50)
-            elif corridor == 'Corridor D (Industrial Loop)':
+            else: # West Corridor
                 base_speed = 30 if is_rush else 45
                 base_vol = random.randint(50, 90) if is_rush else random.randint(20, 60)
-            else: # Airport Bypass
-                base_speed = 35 if is_rush else 50
-                base_vol = random.randint(70, 120) if is_rush else random.randint(40, 80)
                 
             speed = max(5, int(random.normalvariate(base_speed, 5)))
             volume = max(1, int(random.normalvariate(base_vol, 10)))
