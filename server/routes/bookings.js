@@ -10,7 +10,11 @@ router.get('/', auth, async (req, res) => {
     try {
         const bookings = await Booking.find({ user: req.user.id });
         // Sort manually by timestamp desc for JSON fallback
-        const sorted = bookings.sort((a, b) => new Date(b.data.timestamp || 0) - new Date(a.data.timestamp || 0));
+        const sorted = bookings.sort((a, b) => {
+            const aTime = a.timestamp || a.data?.timestamp || 0;
+            const bTime = b.timestamp || b.data?.timestamp || 0;
+            return new Date(bTime) - new Date(aTime);
+        });
         res.json(sorted);
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
@@ -47,11 +51,16 @@ router.post('/', auth, async (req, res) => {
         // Overlap check
         const bookings = await Booking.find({ slotId, date });
         const hasOverlap = bookings.some(b => {
-            const isOverlap = b.data.startTime < endTime && b.data.endTime > startTime;
-            const isPaid = b.paymentStatus === 'paid';
+            const bStartTime = b.startTime || b.data?.startTime;
+            const bEndTime = b.endTime || b.data?.endTime;
+            const bPaymentStatus = b.paymentStatus || b.data?.paymentStatus;
+            const bTimestamp = b.timestamp || b.data?.timestamp;
+
+            const isOverlap = bStartTime < endTime && bEndTime > startTime;
+            const isPaid = bPaymentStatus === 'paid';
             // Allow recent pending block window (15 minutes) to avoid reservation races
-            const isRecentPending = b.paymentStatus === 'pending' && 
-                (Date.now() - new Date(b.data.timestamp || Date.now()).getTime() < 15 * 60 * 1000);
+            const isRecentPending = bPaymentStatus === 'pending' && 
+                (Date.now() - new Date(bTimestamp || Date.now()).getTime() < 15 * 60 * 1000);
             return isOverlap && (isPaid || isRecentPending);
         });
 
@@ -75,7 +84,7 @@ router.post('/', auth, async (req, res) => {
         });
 
         const booking = await newBooking.save();
-        res.status(201).json(booking.data);
+        res.status(201).json(booking.data || booking);
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
@@ -89,21 +98,24 @@ router.post('/:id/cancel', auth, async (req, res) => {
             return res.status(404).json({ message: 'Booking not found' });
         }
 
-        // Access user field from nested wrapper
-        const userId = booking.data.user;
+        // Access user field from nested wrapper or raw mongoose document
+        const userId = booking.user || booking.data?.user;
         if (userId !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({ message: 'Not authorized to cancel this booking' });
         }
 
-        if (booking.paymentStatus === 'cancelled' || booking.paymentStatus === 'refunded') {
+        const currentPaymentStatus = booking.paymentStatus || booking.data?.paymentStatus;
+        const currentPaymentId = booking.paymentId || booking.data?.paymentId;
+
+        if (currentPaymentStatus === 'cancelled' || currentPaymentStatus === 'refunded') {
             return res.status(400).json({ message: 'Booking is already cancelled' });
         }
 
         // Process refund via Stripe if paid
-        if (booking.paymentStatus === 'paid' && booking.paymentId) {
+        if (currentPaymentStatus === 'paid' && currentPaymentId) {
             try {
                 await stripe.refunds.create({
-                    payment_intent: booking.paymentId
+                    payment_intent: currentPaymentId
                 });
                 booking.paymentStatus = 'refunded';
             } catch (stripeErr) {
@@ -115,7 +127,7 @@ router.post('/:id/cancel', auth, async (req, res) => {
         }
 
         const updated = await booking.save();
-        res.json({ message: 'Booking cancelled and refunded successfully', booking: updated.data });
+        res.json({ message: 'Booking cancelled and refunded successfully', booking: updated.data || updated });
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
@@ -125,8 +137,12 @@ router.post('/:id/cancel', auth, async (req, res) => {
 router.get('/all', [auth, admin], async (req, res) => {
     try {
         const bookings = await Booking.find({});
-        const sorted = bookings.sort((a, b) => new Date(b.data.timestamp || 0) - new Date(a.data.timestamp || 0));
-        res.json(sorted.map(b => b.data));
+        const sorted = bookings.sort((a, b) => {
+            const aTime = a.timestamp || a.data?.timestamp || 0;
+            const bTime = b.timestamp || b.data?.timestamp || 0;
+            return new Date(bTime) - new Date(aTime);
+        });
+        res.json(sorted.map(b => b.data || b));
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }

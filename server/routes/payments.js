@@ -20,12 +20,12 @@ router.post('/create-payment-intent', auth, async (req, res) => {
         }
 
         // Ensure user owns the booking
-        const userId = booking.data.user;
+        const userId = booking.user || booking.data?.user;
         if (userId !== req.user.id) {
             return res.status(403).json({ message: 'Unauthorized access to this booking' });
         }
 
-        const totalPrice = booking.data.totalPrice || 50;
+        const totalPrice = booking.totalPrice || booking.data?.totalPrice || 50;
 
         const paymentIntent = await stripe.paymentIntents.create({
             amount: Math.round(Number(totalPrice) * 100), // Secure verified amount
