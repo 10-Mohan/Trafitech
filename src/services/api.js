@@ -2,6 +2,13 @@ const API_URL = '/api';
 
 const handleResponse = async (response) => {
     if (!response.ok) {
+        if (response.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            if (typeof window !== 'undefined') {
+                window.location.href = '/login';
+            }
+        }
         const errorData = await response.json();
         throw new Error(errorData.message || 'Something went wrong');
     }
