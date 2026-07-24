@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Calendar, CheckCircle2, CircleParking, Navigation, MapPin, Loader2 } from 'lucide-react';
+import { CreditCard, Calendar, CheckCircle2, CircleParking, Navigation, MapPin, Loader2, Zap } from 'lucide-react';
 import SlotGrid from '../components/parking/SlotGrid';
 import RouteOptimizer from '../components/parking/RouteOptimizer';
 import BookingModal from '../components/parking/BookingModal';
