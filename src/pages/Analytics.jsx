@@ -1,6 +1,6 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
-import { TrendingUp, Award, Download } from 'lucide-react';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
+import { TrendingUp, Award, Download, Leaf } from 'lucide-react';
 
 const data = [
     { time: '08:00', vehicles: 400, parking: 240 },
@@ -10,6 +10,16 @@ const data = [
     { time: '16:00', vehicles: 1100, parking: 90 },
     { time: '18:00', vehicles: 1400, parking: 20 },
     { time: '20:00', vehicles: 600, parking: 300 },
+];
+
+const co2ComparisonData = [
+    { day: 'Mon', cpuEmissions: 1420, gpuEmissions: 980 },
+    { day: 'Tue', cpuEmissions: 1480, gpuEmissions: 910 },
+    { day: 'Wed', cpuEmissions: 1530, gpuEmissions: 950 },
+    { day: 'Thu', cpuEmissions: 1390, gpuEmissions: 840 },
+    { day: 'Fri', cpuEmissions: 1610, gpuEmissions: 1020 },
+    { day: 'Sat', cpuEmissions: 1100, gpuEmissions: 680 },
+    { day: 'Sun', cpuEmissions: 1050, gpuEmissions: 620 },
 ];
 
 const parkingStats = [
@@ -22,11 +32,11 @@ const parkingStats = [
 const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-white dark:bg-brand-dark/90 p-3 rounded-lg border border-slate-200 dark:border-white/10 shadow-xl backdrop-blur-md">
-                <p className="text-slate-600 dark:text-slate-300 font-medium mb-2">{label}</p>
+            <div className="bg-white dark:bg-brand-dark/95 p-3 rounded-lg border border-slate-200 dark:border-white/10 shadow-xl backdrop-blur-md text-xs">
+                <p className="text-slate-600 dark:text-slate-300 font-bold mb-2">{label}</p>
                 {payload.map((p, index) => (
-                    <div key={index} className="text-sm" style={{ color: p.color }}>
-                        {p.name}: <span className="font-bold">{p.value}</span>
+                    <div key={index} className="text-sm font-semibold" style={{ color: p.color }}>
+                        {p.name}: <span className="font-bold">{p.value} {p.name.includes('Emissions') ? 'kg' : ''}</span>
                     </div>
                 ))}
             </div>
@@ -58,8 +68,8 @@ const Analytics = () => {
                             Traffic vs Parking Trends (24h)
                         </h3>
                         <div className="flex gap-2">
-                            <span className="text-xs px-2 py-1 rounded bg-brand-blue/10 text-brand-blue">Traffic Flow</span>
-                            <span className="text-xs px-2 py-1 rounded bg-brand-purple/10 text-brand-purple">Parking Availability</span>
+                            <span className="text-xs px-2 py-1 rounded bg-brand-blue/10 text-brand-blue font-bold">Traffic Flow</span>
+                            <span className="text-xs px-2 py-1 rounded bg-brand-purple/10 text-brand-purple font-bold">Parking Availability</span>
                         </div>
                     </div>
                     <div className="h-[300px] w-full">
@@ -72,6 +82,7 @@ const Analytics = () => {
                                 <Line
                                     type="monotone"
                                     dataKey="vehicles"
+                                    name="Vehicles Count"
                                     stroke="#00f3ff"
                                     strokeWidth={3}
                                     dot={{ r: 4, fill: '#0a0f1c', strokeWidth: 2 }}
@@ -80,12 +91,68 @@ const Analytics = () => {
                                 <Line
                                     type="monotone"
                                     dataKey="parking"
+                                    name="Available Spots"
                                     stroke="#bc13fe"
                                     strokeWidth={3}
                                     dot={{ r: 4, fill: '#0a0f1c', strokeWidth: 2 }}
                                     activeDot={{ r: 6, fill: '#bc13fe' }}
                                 />
                             </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* GPU vs CPU Carbon Offset Area Chart */}
+                <div className="glass-panel p-6 rounded-2xl col-span-1 lg:col-span-2">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <Leaf size={20} className="text-brand-green" />
+                            GPU Autopilot vs CPU Carbon Offset Analysis (Weekly)
+                        </h3>
+                        <div className="flex gap-2">
+                            <span className="text-xs px-2 py-1 rounded bg-slate-500/10 text-slate-400 font-bold">CPU Scheduling</span>
+                            <span className="text-xs px-2 py-1 rounded bg-brand-green/10 text-brand-green font-bold">GPU Autopilot</span>
+                        </div>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
+                        Compares total simulated CO₂ emissions generated under standard timer signal plans (CPU) against real-time queue length optimizations (NVIDIA cuDF Autopilot).
+                    </p>
+                    <div className="h-[280px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={co2ComparisonData}>
+                                <defs>
+                                    <linearGradient id="colorCpu" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#64748b" stopOpacity={0.2}/>
+                                        <stop offset="95%" stopColor="#64748b" stopOpacity={0}/>
+                                    </linearGradient>
+                                    <linearGradient id="colorGpu" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                                <XAxis dataKey="day" stroke="#64748b" tick={{ fontSize: 12 }} />
+                                <YAxis stroke="#64748b" tick={{ fontSize: 12 }} />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Area
+                                    type="monotone"
+                                    dataKey="cpuEmissions"
+                                    name="CPU Emissions"
+                                    stroke="#64748b"
+                                    strokeWidth={2}
+                                    fillOpacity={1}
+                                    fill="url(#colorCpu)"
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="gpuEmissions"
+                                    name="GPU Emissions"
+                                    stroke="#22c55e"
+                                    strokeWidth={3}
+                                    fillOpacity={1}
+                                    fill="url(#colorGpu)"
+                                />
+                            </AreaChart>
                         </ResponsiveContainer>
                     </div>
                 </div>

@@ -306,6 +306,77 @@ const ParkingDashboard = () => {
                 )}
             </div>
 
+            {/* Sector Heatmap Panel */}
+            <div className="glass-panel p-6 rounded-2xl">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <Navigation size={20} className="text-brand-purple animate-pulse" />
+                        Macro Parking Occupancy Sector Heatmap
+                    </h3>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">City-Wide Sector Analytics</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[
+                        { name: 'Downtown Sector', occupancy: 82, slots: '246/300', status: 'high' },
+                        { name: 'Business District', occupancy: 45, slots: '180/400', status: 'optimal' },
+                        { name: 'Airport Gate', occupancy: 90, slots: '450/500', status: 'critical' },
+                        { name: 'University Campus', occupancy: 30, slots: '60/200', status: 'free' },
+                    ].map((sec, idx) => (
+                        <div
+                            key={idx}
+                            className={clsx(
+                                "p-4 rounded-xl border flex flex-col justify-between space-y-3 relative overflow-hidden transition-all",
+                                sec.status === 'critical' && "bg-red-500/5 border-red-500/20",
+                                sec.status === 'high' && "bg-amber-500/5 border-amber-500/20",
+                                sec.status === 'optimal' && "bg-brand-blue/5 border-brand-blue/20",
+                                sec.status === 'free' && "bg-brand-green/5 border-brand-green/20"
+                            )}
+                        >
+                            <div className="flex justify-between items-start">
+                                <h4 className="font-bold text-slate-800 dark:text-white text-sm leading-tight">{sec.name}</h4>
+                                <span className={clsx(
+                                    "w-2.5 h-2.5 rounded-full",
+                                    sec.status === 'critical' && "bg-red-500 shadow-[0_0_8px_#ef4444] animate-pulse",
+                                    sec.status === 'high' && "bg-amber-500 shadow-[0_0_8px_#f59e0b]",
+                                    sec.status === 'optimal' && "bg-brand-blue shadow-[0_0_8px_#00f3ff]",
+                                    sec.status === 'free' && "bg-brand-green shadow-[0_0_8px_#22c55e]"
+                                )}></span>
+                            </div>
+                            <div className="space-y-1">
+                                <div className="flex justify-between items-end text-xs">
+                                    <span className="text-slate-500 dark:text-slate-400">Occupancy:</span>
+                                    <span className={clsx(
+                                        "font-black text-sm font-mono",
+                                        sec.status === 'critical' && "text-red-500",
+                                        sec.status === 'high' && "text-amber-500",
+                                        sec.status === 'optimal' && "text-brand-blue",
+                                        sec.status === 'free' && "text-brand-green"
+                                    )}>
+                                        {sec.occupancy}%
+                                    </span>
+                                </div>
+                                <div className="w-full bg-slate-200 dark:bg-white/10 h-1.5 rounded-full overflow-hidden">
+                                    <div
+                                        className={clsx(
+                                            "h-full rounded-full transition-all duration-1000",
+                                            sec.status === 'critical' && "bg-red-500",
+                                            sec.status === 'high' && "bg-amber-500",
+                                            sec.status === 'optimal' && "bg-brand-blue",
+                                            sec.status === 'free' && "bg-brand-green"
+                                        )}
+                                        style={{ width: `${sec.occupancy}%` }}
+                                    ></div>
+                                </div>
+                            </div>
+                            <div className="flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 border-t border-slate-200/50 dark:border-white/5 pt-2">
+                                <span>Total Slots:</span>
+                                <span className="font-semibold font-mono">{sec.slots}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
             {/* Nearby Parking Zones */}
             {parkingSpots.length > 0 && (
                 <div className="glass-panel p-6 rounded-2xl">

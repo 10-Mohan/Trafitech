@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sliders, AlertCircle, ShieldAlert, Bot, Truck, Sun, CloudRain, CloudFog, Leaf, Volume2 } from 'lucide-react';
+import { Sliders, AlertCircle, ShieldAlert, Bot, Truck, Sun, CloudRain, CloudFog, Leaf, Volume2, Wifi, RefreshCw } from 'lucide-react';
 import IntersectionMap from '../components/traffic/IntersectionMap';
 import SignalControl from '../components/traffic/SignalControl';
 import { clsx } from 'clsx';
@@ -25,6 +25,17 @@ const TrafficDashboard = () => {
     ]);
     const logContainerRef = useRef(null);
 
+    // Interactive IoT Sensor Diagnostic Grid State
+    const [sensors, setSensors] = useState([
+        { id: 'SEN-N1', loc: 'North Lanes', status: 'active', ping: 12 },
+        { id: 'SEN-S1', loc: 'South Lanes', status: 'active', ping: 15 },
+        { id: 'SEN-E1', loc: 'East Lanes', status: 'alert', ping: 184 },
+        { id: 'SEN-W1', loc: 'West Lanes', status: 'active', ping: 9 },
+        { id: 'CAM-CV1', loc: 'Intersection CV', status: 'active', ping: 22 },
+        { id: 'CAM-CV2', loc: 'Loop Speed Cam', status: 'active', ping: 28 },
+    ]);
+    const [pingingAll, setPingingAll] = useState(false);
+
     // Helper to announce alerts using Browser Text-to-Speech
     const announceVoice = (text) => {
         if ('speechSynthesis' in window) {
@@ -49,6 +60,41 @@ const TrafficDashboard = () => {
                 logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
             }
         }, 100);
+    };
+
+    // Sensor ping handler
+    const pingSensor = (id) => {
+        setSensors(prev => prev.map(s => {
+            if (s.id === id) {
+                return { ...s, ping: '...' };
+            }
+            return s;
+        }));
+        setTimeout(() => {
+            setSensors(prev => prev.map(s => {
+                if (s.id === id) {
+                    const status = Math.random() > 0.05 ? 'active' : 'alert';
+                    return { ...s, status, ping: Math.floor(Math.random() * 25) + 5 };
+                }
+                return s;
+            }));
+            logAction(`📡 Diagnosed sensor node ${id} — operational.`);
+        }, 800);
+    };
+
+    // Ping all sensors handler
+    const pingAllSensors = () => {
+        setPingingAll(true);
+        setSensors(prev => prev.map(s => ({ ...s, ping: '...' })));
+        setTimeout(() => {
+            setSensors(prev => prev.map(s => {
+                const status = Math.random() > 0.05 ? 'active' : 'alert';
+                return { ...s, status, ping: Math.floor(Math.random() * 25) + 5 };
+            }));
+            setPingingAll(false);
+            logAction(`📡 Diagnostic complete: All active IoT sensor nodes pinged successfully.`);
+            announceVoice("All intersection sensors calibrated successfully.");
+        }, 1500);
     };
 
     // Simulate flowing traffic densities
@@ -274,6 +320,50 @@ const TrafficDashboard = () => {
                                     </button>
                                 );
                             })}
+                        </div>
+                    </div>
+
+                    {/* Interactive IoT Sensor Grid Diagnostic Panel */}
+                    <div className="glass-panel p-6 rounded-2xl">
+                        <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center gap-2 text-brand-blue">
+                                <Wifi size={20} />
+                                <h3 className="font-bold">IoT Sensor Calibration Console</h3>
+                            </div>
+                            <button
+                                onClick={pingAllSensors}
+                                disabled={pingingAll}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-blue/10 text-brand-blue hover:bg-brand-blue/20 transition-all disabled:opacity-50"
+                            >
+                                <RefreshCw size={12} className={clsx(pingingAll && "animate-spin")} />
+                                Ping All Nodes
+                            </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {sensors.map((sensor) => (
+                                <div key={sensor.id} className="p-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex flex-col justify-between space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[10px] font-mono font-bold text-slate-400">{sensor.id}</span>
+                                        <span className={clsx(
+                                            "w-2 h-2 rounded-full",
+                                            sensor.status === 'active' ? "bg-brand-green shadow-[0_0_6px_#22c55e]" : "bg-brand-yellow shadow-[0_0_6px_#eab308]"
+                                        )}></span>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-800 dark:text-white leading-tight">{sensor.loc}</p>
+                                        <p className="text-[10px] text-slate-500 font-mono mt-1">
+                                            Ping: <span className="font-bold">{sensor.ping === '...' ? '...' : `${sensor.ping}ms`}</span>
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={() => pingSensor(sensor.id)}
+                                        className="py-1 w-full bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-[9px] font-bold text-slate-600 dark:text-slate-300 rounded border border-slate-200 dark:border-white/5 transition-all"
+                                    >
+                                        Test Node
+                                    </button>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
