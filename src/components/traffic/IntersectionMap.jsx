@@ -50,8 +50,8 @@ const IntersectionMap = ({ signals, density, emergencySource }) => {
             {/* Emergency Vehicle - Dynamic preemption corridors */}
             {emergencySource === 'N' && (
                 <motion.div
-                    className="absolute top-0 left-[48%] w-8 h-12 bg-white rounded-md border-2 border-slate-200 z-30 flex flex-col items-center justify-between py-1 shadow-[0_0_30px_rgba(239,68,68,0.8)]"
-                    animate={{ y: [-50, 600] }}
+                    className="absolute top-0 left-[47%] w-8 h-12 bg-white rounded-md border-2 border-slate-200 z-30 flex flex-col items-center justify-between py-1 shadow-[0_0_30px_rgba(239,68,68,0.8)]"
+                    animate={{ y: [-80, 580] }}
                     transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
                 >
                     <div className="flex w-full px-1 justify-between">
@@ -64,8 +64,8 @@ const IntersectionMap = ({ signals, density, emergencySource }) => {
 
             {emergencySource === 'S' && (
                 <motion.div
-                    className="absolute bottom-0 right-[48%] w-8 h-12 bg-white rounded-md border-2 border-slate-200 z-30 flex flex-col items-center justify-between py-1 shadow-[0_0_30px_rgba(239,68,68,0.8)] rotate-180"
-                    animate={{ y: [600, -50] }}
+                    className="absolute top-0 left-[51%] w-8 h-12 bg-white rounded-md border-2 border-slate-200 z-30 flex flex-col items-center justify-between py-1 shadow-[0_0_30px_rgba(239,68,68,0.8)] rotate-180"
+                    animate={{ y: [580, -80] }}
                     transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
                 >
                     <div className="flex w-full px-1 justify-between">
@@ -76,10 +76,10 @@ const IntersectionMap = ({ signals, density, emergencySource }) => {
                 </motion.div>
             )}
 
-            {emergencySource === 'E' && (
+            {emergencySource === 'W' && (
                 <motion.div
-                    className="absolute top-[48%] right-0 w-12 h-8 bg-white rounded-md border-2 border-slate-200 z-30 flex items-center justify-between px-1 shadow-[0_0_30px_rgba(239,68,68,0.8)] rotate-90"
-                    animate={{ x: [800, -50] }}
+                    className="absolute top-[51%] left-0 w-12 h-8 bg-white rounded-md border-2 border-slate-200 z-30 flex items-center justify-between px-1 shadow-[0_0_30px_rgba(239,68,68,0.8)]"
+                    animate={{ x: ['-20%', '120%'] }}
                     transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
                 >
                     <div className="flex flex-col h-full py-1 justify-between">
@@ -90,10 +90,10 @@ const IntersectionMap = ({ signals, density, emergencySource }) => {
                 </motion.div>
             )}
 
-            {emergencySource === 'W' && (
+            {emergencySource === 'E' && (
                 <motion.div
-                    className="absolute bottom-[48%] left-0 w-12 h-8 bg-white rounded-md border-2 border-slate-200 z-30 flex items-center justify-between px-1 shadow-[0_0_30px_rgba(239,68,68,0.8)] -rotate-90"
-                    animate={{ x: [-50, 800] }}
+                    className="absolute top-[47%] left-0 w-12 h-8 bg-white rounded-md border-2 border-slate-200 z-30 flex items-center justify-between px-1 shadow-[0_0_30px_rgba(239,68,68,0.8)] rotate-180"
+                    animate={{ x: ['120%', '-20%'] }}
                     transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
                 >
                     <div className="flex flex-col h-full py-1 justify-between">
