@@ -31,25 +31,6 @@ const Sidebar = () => {
 
     const filteredNavItems = navItems.filter(item => !item.adminOnly || user.role === 'admin');
 
-    const [deferredPrompt, setDeferredPrompt] = React.useState(null);
-
-    React.useEffect(() => {
-        const handler = (e) => {
-            e.preventDefault();
-            setDeferredPrompt(e);
-        };
-        window.addEventListener('beforeinstallprompt', handler);
-        return () => window.removeEventListener('beforeinstallprompt', handler);
-    }, []);
-
-    const handleInstallClick = async () => {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            setDeferredPrompt(null);
-        }
-    };
 
     return (
         <>
@@ -127,25 +108,6 @@ const Sidebar = () => {
                 </nav>
 
                 <div className="mt-auto px-6 w-full space-y-4 pt-6">
-                    <motion.button
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        onClick={() => {
-                            if (deferredPrompt) {
-                                handleInstallClick();
-                            } else {
-                                alert("PWA Installation is not ready yet.\n\nMake sure you are accessing the site via 'localhost' natively, and not a network IP. The browser must fully register the Service Worker before this button activates!");
-                            }
-                        }}
-                        className={clsx(
-                            "w-full py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-lg",
-                            deferredPrompt
-                                ? "bg-gradient-to-r from-brand-blue to-brand-purple text-white shadow-brand-blue/20 hover:shadow-brand-blue/40"
-                                : "bg-slate-200 dark:bg-slate-800 text-slate-500 cursor-not-allowed opacity-70"
-                        )}
-                    >
-                        {deferredPrompt ? "Install App" : "App Install Pending..."}
-                    </motion.button>
 
                     <div className="glass-card p-4 rounded-xl border-slate-100 dark:border-white/5 space-y-4">
                         <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-white/5">
