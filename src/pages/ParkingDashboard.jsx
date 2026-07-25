@@ -157,8 +157,13 @@ const ParkingDashboard = () => {
         });
     };
 
+    const [slots, setSlots] = useState(() => generateSlots('mall'));
+
     const loadZoneSlots = async (zoneId) => {
         const safeZoneId = (typeof zoneId === 'string' && zoneId) ? zoneId : 'mall';
+        // Pre-fill slots if currently empty or zone switched
+        setSlots(generateSlots(safeZoneId));
+
         try {
             const res = await bookingAPI.getActiveSlots(safeZoneId);
             const activeBookings = Array.isArray(res) ? res : [];
@@ -171,7 +176,7 @@ const ParkingDashboard = () => {
                 // Find if there is an active booking for this slotId
                 const activeBooking = activeBookings.find(b => {
                     const bSlotId = b?.slotId || b?.data?.slotId;
-                    return bSlotId === title || bSlotId === slotId || bSlotId === `${safeZoneId}_${title}`;
+                    return bSlotId === title || bSlotId === slotId || bSlotId === `${safeZoneId}_${title}` || bSlotId === `${safeZoneId}-${title}`;
                 });
                 
                 let status = 'free';
@@ -200,12 +205,10 @@ const ParkingDashboard = () => {
             });
             setSlots(generated);
         } catch (err) {
-            console.error("Error loading active slots:", err);
+            console.warn("Could not load real-time active slots from server, using local zone state:", err.message);
             setSlots(generateSlots(safeZoneId));
         }
     };
-
-    const [slots, setSlots] = useState([]);
 
     // Update slots when zone changes
     useEffect(() => {

@@ -37,7 +37,9 @@ router.get('/active-slots', auth, async (req, res) => {
         const bookings = await Booking.find({ date: queryDate });
         // Filter by zoneId and active status
         const active = bookings.map(toPlain).filter(b => {
-            const hasZoneId = b.parkingZone && b.parkingZone.id === zoneId;
+            const bZone = b.parkingZone;
+            const bZoneId = typeof bZone === 'string' ? bZone : (bZone?.id || '');
+            const hasZoneId = !zoneId || bZoneId === zoneId;
             const isActive = b.paymentStatus === 'paid' || b.paymentStatus === 'pending' || b.paymentStatus === 'completed';
             return hasZoneId && isActive;
         });
