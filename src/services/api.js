@@ -49,6 +49,12 @@ export const authAPI = {
     logout: () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+    },
+    getUsers: async () => {
+        const response = await fetch(`${API_URL}/auth`, {
+            headers: getHeaders()
+        });
+        return handleResponse(response);
     }
 };
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, ShieldAlert, User, Mail, Calendar, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { authAPI } from '../services/api';
 
 const AdminUsers = () => {
     const [users, setUsers] = useState([]);
@@ -13,16 +14,8 @@ const AdminUsers = () => {
 
     const fetchUsers = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/auth`, {
-                headers: {
-                    'x-auth-token': token
-                }
-            });
-            const data = await response.json();
-            if (response.ok) {
-                setUsers(data);
-            }
+            const data = await authAPI.getUsers();
+            setUsers(data);
         } catch (err) {
             console.error('Error fetching users:', err);
         } finally {
@@ -72,12 +65,6 @@ const AdminUsers = () => {
                             transition={{ delay: index * 0.05 }}
                             className="glass-card p-6 rounded-3xl border border-slate-100 dark:border-white/5 hover:border-brand-purple/30 transition-all group relative overflow-hidden"
                         >
-                            <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-2 bg-brand-purple/10 text-brand-purple rounded-xl hover:bg-brand-purple/20 transition-all">
-                                    Edit Role
-                                </button>
-                            </div>
-
                             <div className="flex items-start gap-4">
                                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border transition-all ${user.role === 'admin' ? 'bg-brand-purple/10 border-brand-purple/20 text-brand-purple' : 'bg-brand-blue/10 border-brand-blue/20 text-brand-blue'}`}>
                                     {user.role === 'admin' ? <Shield size={28} /> : <User size={28} />}
