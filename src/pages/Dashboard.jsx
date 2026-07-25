@@ -1,5 +1,6 @@
 import React from 'react';
-import { Activity, Car, CircleParking, AlertTriangle, TrendingUp, Lightbulb, MapPin, Navigation, Leaf } from 'lucide-react';
+import { Activity, Car, CircleParking, AlertTriangle, TrendingUp, Lightbulb, MapPin, Navigation, Leaf, ShieldAlert, Users, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import LiveCityMap from '../components/traffic/LiveCityMap';
 import { useNotifications } from '../components/notifications/NotificationSystem';
 
@@ -29,6 +30,8 @@ const StatCard = ({ icon: Icon, title, value, subtext, color, trend }) => (
 const Dashboard = () => {
     const [time, setTime] = React.useState(new Date());
     const { success, info } = useNotifications();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const isAdmin = user.role === 'admin';
 
     React.useEffect(() => {
         const timer = setInterval(() => setTime(new Date()), 1000);
@@ -47,6 +50,63 @@ const Dashboard = () => {
                     <p className="text-xl font-mono text-brand-blue">{time.toLocaleTimeString()}</p>
                 </div>
             </div>
+
+            {/* Admin Exclusive Command Hub Banner */}
+            {isAdmin && (
+                <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-950/60 via-purple-900/40 to-indigo-950/60 border border-purple-500/40 shadow-xl space-y-4 animate-in fade-in slide-in-from-top-4">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-purple-500/20">
+                        <div className="flex items-center gap-3">
+                            <div className="p-3 bg-purple-500/20 text-purple-400 rounded-xl border border-purple-500/30">
+                                <ShieldAlert size={24} />
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-purple-500 text-white tracking-widest shadow-[0_0_10px_rgba(168,85,247,0.5)]">
+                                        Admin Control Active
+                                    </span>
+                                    <span className="text-xs text-purple-300 font-mono">Logged in as {user.username || 'Administrator'}</span>
+                                </div>
+                                <h3 className="text-lg font-bold text-white mt-1">Municipal Traffic Administration Console</h3>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Link
+                                to="/admin-users"
+                                className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-purple-500/30 flex items-center gap-2"
+                            >
+                                <Users size={14} />
+                                Manage All Users
+                                <ArrowRight size={14} />
+                            </Link>
+                            <button
+                                onClick={() => success('System Diagnostic', 'All 12 intersection nodes operational. Database connection active.')}
+                                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition-all border border-white/10"
+                            >
+                                System Health Check
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                        <div className="p-2.5 rounded-lg bg-black/30 border border-purple-500/20">
+                            <p className="text-purple-300 font-mono text-[10px] uppercase">Access Privileges</p>
+                            <p className="font-bold text-white mt-0.5">Super Administrator</p>
+                        </div>
+                        <div className="p-2.5 rounded-lg bg-black/30 border border-purple-500/20">
+                            <p className="text-purple-300 font-mono text-[10px] uppercase">User Management</p>
+                            <p className="font-bold text-white mt-0.5">Full CRUD & Permissions</p>
+                        </div>
+                        <div className="p-2.5 rounded-lg bg-black/30 border border-purple-500/20">
+                            <p className="text-purple-300 font-mono text-[10px] uppercase">Signal Control</p>
+                            <p className="font-bold text-white mt-0.5">SOS Emergency Corridor</p>
+                        </div>
+                        <div className="p-2.5 rounded-lg bg-black/30 border border-purple-500/20">
+                            <p className="text-purple-300 font-mono text-[10px] uppercase">Database Pipeline</p>
+                            <p className="font-bold text-white mt-0.5">Active Live Stream</p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* AI Optimization Banner */}
             <div className="p-4 rounded-2xl bg-gradient-to-r from-brand-blue/15 via-purple-500/10 to-brand-green/15 border border-brand-blue/30 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
