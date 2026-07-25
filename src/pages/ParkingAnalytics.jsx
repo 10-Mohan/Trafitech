@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { TrendingUp, Clock, MapPin, DollarSign, Users, Calendar } from 'lucide-react';
+import { TrendingUp, Clock, MapPin, DollarSign, Users, Calendar, Download } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const ParkingAnalytics = () => {
@@ -12,6 +12,26 @@ const ParkingAnalytics = () => {
         const mockData = generateAnalyticsData(dateRange);
         setAnalytics(mockData);
     }, [dateRange]);
+
+    const handleExportCSV = () => {
+        if (!analytics) return;
+        let csvContent = "data:text/csv;charset=utf-8,Zone Name,Bookings\n";
+        analytics.zoneData.forEach(z => {
+            csvContent += `"${z.name}",${z.bookings}\n`;
+        });
+        csvContent += "\nPeak Hour,Bookings\n";
+        analytics.peakHours.forEach(p => {
+            csvContent += `"${p.hour}",${p.bookings}\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `traffitech_analytics_${dateRange}_report.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     if (!analytics) return null;
 
@@ -26,22 +46,32 @@ const ParkingAnalytics = () => {
                     <p className="text-slate-500 dark:text-slate-400 mt-1">Insights and trends for parking usage</p>
                 </div>
 
-                {/* Date Range Selector */}
-                <div className="flex gap-2">
-                    {['week', 'month', 'year'].map((range) => (
-                        <button
-                            key={range}
-                            onClick={() => setDateRange(range)}
-                            className={clsx(
-                                "px-4 py-2 rounded-lg font-medium text-sm transition-all capitalize",
-                                dateRange === range
-                                    ? "bg-brand-blue text-brand-dark"
-                                    : "bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/10"
-                            )}
-                        >
-                            {range}
-                        </button>
-                    ))}
+                {/* Date Range Selector & Export Button */}
+                <div className="flex gap-3">
+                    <div className="flex gap-2">
+                        {['week', 'month', 'year'].map((range) => (
+                            <button
+                                key={range}
+                                onClick={() => setDateRange(range)}
+                                className={clsx(
+                                    "px-4 py-2 rounded-lg font-medium text-sm transition-all capitalize",
+                                    dateRange === range
+                                        ? "bg-brand-blue text-brand-dark font-bold"
+                                        : "bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/10"
+                                )}
+                            >
+                                {range}
+                            </button>
+                        ))}
+                    </div>
+
+                    <button
+                        onClick={handleExportCSV}
+                        className="px-4 py-2 bg-gradient-to-r from-brand-blue to-brand-purple text-white font-bold text-sm rounded-lg hover:shadow-brand-blue/20 shadow-lg flex items-center gap-2 transition-all"
+                    >
+                        <Download size={16} />
+                        Export CSV
+                    </button>
                 </div>
             </div>
 

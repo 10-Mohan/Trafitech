@@ -48,6 +48,30 @@ const Dashboard = () => {
                 </div>
             </div>
 
+            {/* AI Optimization Banner */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-brand-blue/15 via-purple-500/10 to-brand-green/15 border border-brand-blue/30 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="p-3 bg-brand-blue/20 text-brand-blue rounded-xl animate-pulse">
+                        <TrendingUp size={22} />
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-brand-blue text-brand-dark tracking-widest">AI Recommendation</span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">Central Junction • 98.4% Confidence</span>
+                        </div>
+                        <p className="text-sm font-semibold text-slate-800 dark:text-white mt-1">
+                            High morning density detected (+23% traffic volume). Recommend extending North-South green phase by +14s.
+                        </p>
+                    </div>
+                </div>
+                <button
+                    onClick={() => success('AI Recommendation Applied', 'Signal timing adjusted at Central Junction. Flow rate improved by +18%.')}
+                    className="px-4 py-2 bg-brand-blue text-brand-dark font-bold text-xs rounded-xl hover:bg-brand-blue/90 hover:scale-105 transition-all shadow-[0_0_15px_rgba(0,243,255,0.3)] shrink-0"
+                >
+                    ⚡ Apply Optimization
+                </button>
+            </div>
+
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-6">
                 <StatCard

@@ -52,13 +52,23 @@ const QRCodeGenerator = ({ booking, onClose }) => {
                 Scan this QR code at the parking entrance
             </p>
 
-            <button
-                onClick={downloadQR}
-                className="px-4 py-2 bg-brand-blue text-brand-dark font-medium rounded-lg hover:bg-brand-blue/90 transition-all flex items-center gap-2 mx-auto"
-            >
-                <Download size={16} />
-                Download QR Code
-            </button>
+            <div className="flex gap-2 justify-center">
+                <button
+                    onClick={downloadQR}
+                    className="px-4 py-2 bg-brand-blue text-brand-dark font-semibold rounded-lg hover:bg-brand-blue/90 transition-all flex items-center gap-2"
+                >
+                    <Download size={16} />
+                    Download PNG
+                </button>
+
+                <button
+                    onClick={() => window.print()}
+                    className="px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-all flex items-center gap-2"
+                >
+                    <QrIcon size={16} />
+                    Print Pass Ticket
+                </button>
+            </div>
         </div>
     );
 };

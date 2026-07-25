@@ -163,13 +163,29 @@ const Sidebar = () => {
                             </div>
                         </div>
 
-                        <button
-                            onClick={handleLogout}
-                            className="w-full py-2 flex items-center justify-center gap-2 bg-red-500/5 hover:bg-red-500/10 text-red-500 rounded-lg text-xs font-bold transition-all border border-red-500/10 hover:border-red-500/30"
-                        >
-                            <LogOut size={14} />
-                            Sign Out
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => {
+                                    const nextRole = user.role === 'admin' ? 'user' : 'admin';
+                                    const updated = { ...user, role: nextRole };
+                                    localStorage.setItem('user', JSON.stringify(updated));
+                                    window.location.reload();
+                                }}
+                                className="flex-1 py-1.5 flex items-center justify-center gap-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 rounded-lg text-[11px] font-bold transition-all border border-purple-500/20"
+                                title="Switch profile role for demo presentation"
+                            >
+                                <ShieldAlert size={12} />
+                                {user.role === 'admin' ? 'Switch to Driver' : 'Switch to Admin'}
+                            </button>
+
+                            <button
+                                onClick={handleLogout}
+                                className="px-3 py-1.5 flex items-center justify-center gap-1.5 bg-red-500/5 hover:bg-red-500/10 text-red-500 rounded-lg text-[11px] font-bold transition-all border border-red-500/10 hover:border-red-500/30"
+                            >
+                                <LogOut size={12} />
+                                Exit
+                            </button>
+                        </div>
                     </div>
 
                     <div className="glass-card p-4 rounded-xl text-center border-brand-green/20">
