@@ -82,6 +82,10 @@ class User {
         return this.data._id;
     }
 
+    set _id(val) {
+        this.data._id = val;
+    }
+
     get role() {
         return this.data.role;
     }
@@ -112,8 +116,8 @@ class User {
         if (User.isMongoConnected()) {
             const mongoUser = new MongooseUser(this.data);
             const saved = await mongoUser.save();
-            this.data = saved.toObject ? saved.toObject() : saved;
-            this._id = saved._id;
+            const savedData = saved.toObject ? saved.toObject() : saved;
+            this.data = savedData;
             this.data._id = saved._id;
             return saved;
         }

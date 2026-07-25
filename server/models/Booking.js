@@ -63,6 +63,7 @@ class Booking {
     }
 
     get _id() { return this.data._id; }
+    set _id(val) { this.data._id = val; }
     get bookingId() { return this.data.bookingId; }
     get slotId() { return this.data.slotId; }
     get parkingZone() { return this.data.parkingZone; }
@@ -93,8 +94,8 @@ class Booking {
         if (Booking.isMongoConnected()) {
             const mongoBooking = new MongooseBooking(this.data);
             const saved = await mongoBooking.save();
-            this.data = saved.toObject ? saved.toObject() : saved;
-            this._id = saved._id;
+            const savedData = saved.toObject ? saved.toObject() : saved;
+            this.data = savedData;
             this.data._id = saved._id;
             return saved;
         }
@@ -106,7 +107,6 @@ class Booking {
 
         const saved = await jsonDb.create(this.data);
         this.data._id = saved._id;
-        this._id = saved._id;
         return new Booking(saved);
     }
 }
