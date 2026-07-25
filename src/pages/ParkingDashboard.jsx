@@ -135,13 +135,14 @@ const ParkingDashboard = () => {
 
     // Mock data generator fallback for parking slots
     const generateSlots = (zoneId) => {
+        const safeZoneId = (typeof zoneId === 'string' && zoneId) ? zoneId : 'mall';
         const count = 24;
         return Array.from({ length: count }, (_, i) => {
             const isEV = (i + 1) % 4 === 0;
-            const hash = (zoneId.charCodeAt(0) + i) % 10;
+            const hash = (safeZoneId.charCodeAt(0) + i) % 10;
             const status = hash < 3 ? 'occupied' : 'free';
             return {
-                id: `${zoneId}-${i + 1}`,
+                id: `${safeZoneId}-${i + 1}`,
                 title: `P-${i + 1}`,
                 status: status,
                 isEV: isEV,
@@ -151,24 +152,32 @@ const ParkingDashboard = () => {
     };
 
     const loadZoneSlots = async (zoneId) => {
+        const safeZoneId = (typeof zoneId === 'string' && zoneId) ? zoneId : 'mall';
         try {
-            const activeBookings = await bookingAPI.getActiveSlots(zoneId);
+            const res = await bookingAPI.getActiveSlots(safeZoneId);
+            const activeBookings = Array.isArray(res) ? res : [];
             const count = 24;
             const generated = Array.from({ length: count }, (_, i) => {
                 const title = `P-${i + 1}`;
+                const slotId = `${safeZoneId}-${i + 1}`;
                 const isEV = (i + 1) % 4 === 0;
                 
                 // Find if there is an active booking for this slotId
-                const activeBooking = activeBookings.find(b => b.slotId === title);
+                const activeBooking = activeBookings.find(b => {
+                    const bSlotId = b?.slotId || b?.data?.slotId;
+                    return bSlotId === title || bSlotId === slotId || bSlotId === `${safeZoneId}_${title}`;
+                });
+                
                 let status = 'free';
                 let vehicleId = null;
                 
                 if (activeBooking) {
-                    status = activeBooking.paymentStatus === 'paid' ? 'occupied' : 'reserved';
+                    const bPaymentStatus = activeBooking.paymentStatus || activeBooking.data?.paymentStatus;
+                    status = (bPaymentStatus === 'paid' || bPaymentStatus === 'completed') ? 'occupied' : 'reserved';
                     vehicleId = activeBooking.vehicleNumber || 'KA-01-MOCK';
                 } else {
                     // Seed deterministic background cars (30% occupancy)
-                    const hash = (zoneId.charCodeAt(0) + i) % 10;
+                    const hash = (safeZoneId.charCodeAt(0) + i) % 10;
                     if (hash < 3) {
                         status = 'occupied';
                         vehicleId = `KA-0${(hash % 9) + 1}-${1000 + i}`;
@@ -176,7 +185,7 @@ const ParkingDashboard = () => {
                 }
 
                 return {
-                    id: `${zoneId}-${i + 1}`,
+                    id: slotId,
                     title: title,
                     status: status,
                     isEV: isEV,
@@ -186,7 +195,7 @@ const ParkingDashboard = () => {
             setSlots(generated);
         } catch (err) {
             console.error("Error loading active slots:", err);
-            setSlots(generateSlots(zoneId));
+            setSlots(generateSlots(safeZoneId));
         }
     };
 
@@ -194,9 +203,11 @@ const ParkingDashboard = () => {
 
     // Update slots when zone changes
     useEffect(() => {
-        if (selectedParkingZone) {
+        if (selectedParkingZone?.id) {
             loadZoneSlots(selectedParkingZone.id);
             setSelectedSlot(null); // Reset selection
+        } else {
+            setSlots(generateSlots('mall'));
         }
     }, [selectedParkingZone]);
 

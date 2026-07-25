@@ -3,10 +3,18 @@ import { clsx } from 'clsx';
 import { motion } from 'framer-motion';
 import { Zap } from 'lucide-react';
 
-const SlotGrid = ({ slots, onSlotClick }) => {
+const SlotGrid = ({ slots = [], onSlotClick }) => {
+    const safeSlots = Array.isArray(slots) ? slots : [];
+    if (safeSlots.length === 0) {
+        return (
+            <div className="text-center py-12 text-slate-500 dark:text-slate-400 bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10">
+                <p className="text-sm font-medium">Loading slots for selected zone...</p>
+            </div>
+        );
+    }
     return (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {slots.map((slot) => (
+            {safeSlots.map((slot) => (
                 <motion.button
                     key={slot.id}
                     whileHover={{ scale: 1.05 }}
