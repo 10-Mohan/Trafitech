@@ -155,51 +155,26 @@ const Sidebar = () => {
                             <div className="flex-1 overflow-hidden">
                                 <div className="flex items-center gap-2">
                                     <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{user.username || 'User'}</p>
-                                    <button
-                                        onClick={() => {
-                                            const nextRole = user.role === 'admin' ? 'user' : 'admin';
-                                            const updated = { ...user, role: nextRole };
-                                            localStorage.setItem('user', JSON.stringify(updated));
-                                            window.location.reload();
-                                        }}
-                                        className={clsx(
-                                            "text-[8px] px-1.5 py-0.5 rounded border font-black uppercase tracking-wider transition-all cursor-pointer hover:scale-105 shrink-0",
-                                            user.role === 'admin'
-                                                ? "bg-purple-500/20 text-purple-400 border-purple-500/40 hover:bg-purple-500/30"
-                                                : "bg-blue-500/20 text-blue-400 border-blue-500/40 hover:bg-blue-500/30"
-                                        )}
-                                        title="Click to switch role (Admin ↔ Driver)"
-                                    >
-                                        {user.role === 'admin' ? 'ADMIN ⇄ DRIVER' : 'DRIVER ⇄ ADMIN'}
-                                    </button>
+                                    <span className={clsx(
+                                        "text-[9px] px-1.5 py-0.5 rounded border font-black uppercase tracking-wider shrink-0",
+                                        user.role === 'admin'
+                                            ? "bg-purple-500/20 text-purple-400 border-purple-500/30"
+                                            : "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                                    )}>
+                                        {user.role === 'admin' ? 'Admin' : 'Driver'}
+                                    </span>
                                 </div>
                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{user.email || 'user@example.com'}</p>
                             </div>
                         </div>
 
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => {
-                                    const nextRole = user.role === 'admin' ? 'user' : 'admin';
-                                    const updated = { ...user, role: nextRole };
-                                    localStorage.setItem('user', JSON.stringify(updated));
-                                    window.location.reload();
-                                }}
-                                className="flex-1 py-1.5 flex items-center justify-center gap-1.5 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 rounded-lg text-[11px] font-bold transition-all border border-purple-500/20"
-                                title="Switch profile role for demo presentation"
-                            >
-                                <ShieldAlert size={12} />
-                                {user.role === 'admin' ? 'Switch to Driver' : 'Switch to Admin'}
-                            </button>
-
-                            <button
-                                onClick={handleLogout}
-                                className="px-3 py-1.5 flex items-center justify-center gap-1.5 bg-red-500/5 hover:bg-red-500/10 text-red-500 rounded-lg text-[11px] font-bold transition-all border border-red-500/10 hover:border-red-500/30"
-                            >
-                                <LogOut size={12} />
-                                Exit
-                            </button>
-                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className="w-full py-2 flex items-center justify-center gap-2 bg-red-500/5 hover:bg-red-500/10 text-red-500 rounded-lg text-xs font-bold transition-all border border-red-500/10 hover:border-red-500/30"
+                        >
+                            <LogOut size={14} />
+                            Sign Out
+                        </button>
                     </div>
 
                     <div className="glass-card p-4 rounded-xl text-center border-brand-green/20">
