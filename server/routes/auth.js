@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const admin = require('../middleware/admin');
 const auth = require('../middleware/auth');
+const { getJwtSecret } = require('../config/jwt');
 const router = express.Router();
 
 // Register User
@@ -27,7 +28,7 @@ router.post('/register', async (req, res) => {
         user = new User({ username, email, password, role: userRole });
         await user.save();
 
-        const token = jwt.sign({ id: user._id, role: userRole }, process.env.JWT_SECRET || 'traffitech_super_secret_key_123', { expiresIn: '7d' });
+        const token = jwt.sign({ id: user._id, role: userRole }, getJwtSecret(), { expiresIn: '7d' });
         res.status(201).json({ token, user: { id: user._id, username: user.username, email: user.email, role: userRole } });
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
@@ -55,7 +56,7 @@ router.post('/login', async (req, res) => {
             return res.status(403).json({ message: 'Access Denied: This account does not have Administrator privileges.' });
         }
 
-        const token = jwt.sign({ id: user._id, role: storedRole }, process.env.JWT_SECRET || 'traffitech_super_secret_key_123', { expiresIn: '7d' });
+        const token = jwt.sign({ id: user._id, role: storedRole }, getJwtSecret(), { expiresIn: '7d' });
         res.json({ token, user: { id: user._id, username: user.username, email: user.email, role: storedRole } });
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
