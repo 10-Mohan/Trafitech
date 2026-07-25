@@ -22,13 +22,19 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
     return R * c;
 };
 
+const defaultSpots = [
+    { id: 'mall', pos: [12.9736, 77.5966], label: "City Mall Parking", available: 12, originalPrice: 50, price: 50, amenities: ['Covered', 'EV Charging'], distance: 0.3 },
+    { id: 'metro', pos: [12.9701, 77.5956], label: "Metro Station Lot", available: 5, originalPrice: 40, price: 40, amenities: ['Open Air'], distance: 0.2 },
+    { id: 'park', pos: [12.9726, 77.5926], label: "Central Park Garage", available: 18, originalPrice: 45, price: 45, amenities: ['Covered'], distance: 0.4 },
+];
+
 const ParkingDashboard = () => {
     const notifications = useNotifications();
     const [userPosition, setUserPosition] = useState(null);
     const [locationStatus, setLocationStatus] = useState('loading');
-    const [parkingSpots, setParkingSpots] = useState([]);
+    const [parkingSpots, setParkingSpots] = useState(defaultSpots);
     const [selectedSlot, setSelectedSlot] = useState(null);
-    const [selectedParkingZone, setSelectedParkingZone] = useState(null);
+    const [selectedParkingZone, setSelectedParkingZone] = useState(defaultSpots[0]);
     const [showRoute, setShowRoute] = useState(false);
     const [showBookingModal, setShowBookingModal] = useState(false);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -513,10 +519,10 @@ const ParkingDashboard = () => {
                         <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in slide-in-from-left-4">
                             <div className="flex items-center gap-2">
                                 <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-                                    Slots at <span className="text-brand-blue">{selectedParkingZone.label}</span>
+                                    Slots at <span className="text-brand-blue">{selectedParkingZone?.label || 'City Mall Parking'}</span>
                                 </h2>
                                 <span className="px-2 py-0.5 bg-white/10 rounded text-xs text-slate-500 dark:text-slate-400 font-mono">
-                                    Zone {selectedParkingZone.id.toUpperCase()}
+                                    Zone {(selectedParkingZone?.id || 'mall').toUpperCase()}
                                 </span>
                             </div>
 
@@ -607,7 +613,7 @@ const ParkingDashboard = () => {
                                         </div>
                                         <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
                                             <CreditCard size={16} className="text-brand-purple" />
-                                            <span>₹{selectedParkingZone.price} / hr</span>
+                                            <span>₹{selectedParkingZone?.price || 50} / hr</span>
                                         </div>
                                     </div>
 
