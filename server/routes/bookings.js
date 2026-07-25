@@ -5,14 +5,22 @@ const admin = require('../middleware/admin');
 const router = express.Router();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+const toPlain = (doc) => {
+    if (!doc) return null;
+    if (doc.data) return doc.data;
+    if (typeof doc.toObject === 'function') return doc.toObject();
+    return doc;
+};
+
 // Get user bookings
 router.get('/', auth, async (req, res) => {
     try {
         const bookings = await Booking.find({ user: req.user.id });
-        // Sort manually by timestamp desc for JSON fallback
-        const sorted = bookings.sort((a, b) => {
-            const aTime = a.timestamp || a.data?.timestamp || 0;
-            const bTime = b.timestamp || b.data?.timestamp || 0;
+        const plainBookings = bookings.map(toPlain);
+        // Sort manually by timestamp desc
+        const sorted = plainBookings.sort((a, b) => {
+            const aTime = a.timestamp || 0;
+            const bTime = b.timestamp || 0;
             return new Date(bTime) - new Date(aTime);
         });
         res.json(sorted);
@@ -28,11 +36,9 @@ router.get('/active-slots', async (req, res) => {
         const queryDate = date || new Date().toISOString().split('T')[0];
         const bookings = await Booking.find({ date: queryDate });
         // Filter by zoneId and active status
-        const active = bookings.filter(b => {
-            const bParkingZone = b.parkingZone || b.data?.parkingZone;
-            const bPaymentStatus = b.paymentStatus || b.data?.paymentStatus;
-            const hasZoneId = bParkingZone && bParkingZone.id === zoneId;
-            const isActive = bPaymentStatus === 'paid' || bPaymentStatus === 'pending' || bPaymentStatus === 'completed';
+        const active = bookings.map(toPlain).filter(b => {
+            const hasZoneId = b.parkingZone && b.parkingZone.id === zoneId;
+            const isActive = b.paymentStatus === 'paid' || b.paymentStatus === 'pending' || b.paymentStatus === 'completed';
             return hasZoneId && isActive;
         });
         res.json(active);
@@ -54,24 +60,19 @@ router.post('/', auth, async (req, res) => {
 
         // Overlap check for the specific zone and slot
         const bookings = await Booking.find({ date });
-        const hasOverlap = bookings.some(b => {
-            const bSlotId = b.slotId || b.data?.slotId;
-            const bZoneId = b.parkingZone?.id || b.data?.parkingZone?.id;
+        const plainBookings = bookings.map(toPlain);
+        const hasOverlap = plainBookings.some(b => {
+            const bZoneId = b.parkingZone?.id;
             
             // Match slot and zone strictly
-            const isSameSlot = (bSlotId === slotId || bSlotId === slot?.title || bSlotId === slot?.id) &&
+            const isSameSlot = (b.slotId === slotId || b.slotId === slot?.title || b.slotId === slot?.id) &&
                                (!zoneId || !bZoneId || bZoneId === zoneId);
             if (!isSameSlot) return false;
 
-            const bStartTime = b.startTime || b.data?.startTime;
-            const bEndTime = b.endTime || b.data?.endTime;
-            const bPaymentStatus = b.paymentStatus || b.data?.paymentStatus;
-            const bTimestamp = b.timestamp || b.data?.timestamp;
-
-            const isOverlap = bStartTime < endTime && bEndTime > startTime;
-            const isPaid = bPaymentStatus === 'paid' || bPaymentStatus === 'completed';
-            const isRecentPending = bPaymentStatus === 'pending' && 
-                (Date.now() - new Date(bTimestamp || Date.now()).getTime() < 15 * 60 * 1000);
+            const isOverlap = b.startTime < endTime && b.endTime > startTime;
+            const isPaid = b.paymentStatus === 'paid' || b.paymentStatus === 'completed';
+            const isRecentPending = b.paymentStatus === 'pending' && 
+                (Date.now() - new Date(b.timestamp || Date.now()).getTime() < 15 * 60 * 1000);
             return isOverlap && (isPaid || isRecentPending);
         });
 
@@ -96,7 +97,7 @@ router.post('/', auth, async (req, res) => {
         });
 
         const booking = await newBooking.save();
-        res.status(201).json(booking.data || booking);
+        res.status(201).json(toPlain(booking));
     } catch (err) {
         res.status(500).json({ message: err.message || 'Server error', error: err.message });
     }
@@ -110,14 +111,14 @@ router.post('/:id/cancel', auth, async (req, res) => {
             return res.status(404).json({ message: 'Booking not found' });
         }
 
-        // Access user field from nested wrapper or raw mongoose document
-        const userId = booking.user || booking.data?.user;
-        if (userId !== req.user.id && req.user.role !== 'admin') {
+        const plain = toPlain(booking);
+        const userId = String(plain.user || '');
+        if (userId !== String(req.user.id) && req.user.role !== 'admin') {
             return res.status(403).json({ message: 'Not authorized to cancel this booking' });
         }
 
-        const currentPaymentStatus = booking.paymentStatus || booking.data?.paymentStatus;
-        const currentPaymentId = booking.paymentId || booking.data?.paymentId;
+        const currentPaymentStatus = plain.paymentStatus;
+        const currentPaymentId = plain.paymentId;
 
         if (currentPaymentStatus === 'cancelled' || currentPaymentStatus === 'refunded') {
             return res.status(400).json({ message: 'Booking is already cancelled' });
@@ -139,7 +140,7 @@ router.post('/:id/cancel', auth, async (req, res) => {
         }
 
         const updated = await booking.save();
-        res.json({ message: 'Booking cancelled and refunded successfully', booking: updated.data || updated });
+        res.json({ message: 'Booking cancelled and refunded successfully', booking: toPlain(updated) });
     } catch (err) {
         res.status(500).json({ message: err.message || 'Server error', error: err.message });
     }
@@ -149,12 +150,13 @@ router.post('/:id/cancel', auth, async (req, res) => {
 router.get('/all', [auth, admin], async (req, res) => {
     try {
         const bookings = await Booking.find({});
-        const sorted = bookings.sort((a, b) => {
-            const aTime = a.timestamp || a.data?.timestamp || 0;
-            const bTime = b.timestamp || b.data?.timestamp || 0;
+        const plainBookings = bookings.map(toPlain);
+        const sorted = plainBookings.sort((a, b) => {
+            const aTime = a.timestamp || 0;
+            const bTime = b.timestamp || 0;
             return new Date(bTime) - new Date(aTime);
         });
-        res.json(sorted.map(b => b.data || b));
+        res.json(sorted);
     } catch (err) {
         res.status(500).json({ message: err.message || 'Server error', error: err.message });
     }

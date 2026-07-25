@@ -34,12 +34,17 @@ class User {
 
     static async find(query = {}, projection = '') {
         if (User.isMongoConnected()) {
-            return await MongooseUser.find(query, projection);
+            const docs = await MongooseUser.find(query, projection);
+            const instances = docs.map(u => new User(u.toObject ? u.toObject() : u));
+            if (projection && projection.includes('-password')) {
+                instances.forEach(inst => {
+                    delete inst.data.password;
+                });
+            }
+            return instances;
         }
         const results = await jsonDb.find(query);
-        // Map to User instances
         const instances = results.map(u => new User(u));
-        // Apply basic projection if -password is requested
         if (projection && projection.includes('-password')) {
             instances.forEach(inst => {
                 delete inst.data.password;
@@ -52,8 +57,7 @@ class User {
         if (User.isMongoConnected()) {
             const doc = await MongooseUser.findOne(query);
             if (!doc) return null;
-            // Add Mongoose compatibility layer if needed or return direct mongoose doc
-            return doc;
+            return new User(doc.toObject ? doc.toObject() : doc);
         }
 
         const user = await jsonDb.findOne(query);
@@ -63,7 +67,9 @@ class User {
 
     static async findById(id) {
         if (User.isMongoConnected()) {
-            return await MongooseUser.findById(id);
+            const doc = await MongooseUser.findById(id);
+            if (!doc) return null;
+            return new User(doc.toObject ? doc.toObject() : doc);
         }
         const user = await jsonDb.findById(id);
         if (!user) return null;
@@ -114,12 +120,17 @@ class User {
 
     async save() {
         if (User.isMongoConnected()) {
+            if (this.data._id) {
+                const updated = await MongooseUser.findByIdAndUpdate(this.data._id, this.data, { new: true });
+                const plain = updated ? (updated.toObject ? updated.toObject() : updated) : this.data;
+                this.data = plain;
+                return new User(plain);
+            }
             const mongoUser = new MongooseUser(this.data);
             const saved = await mongoUser.save();
-            const savedData = saved.toObject ? saved.toObject() : saved;
-            this.data = savedData;
-            this.data._id = saved._id;
-            return saved;
+            const plain = saved.toObject ? saved.toObject() : saved;
+            this.data = plain;
+            return new User(plain);
         }
 
         // JSON Fallback

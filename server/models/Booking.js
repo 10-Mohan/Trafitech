@@ -31,7 +31,8 @@ class Booking {
 
     static async find(query) {
         if (Booking.isMongoConnected()) {
-            return await MongooseBooking.find(query);
+            const docs = await MongooseBooking.find(query);
+            return docs.map(d => new Booking(d.toObject ? d.toObject() : d));
         }
         const results = await jsonDb.find(query);
         return results.map(b => new Booking(b));
@@ -39,7 +40,9 @@ class Booking {
 
     static async findOne(query) {
         if (Booking.isMongoConnected()) {
-            return await MongooseBooking.findOne(query);
+            const doc = await MongooseBooking.findOne(query);
+            if (!doc) return null;
+            return new Booking(doc.toObject ? doc.toObject() : doc);
         }
         const booking = await jsonDb.findOne(query);
         if (!booking) return null;
@@ -48,7 +51,9 @@ class Booking {
 
     static async findById(id) {
         if (Booking.isMongoConnected()) {
-            return await MongooseBooking.findById(id);
+            const doc = await MongooseBooking.findById(id);
+            if (!doc) return null;
+            return new Booking(doc.toObject ? doc.toObject() : doc);
         }
         const booking = await jsonDb.findById(id);
         if (!booking) return null;
@@ -92,12 +97,17 @@ class Booking {
 
     async save() {
         if (Booking.isMongoConnected()) {
+            if (this.data._id) {
+                const updated = await MongooseBooking.findByIdAndUpdate(this.data._id, this.data, { new: true });
+                const plain = updated ? (updated.toObject ? updated.toObject() : updated) : this.data;
+                this.data = plain;
+                return new Booking(plain);
+            }
             const mongoBooking = new MongooseBooking(this.data);
             const saved = await mongoBooking.save();
-            const savedData = saved.toObject ? saved.toObject() : saved;
-            this.data = savedData;
-            this.data._id = saved._id;
-            return saved;
+            const plain = saved.toObject ? saved.toObject() : saved;
+            this.data = plain;
+            return new Booking(plain);
         }
 
         if (this.data._id) {

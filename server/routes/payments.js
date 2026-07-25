@@ -4,6 +4,13 @@ const auth = require('../middleware/auth');
 const Booking = require('../models/Booking');
 const router = express.Router();
 
+const toPlain = (doc) => {
+    if (!doc) return null;
+    if (doc.data) return doc.data;
+    if (typeof doc.toObject === 'function') return doc.toObject();
+    return doc;
+};
+
 // Create Payment Intent
 router.post('/create-payment-intent', auth, async (req, res) => {
     try {
@@ -19,13 +26,14 @@ router.post('/create-payment-intent', auth, async (req, res) => {
             return res.status(404).json({ message: 'Booking not found' });
         }
 
+        const plain = toPlain(booking);
         // Ensure user owns the booking
-        const userId = booking.user || booking.data?.user;
-        if (userId !== req.user.id) {
+        const userId = String(plain.user || '');
+        if (userId !== String(req.user.id)) {
             return res.status(403).json({ message: 'Unauthorized access to this booking' });
         }
 
-        const totalPrice = booking.totalPrice || booking.data?.totalPrice || 50;
+        const totalPrice = plain.totalPrice || 50;
 
         const paymentIntent = await stripe.paymentIntents.create({
             amount: Math.round(Number(totalPrice) * 100), // Secure verified amount
@@ -34,7 +42,7 @@ router.post('/create-payment-intent', auth, async (req, res) => {
                 enabled: true,
             },
             metadata: {
-                bookingId: booking._id || bookingId // Inject metadata for Webhooks
+                bookingId: String(plain._id || bookingId) // Inject metadata for Webhooks
             }
         });
 
