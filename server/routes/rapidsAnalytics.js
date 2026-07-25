@@ -119,7 +119,9 @@ router.post('/gemini', [auth, admin], async (req, res) => {
             ).join('\n');
         }
         
-        const mockResponse = `### 🚦 Gemini Enterprise Traffic Intelligence Report (Simulation Mode)
+        const mockResponse = `> ⚠️ **DEMO / SIMULATION MODE ACTIVE**: \`GEMINI_API_KEY\` is not configured in the backend environment. The figures and AI recommendations below are synthetic estimates generated for demonstration purposes.
+
+### 🚦 Gemini Enterprise Traffic Intelligence Report (Simulation Mode)
 
 Thank you for consulting the Gemini Enterprise Traffic Agent. I have analyzed the active telemetry dataset containing **100,000 traffic logs** processed via **NVIDIA RAPIDS (cuDF)**. 
 
@@ -131,13 +133,13 @@ ${corridorsText || '- No active corridor data found.'}
 #### 2. Key Congestion Bottlenecks Identified
 ${bottlenecksText || '- No severe bottleneck intersections detected.'}
 
-#### 3. AI Diagnostics & Recommendations
+#### 3. AI Diagnostics & Recommendations (Synthetic Estimates)
 - **West Corridor:** Exhibits the highest gridlock risk. Average speed has dropped significantly. The primary causes are high vehicle density and weather variables. I recommend extending the green light phase duration by **at least 18-20 seconds** during the next 4 signal cycles to clear the backlog.
 - **North Corridor:** Moderate congestion detected. An incremental adjustment of **+8 seconds** of green phase time will optimize the throughput.
 - **Environmental & Carbon Impact:** By implementing these signal overrides, wait times will drop by approximately **18%**, reducing idle-state carbon emissions by an estimated **150 kg of CO2 per hour** across the major junctions.
 - **Action Plan:** The Adaptive Signal Control autopilot is authorized to deploy the green-phase adjustments immediately. 
 
-*Note: This report was compiled using local analytics. Configure your GEMINI_API_KEY in the backend .env to connect to live Gemini Enterprise Agent endpoints.*`;
+*Note: Configure your GEMINI_API_KEY in the backend .env to connect to live Gemini Enterprise Agent endpoints.*`;
         
         // Add a slight artificial delay to feel like a real network AI response
         await new Promise(r => setTimeout(r, 1200));
