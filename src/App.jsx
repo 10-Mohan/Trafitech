@@ -28,6 +28,18 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+const AdminRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  if (user.role !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
+
 function App() {
   return (
     <Elements stripe={stripePromise}>
@@ -43,16 +55,16 @@ function App() {
               </ProtectedRoute>
             }>
               <Route index element={<Dashboard />} />
-              <Route path="traffic" element={<TrafficDashboard />} />
-              <Route path="traffic-cv" element={<TrafficCV />} />
+              <Route path="traffic" element={<AdminRoute><TrafficDashboard /></AdminRoute>} />
+              <Route path="traffic-cv" element={<AdminRoute><TrafficCV /></AdminRoute>} />
               <Route path="parking" element={<ParkingDashboard />} />
               <Route path="citizen-portal" element={<CitizenPortal />} />
-              <Route path="analytics" element={<Analytics />} />
-              <Route path="rapids-analytics" element={<AcceleratedAnalytics />} />
-              <Route path="parking-analytics" element={<ParkingAnalytics />} />
+              <Route path="analytics" element={<AdminRoute><Analytics /></AdminRoute>} />
+              <Route path="rapids-analytics" element={<AdminRoute><AcceleratedAnalytics /></AdminRoute>} />
+              <Route path="parking-analytics" element={<AdminRoute><ParkingAnalytics /></AdminRoute>} />
               <Route path="booking-history" element={<BookingHistory />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="admin-users" element={<AdminUsers />} />
+              <Route path="settings" element={<AdminRoute><Settings /></AdminRoute>} />
+              <Route path="admin-users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
               <Route path="user-admin" element={<Navigate to="/admin-users" replace />} />
             </Route>
           </Routes>

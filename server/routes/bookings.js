@@ -29,8 +29,8 @@ router.get('/', auth, async (req, res) => {
     }
 });
 
-// Get active slots for a zone on a given date (real-time database state)
-router.get('/active-slots', async (req, res) => {
+// Get active slots for a zone on a given date (real-time database state - Protected)
+router.get('/active-slots', auth, async (req, res) => {
     const { zoneId, date } = req.query;
     try {
         const queryDate = date || new Date().toISOString().split('T')[0];
@@ -41,7 +41,18 @@ router.get('/active-slots', async (req, res) => {
             const isActive = b.paymentStatus === 'paid' || b.paymentStatus === 'pending' || b.paymentStatus === 'completed';
             return hasZoneId && isActive;
         });
-        res.json(active);
+
+        // Sanitize to exclude sensitive user data (vehicleNumber, user id)
+        const sanitized = active.map(b => ({
+            slotId: b.slotId,
+            parkingZone: b.parkingZone,
+            date: b.date,
+            startTime: b.startTime,
+            endTime: b.endTime,
+            paymentStatus: b.paymentStatus
+        }));
+
+        res.json(sanitized);
     } catch (err) {
         res.status(500).json({ message: err.message || 'Server error', error: err.message });
     }

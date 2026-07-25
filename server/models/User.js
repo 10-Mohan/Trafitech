@@ -60,6 +60,15 @@ class User {
             return new User(doc.toObject ? doc.toObject() : doc);
         }
 
+        if (query && query.$or && Array.isArray(query.$or)) {
+            const allUsers = await jsonDb.find({});
+            const match = allUsers.find(u => query.$or.some(subQuery => {
+                return Object.keys(subQuery).every(key => u[key] === subQuery[key]);
+            }));
+            if (!match) return null;
+            return new User(match);
+        }
+
         const user = await jsonDb.findOne(query);
         if (!user) return null;
         return new User(user);
