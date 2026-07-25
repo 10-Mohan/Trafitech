@@ -2,21 +2,22 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
+const auth = require('../middleware/auth');
+const admin = require('../middleware/admin');
 
 const ANALYTICS_DIR = path.join(__dirname, '..', 'analytics', 'data');
 const ANALYTICS_FILE = path.join(ANALYTICS_DIR, 'analytics_results.json');
 const BENCHMARK_FILE = path.join(ANALYTICS_DIR, 'benchmark_results.json');
 
-// Helper to run python script as a promise
-const runPythonPipeline = (args = '') => {
+// Safe Helper to run python script using execFile (no shell execution, preventing command injection)
+const runPythonPipeline = (argsArray = []) => {
     return new Promise((resolve, reject) => {
         const pythonCmd = process.platform === 'win32' ? 'python' : 'python3';
         const scriptPath = path.join(__dirname, '..', 'analytics', 'pipeline.py');
-        const cmd = `${pythonCmd} "${scriptPath}" ${args}`;
         
-        console.log(`Executing pipeline: ${cmd}`);
-        exec(cmd, { cwd: path.join(__dirname, '..', '..') }, (error, stdout, stderr) => {
+        console.log(`Executing pipeline via execFile: ${pythonCmd} ${scriptPath} ${argsArray.join(' ')}`);
+        execFile(pythonCmd, [scriptPath, ...argsArray], { cwd: path.join(__dirname, '..', '..') }, (error, stdout, stderr) => {
             if (error) {
                 console.error(`Pipeline execution error: ${error.message}`);
                 console.error(`Pipeline stderr: ${stderr}`);
@@ -27,8 +28,8 @@ const runPythonPipeline = (args = '') => {
     });
 };
 
-// GET /api/rapids-analytics/data
-router.get('/data', (req, res) => {
+// GET /api/rapids-analytics/data (Protected: Admin Only)
+router.get('/data', [auth, admin], (req, res) => {
     try {
         if (!fs.existsSync(ANALYTICS_FILE) || !fs.existsSync(BENCHMARK_FILE)) {
             return res.status(404).json({ message: 'Analytics data files not generated yet. Trigger a run first.' });
@@ -47,11 +48,11 @@ router.get('/data', (req, res) => {
     }
 });
 
-// POST /api/rapids-analytics/run-benchmark
-router.post('/run-benchmark', async (req, res) => {
+// POST /api/rapids-analytics/run-benchmark (Protected: Admin Only)
+router.post('/run-benchmark', [auth, admin], async (req, res) => {
     try {
         console.log('Starting live CPU vs GPU benchmark regeneration...');
-        await runPythonPipeline('--generate --size 100000');
+        await runPythonPipeline(['--generate', '--size', '100000']);
         
         // Read new files
         const analyticsData = JSON.parse(fs.readFileSync(ANALYTICS_FILE, 'utf8'));
@@ -68,18 +69,16 @@ router.post('/run-benchmark', async (req, res) => {
     }
 });
 
-// POST /api/rapids-analytics/query
-router.post('/query', async (req, res) => {
+// POST /api/rapids-analytics/query (Protected: Admin Only)
+router.post('/query', [auth, admin], async (req, res) => {
     const { query } = req.body;
     if (!query) {
         return res.status(400).json({ message: 'Query string is required' });
     }
     
     try {
-        // Run python with query argument
-        // Clean query to avoid injection
-        const cleanQuery = query.replace(/"/g, '\\"');
-        const output = await runPythonPipeline(`--query "${cleanQuery}"`);
+        // Run python with query argument via execFile array (prevents shell command injection)
+        const output = await runPythonPipeline(['--query', query]);
         
         // Find JSON block in stdout
         const jsonStart = output.indexOf('[');
@@ -97,8 +96,8 @@ router.post('/query', async (req, res) => {
     }
 });
 
-// POST /api/rapids-analytics/gemini
-router.post('/gemini', async (req, res) => {
+// POST /api/rapids-analytics/gemini (Protected: Admin Only)
+router.post('/gemini', [auth, admin], async (req, res) => {
     const { prompt, dataContext } = req.body;
     const apiKey = process.env.GEMINI_API_KEY;
     
