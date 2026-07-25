@@ -69,48 +69,53 @@ router.post('/', auth, async (req, res) => {
             return res.status(400).json({ message: 'Missing booking details' });
         }
 
-        // Overlap check for the specific zone and slot
-        const bookings = await Booking.find({ date });
-        const plainBookings = bookings.map(toPlain);
-        const hasOverlap = plainBookings.some(b => {
-            const bZoneId = b.parkingZone?.id;
-            
-            // Match slot and zone strictly
-            const isSameSlot = (b.slotId === slotId || b.slotId === slot?.title || b.slotId === slot?.id) &&
-                               (!zoneId || !bZoneId || bZoneId === zoneId);
-            if (!isSameSlot) return false;
+        // Execute overlap check and booking creation inside atomic lock queue
+        const savedBooking = await Booking.lock(async () => {
+            const bookings = await Booking.find({ date });
+            const plainBookings = bookings.map(toPlain);
+            const hasOverlap = plainBookings.some(b => {
+                const bZoneId = b.parkingZone?.id;
+                
+                // Match slot and zone strictly
+                const isSameSlot = (b.slotId === slotId || b.slotId === slot?.title || b.slotId === slot?.id) &&
+                                   (!zoneId || !bZoneId || bZoneId === zoneId);
+                if (!isSameSlot) return false;
 
-            const isOverlap = b.startTime < endTime && b.endTime > startTime;
-            const isPaid = b.paymentStatus === 'paid' || b.paymentStatus === 'completed';
-            const isRecentPending = b.paymentStatus === 'pending' && 
-                (Date.now() - new Date(b.timestamp || Date.now()).getTime() < 15 * 60 * 1000);
-            return isOverlap && (isPaid || isRecentPending);
+                const isOverlap = b.startTime < endTime && b.endTime > startTime;
+                const isPaid = b.paymentStatus === 'paid' || b.paymentStatus === 'completed';
+                const isRecentPending = b.paymentStatus === 'pending' && 
+                    (Date.now() - new Date(b.timestamp || Date.now()).getTime() < 15 * 60 * 1000);
+                return isOverlap && (isPaid || isRecentPending);
+            });
+
+            if (hasOverlap) {
+                const err = new Error('This slot is already reserved for the selected timeframe.');
+                err.statusCode = 400;
+                throw err;
+            }
+
+            // Calculate totalPrice securely on the server
+            const currentHour = new Date().getHours();
+            const isPeakHour = (currentHour >= 9 && currentHour <= 11) || (currentHour >= 17 && currentHour <= 19);
+            const surgeMultiplier = isPeakHour ? 1.5 : 1;
+            const basePrice = parkingZone?.price || 50;
+            const calculatedPrice = Math.round((duration || 1) * basePrice * surgeMultiplier);
+
+            const newBooking = new Booking({
+                ...req.body,
+                bookingId: req.body.bookingId || `BK-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+                slotId: slotId,
+                totalPrice: calculatedPrice,
+                user: req.user.id,
+                timestamp: new Date()
+            });
+
+            return await newBooking.save();
         });
 
-        if (hasOverlap) {
-            return res.status(400).json({ message: 'This slot is already reserved for the selected timeframe.' });
-        }
-
-        // Calculate totalPrice securely on the server
-        const currentHour = new Date().getHours();
-        const isPeakHour = (currentHour >= 9 && currentHour <= 11) || (currentHour >= 17 && currentHour <= 19);
-        const surgeMultiplier = isPeakHour ? 1.5 : 1;
-        const basePrice = parkingZone?.price || 50;
-        const calculatedPrice = Math.round((duration || 1) * basePrice * surgeMultiplier);
-
-        const newBooking = new Booking({
-            ...req.body,
-            bookingId: req.body.bookingId || `BK-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-            slotId: slotId,
-            totalPrice: calculatedPrice,
-            user: req.user.id,
-            timestamp: new Date()
-        });
-
-        const booking = await newBooking.save();
-        res.status(201).json(toPlain(booking));
+        res.status(201).json(toPlain(savedBooking));
     } catch (err) {
-        res.status(500).json({ message: err.message || 'Server error', error: err.message });
+        res.status(err.statusCode || 500).json({ message: err.message || 'Server error', error: err.message });
     }
 });
 

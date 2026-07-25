@@ -29,6 +29,13 @@ class Booking {
         return mongoose.connection.readyState === 1;
     }
 
+    static async lock(fn) {
+        if (Booking.isMongoConnected()) {
+            return await fn();
+        }
+        return await jsonDb.lock(fn);
+    }
+
     static async find(query) {
         if (Booking.isMongoConnected()) {
             const docs = await MongooseBooking.find(query);
