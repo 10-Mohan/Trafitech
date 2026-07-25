@@ -5,10 +5,10 @@ const jsonDb = new JsonDB('bookings');
 
 // 1. Mongoose Schema
 const bookingSchema = new mongoose.Schema({
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    bookingId: { type: String, required: true, unique: true },
+    user: { type: mongoose.Schema.Types.Mixed, ref: 'User' },
+    bookingId: { type: String, required: true },
     slotId: { type: String, required: true },
-    parkingZone: { id: String, label: String, price: Number },
+    parkingZone: mongoose.Schema.Types.Mixed,
     date: { type: String, required: true },
     startTime: String,
     endTime: String,

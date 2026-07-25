@@ -32,7 +32,7 @@ router.get('/active-slots', async (req, res) => {
             const bParkingZone = b.parkingZone || b.data?.parkingZone;
             const bPaymentStatus = b.paymentStatus || b.data?.paymentStatus;
             const hasZoneId = bParkingZone && bParkingZone.id === zoneId;
-            const isActive = bPaymentStatus === 'paid' || bPaymentStatus === 'pending';
+            const isActive = bPaymentStatus === 'paid' || bPaymentStatus === 'pending' || bPaymentStatus === 'completed';
             return hasZoneId && isActive;
         });
         res.json(active);
@@ -44,23 +44,32 @@ router.get('/active-slots', async (req, res) => {
 router.post('/', auth, async (req, res) => {
     try {
         const { slot, slotId: bodySlotId, date, startTime, endTime, parkingZone, duration } = req.body;
-        const slotId = bodySlotId || slot?.title;
+        const zoneId = parkingZone?.id || '';
+        const rawSlot = bodySlotId || slot?.id || slot?.title;
+        const slotId = (zoneId && rawSlot && !rawSlot.startsWith(zoneId)) ? `${zoneId}-${rawSlot}` : rawSlot;
 
         if (!slotId || !date || !startTime || !endTime) {
             return res.status(400).json({ message: 'Missing booking details' });
         }
 
-        // Overlap check
-        const bookings = await Booking.find({ slotId, date });
+        // Overlap check for the specific zone and slot
+        const bookings = await Booking.find({ date });
         const hasOverlap = bookings.some(b => {
+            const bSlotId = b.slotId || b.data?.slotId;
+            const bZoneId = b.parkingZone?.id || b.data?.parkingZone?.id;
+            
+            // Match slot and zone strictly
+            const isSameSlot = (bSlotId === slotId || bSlotId === slot?.title || bSlotId === slot?.id) &&
+                               (!zoneId || !bZoneId || bZoneId === zoneId);
+            if (!isSameSlot) return false;
+
             const bStartTime = b.startTime || b.data?.startTime;
             const bEndTime = b.endTime || b.data?.endTime;
             const bPaymentStatus = b.paymentStatus || b.data?.paymentStatus;
             const bTimestamp = b.timestamp || b.data?.timestamp;
 
             const isOverlap = bStartTime < endTime && bEndTime > startTime;
-            const isPaid = bPaymentStatus === 'paid';
-            // Allow recent pending block window (15 minutes) to avoid reservation races
+            const isPaid = bPaymentStatus === 'paid' || bPaymentStatus === 'completed';
             const isRecentPending = bPaymentStatus === 'pending' && 
                 (Date.now() - new Date(bTimestamp || Date.now()).getTime() < 15 * 60 * 1000);
             return isOverlap && (isPaid || isRecentPending);
