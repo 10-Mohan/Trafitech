@@ -9,10 +9,27 @@ const handleResponse = async (response) => {
                 window.location.href = '/login';
             }
         }
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Something went wrong');
+        let errorMessage = 'Something went wrong';
+        try {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorMessage;
+        } catch {
+            errorMessage = `Backend server error (${response.status}). The server may be spinning up — please try again.`;
+        }
+        throw new Error(errorMessage);
     }
-    return response.json();
+
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+        return response.json();
+    }
+
+    const text = await response.text();
+    try {
+        return JSON.parse(text);
+    } catch {
+        throw new Error('Server returned non-JSON response.');
+    }
 };
 
 const getHeaders = () => {
