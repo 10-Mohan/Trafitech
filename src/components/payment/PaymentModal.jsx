@@ -173,7 +173,14 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
                                 <div>
                                     <label className="block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-3 uppercase tracking-wider ml-1">Card Information</label>
                                     <div className="p-4 bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 border  rounded-xl focus-within:border-brand-blue/50 focus-within:bg-white/10 transition-all shadow-inner">
-                                        <CardElement options={cardElementOptions} />
+                                        {elements ? (
+                                            <CardElement options={cardElementOptions} />
+                                        ) : (
+                                            <div className="text-xs text-slate-400 py-1 flex items-center justify-between">
+                                                <span>💳 Test Card / Instant Demo Payment Mode</span>
+                                                <span className="text-brand-green font-bold">Ready</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -196,7 +203,7 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
 
                             <button
                                 type="submit"
-                                disabled={processing || !stripe}
+                                disabled={processing}
                                 className="w-full py-4 bg-brand-blue hover:shadow-[0_0_30px_rgba(0,243,255,0.3)] text-brand-dark font-bold rounded-2xl transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:shadow-none active:scale-[0.98]"
                             >
                                 {processing ? (
