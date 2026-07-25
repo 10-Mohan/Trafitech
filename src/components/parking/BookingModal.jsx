@@ -7,7 +7,7 @@ const BookingModal = ({ slot, parkingZone, onClose, onConfirm }) => {
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [selectedTime, setSelectedTime] = useState('14:00');
     const [duration, setDuration] = useState(2); // hours
-    const [vehicleNumber, setVehicleNumber] = useState('');
+    const [vehicleNumber, setVehicleNumber] = useState('KA-01-AB-1234');
     const [vehicleType, setVehicleType] = useState('car');
     const [step, setStep] = useState(1); // 1: Details, 2: Confirmation
 

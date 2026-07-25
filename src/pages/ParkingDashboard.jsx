@@ -254,11 +254,13 @@ const ParkingDashboard = () => {
     const handleSlotClick = (slot) => {
         setSelectedSlot(slot);
         setShowRoute(false);
+        if (slot.status === 'free') {
+            setShowBookingModal(true);
+        }
     };
 
     const confirmBooking = () => {
         if (selectedSlot && selectedSlot.status === 'free') {
-            // Open booking modal
             setShowBookingModal(true);
         }
     };
