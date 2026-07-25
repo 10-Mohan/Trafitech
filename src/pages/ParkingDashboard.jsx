@@ -266,25 +266,24 @@ const ParkingDashboard = () => {
     };
 
     const handleBookingConfirm = async (booking) => {
+        const draftBooking = {
+            ...booking,
+            _id: booking._id || booking.id || 'bk_local_' + Date.now(),
+            bookingId: booking.bookingId || `BK-${Date.now()}`
+        };
+
+        // Open PaymentModal instantly without waiting for network
+        setCurrentBooking(draftBooking);
+        setShowBookingModal(false);
+        setShowPaymentModal(true);
+
         try {
-            let savedBooking;
-            try {
-                savedBooking = await bookingAPI.create(booking);
-            } catch (serverErr) {
-                console.warn("Backend reservation endpoint warning, using client fallback:", serverErr.message);
-                savedBooking = {
-                    ...booking,
-                    _id: 'bk_local_' + Date.now(),
-                    bookingId: booking.bookingId || `BK-${Date.now()}`,
-                    paymentStatus: 'pending',
-                    timestamp: new Date().toISOString()
-                };
+            const savedBooking = await bookingAPI.create(booking);
+            if (savedBooking && (savedBooking._id || savedBooking.id)) {
+                setCurrentBooking(savedBooking);
             }
-            setCurrentBooking(savedBooking);
-            setShowBookingModal(false);
-            setShowPaymentModal(true);
-        } catch (err) {
-            notifications.error('Booking Failed', err.message || 'Could not create booking reservation.');
+        } catch (serverErr) {
+            console.warn("Backend reservation endpoint warning, using client draft:", serverErr.message);
         }
     };
 
@@ -722,7 +721,7 @@ const ParkingDashboard = () => {
             )}
 
             {/* Payment Modal */}
-            {showPaymentModal && currentBooking && (
+            {showPaymentModal && (
                 <PaymentModal
                     booking={currentBooking}
                     onClose={() => setShowPaymentModal(false)}
