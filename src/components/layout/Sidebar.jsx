@@ -17,15 +17,15 @@ const Sidebar = () => {
     };
     const navItems = [
         { icon: LayoutDashboard, label: 'Overview', path: '/' },
-        { icon: Car, label: 'Traffic Control', path: '/traffic' },
-        { icon: Eye, label: 'Computer Vision', path: '/traffic-cv' },
         { icon: CircleParking, label: 'Smart Parking', path: '/parking' },
         { icon: Smartphone, label: 'Citizen Portal', path: '/citizen-portal' },
         { icon: History, label: 'Booking History', path: '/booking-history' },
-        { icon: BarChart3, label: 'Analytics', path: '/analytics' },
-        { icon: Cpu, label: 'RAPIDS Analytics', path: '/rapids-analytics' },
-        { icon: PieChart, label: 'Parking Analytics', path: '/parking-analytics' },
-        { icon: Settings, label: 'Settings', path: '/settings' },
+        { icon: Car, label: 'Traffic Control', path: '/traffic', adminOnly: true },
+        { icon: Eye, label: 'Computer Vision', path: '/traffic-cv', adminOnly: true },
+        { icon: BarChart3, label: 'Analytics', path: '/analytics', adminOnly: true },
+        { icon: Cpu, label: 'RAPIDS Analytics', path: '/rapids-analytics', adminOnly: true },
+        { icon: PieChart, label: 'Parking Analytics', path: '/parking-analytics', adminOnly: true },
+        { icon: Settings, label: 'Settings', path: '/settings', adminOnly: true },
         { icon: ShieldAlert, label: 'User Admin', path: '/admin-users', adminOnly: true },
     ];
 
