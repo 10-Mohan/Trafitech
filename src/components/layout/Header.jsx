@@ -1,11 +1,10 @@
-import { Bell, Search, AlertTriangle, User, ShieldCheck, Moon, Sun, Menu } from 'lucide-react';
-import { clsx } from 'clsx';
+import { Bell, Search, User, ShieldCheck, Moon, Sun, Menu } from 'lucide-react';
 import { useTheme } from '../ThemeContext';
 import { useApp } from '../../context/AppContext';
 
 const Header = () => {
     const { theme, toggleTheme } = useTheme();
-    const { emergencyMode, toggleEmergency, toggleMobileMenu } = useApp();
+    const { toggleMobileMenu } = useApp();
 
     return (
         <header className="h-16 w-full flex items-center justify-between px-4 md:px-6 bg-slate-50/90 dark:bg-brand-dark/50 backdrop-blur-md border-b border-slate-100 dark:border-white/5 sticky top-0 z-40">
@@ -40,20 +39,6 @@ const Header = () => {
                     {theme === 'dark' ? <Sun size={20} className="text-brand-yellow" /> : <Moon size={20} />}
                 </button>
 
-                {/* Emergency Toggle */}
-                <button
-                    onClick={toggleEmergency}
-                    className={clsx(
-                        "flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full font-bold text-[10px] md:text-sm transition-all duration-300 border",
-                        emergencyMode
-                            ? "bg-brand-red text-white border-brand-red shadow-[0_0_20px_rgba(255,0,85,0.6)] animate-pulse"
-                            : "bg-brand-red/10 text-brand-red border-brand-red/30 hover:bg-brand-red/20"
-                    )}
-                >
-                    <AlertTriangle size={16} className="md:w-[18px]" />
-                    <span className="hidden sm:inline">{emergencyMode ? "EMERGENCY ACTIVE" : "EMERGENCY OVERRIDE"}</span>
-                    <span className="sm:hidden">{emergencyMode ? "ACTIVE" : "SOS"}</span>
-                </button>
 
                 {/* Notifications */}
                 <button className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
