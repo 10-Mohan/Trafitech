@@ -254,25 +254,28 @@ const ParkingDashboard = () => {
         }
     };
 
-    const handleBookingConfirm = (booking) => {
-        setCurrentBooking(booking);
-        setShowBookingModal(false);
-        setShowPaymentModal(true);
+    const handleBookingConfirm = async (booking) => {
+        try {
+            // Save to backend and retrieve saved object with valid _id
+            const savedBooking = await bookingAPI.create(booking);
+            setCurrentBooking(savedBooking);
+            setShowBookingModal(false);
+            setShowPaymentModal(true);
+        } catch (err) {
+            notifications.error('Booking Failed', err.message || 'Could not create booking reservation.');
+        }
     };
 
-    const handlePaymentSuccess = async (booking) => {
+    const handlePaymentSuccess = async (paymentData) => {
         try {
-            // Save to backend and retrieve saved object
-            const savedBooking = await bookingAPI.create(booking);
-
             // Update slot status locally
-            setSlots(slots.map(s => s.id === selectedSlot.id ? { ...s, status: 'reserved' } : s));
-            setCompletedBooking(savedBooking);
+            setSlots(slots.map(s => (selectedSlot && s.id === selectedSlot.id) ? { ...s, status: 'reserved' } : s));
+            setCompletedBooking(currentBooking || paymentData);
             setShowPaymentModal(false);
 
             notifications.success(
                 'Booking Confirmed!',
-                `Your parking slot ${selectedSlot.title} has been reserved successfully and saved to your account.`
+                `Your parking slot ${selectedSlot?.title || ''} has been reserved successfully and saved to your account.`
             );
 
             // Fetch active slots again to show real-time database state
@@ -280,7 +283,7 @@ const ParkingDashboard = () => {
                 loadZoneSlots(selectedParkingZone.id);
             }
         } catch (err) {
-            notifications.error('Booking Failed', err.message || 'Could not save booking to server.');
+            notifications.error('Booking Error', err.message || 'Could not complete booking workflow.');
         }
     };
 

@@ -14,24 +14,27 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!stripe || !elements) return;
-
         setProcessing(true);
         setError(null);
 
         try {
+            const targetBookingId = booking?._id || booking?.id || booking?.bookingId;
+
             // 1. Create Payment Intent on backend
-            let clientSecret;
-            try {
-                const response = await bookingAPI.createPaymentIntent(booking._id || booking.id);
-                clientSecret = response.clientSecret;
-            } catch (backendErr) {
-                console.warn("Backend Stripe Error (Using Mock Fallback):", backendErr);
-                // Fallback to mock success if backend Stripe keys are invalid in demo
-                clientSecret = 'MOCK_DEMO_SECRET';
+            let clientSecret = 'MOCK_DEMO_SECRET';
+            if (targetBookingId && stripe && elements) {
+                try {
+                    const response = await bookingAPI.createPaymentIntent(targetBookingId);
+                    if (response && response.clientSecret) {
+                        clientSecret = response.clientSecret;
+                    }
+                } catch (backendErr) {
+                    console.warn("Backend Stripe Error (Using Mock Fallback):", backendErr);
+                    clientSecret = 'MOCK_DEMO_SECRET';
+                }
             }
 
-            if (clientSecret === 'MOCK_DEMO_SECRET') {
+            if (clientSecret === 'MOCK_DEMO_SECRET' || !stripe || !elements) {
                 // Mock Demo Flow
                 setTimeout(() => {
                     setSuccess(true);
