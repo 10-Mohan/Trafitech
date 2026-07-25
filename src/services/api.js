@@ -24,22 +24,22 @@ const getHeaders = () => {
 };
 
 export const authAPI = {
-    login: async (email, password) => {
+    login: async (email, password, role) => {
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email, password, role })
         });
         const data = await handleResponse(response);
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         return data;
     },
-    register: async (username, email, password) => {
+    register: async (username, email, password, role = 'user') => {
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password })
+            body: JSON.stringify({ username, email, password, role })
         });
         const data = await handleResponse(response);
         localStorage.setItem('token', data.token);

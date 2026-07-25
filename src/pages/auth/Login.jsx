@@ -6,6 +6,7 @@ import { authAPI } from '../../services/api';
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [role, setRole] = useState('user'); // 'user' or 'admin'
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -16,7 +17,7 @@ const Login = () => {
         setLoading(true);
 
         try {
-            await authAPI.login(email, password);
+            await authAPI.login(email, password, role);
             navigate('/');
         } catch (err) {
             setError(err.message);
@@ -31,12 +32,38 @@ const Login = () => {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px] pointer-events-none"></div>
 
             <div className="w-full max-w-md glass-panel p-8 relative z-10 border border-slate-200 dark:border-white/10">
-                <div className="text-center mb-10">
+                <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center p-3 bg-blue-500/20 rounded-2xl mb-4 border border-blue-500/30">
                         <LogIn className="w-8 h-8 text-blue-400" />
                     </div>
                     <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Welcome Back</h1>
-                    <p className="text-blue-200/60">Log in to manage your bookings</p>
+                    <p className="text-blue-200/60">Log in to manage your smart traffic session</p>
+                </div>
+
+                {/* Role Mode Selector */}
+                <div className="flex bg-slate-800/60 p-1 rounded-xl mb-6 border border-white/10">
+                    <button
+                        type="button"
+                        onClick={() => setRole('user')}
+                        className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                            role === 'user'
+                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                : 'text-slate-400 hover:text-white'
+                        }`}
+                    >
+                        🚗 Regular Driver
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setRole('admin')}
+                        className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                            role === 'admin'
+                                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+                                : 'text-slate-400 hover:text-white'
+                        }`}
+                    >
+                        🛡️ City Admin
+                    </button>
                 </div>
 
                 {error && (

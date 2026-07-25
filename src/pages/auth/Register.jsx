@@ -8,7 +8,8 @@ const Register = () => {
         username: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        role: 'user' // 'user' or 'admin'
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -29,7 +30,7 @@ const Register = () => {
         setLoading(true);
 
         try {
-            await authAPI.register(formData.username, formData.email, formData.password);
+            await authAPI.register(formData.username, formData.email, formData.password, formData.role);
             navigate('/');
         } catch (err) {
             setError(err.message);
@@ -44,12 +45,38 @@ const Register = () => {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-500/20 rounded-full blur-[120px] pointer-events-none"></div>
 
             <div className="w-full max-w-md glass-panel p-8 relative z-10 border border-slate-200 dark:border-white/10">
-                <div className="text-center mb-10">
+                <div className="text-center mb-6">
                     <div className="inline-flex items-center justify-center p-3 bg-purple-500/20 rounded-2xl mb-4 border border-purple-500/30">
                         <UserPlus className="w-8 h-8 text-purple-400" />
                     </div>
                     <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Create Account</h1>
                     <p className="text-blue-200/60">Join the smart parking revolution</p>
+                </div>
+
+                {/* Role Selector Tabs */}
+                <div className="flex bg-slate-800/60 p-1 rounded-xl mb-6 border border-white/10">
+                    <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, role: 'user' })}
+                        className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                            formData.role === 'user'
+                                ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30'
+                                : 'text-slate-400 hover:text-white'
+                        }`}
+                    >
+                        🚗 Regular Driver
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, role: 'admin' })}
+                        className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                            formData.role === 'admin'
+                                ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
+                                : 'text-slate-400 hover:text-white'
+                        }`}
+                    >
+                        🛡️ City Admin
+                    </button>
                 </div>
 
                 {error && (
