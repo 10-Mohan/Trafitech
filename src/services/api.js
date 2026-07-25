@@ -35,11 +35,11 @@ export const authAPI = {
         localStorage.setItem('user', JSON.stringify(data.user));
         return data;
     },
-    register: async (username, email, password, role = 'user') => {
+    register: async (username, email, password, role = 'user', adminSecret = '') => {
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password, role })
+            body: JSON.stringify({ username, email, password, role, adminSecret })
         });
         const data = await handleResponse(response);
         localStorage.setItem('token', data.token);

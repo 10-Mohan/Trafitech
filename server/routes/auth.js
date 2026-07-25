@@ -8,14 +8,22 @@ const router = express.Router();
 // Register User
 router.post('/register', async (req, res) => {
     try {
-        const { username, email, password, role } = req.body;
+        const { username, email, password, role, adminSecret } = req.body;
 
         let user = await User.findOne({ $or: [{ email }, { username }] });
         if (user) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        const userRole = role === 'admin' ? 'admin' : 'user';
+        let userRole = 'user';
+        if (role === 'admin') {
+            const validAdminSecret = process.env.ADMIN_SECRET_KEY || 'traffitech-admin-2026';
+            if (!adminSecret || adminSecret !== validAdminSecret) {
+                return res.status(403).json({ message: 'Invalid or missing Admin Passcode. Cannot create Administrator account.' });
+            }
+            userRole = 'admin';
+        }
+
         user = new User({ username, email, password, role: userRole });
         await user.save();
 
@@ -41,9 +49,14 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        const userRole = role || user.role || 'user';
-        const token = jwt.sign({ id: user._id, role: userRole }, process.env.JWT_SECRET || 'traffitech_super_secret_key_123', { expiresIn: '7d' });
-        res.json({ token, user: { id: user._id, username: user.username, email: user.email, role: userRole } });
+        // Strict role validation: Always enforce the role stored in DB
+        const storedRole = user.role || 'user';
+        if (role === 'admin' && storedRole !== 'admin') {
+            return res.status(403).json({ message: 'Access Denied: This account does not have Administrator privileges.' });
+        }
+
+        const token = jwt.sign({ id: user._id, role: storedRole }, process.env.JWT_SECRET || 'traffitech_super_secret_key_123', { expiresIn: '7d' });
+        res.json({ token, user: { id: user._id, username: user.username, email: user.email, role: storedRole } });
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }

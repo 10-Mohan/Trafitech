@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { UserPlus, Mail, Lock, User as UserIcon, AlertCircle } from 'lucide-react';
+import { UserPlus, Mail, Lock, User as UserIcon, AlertCircle, ShieldCheck } from 'lucide-react';
 import { authAPI } from '../../services/api';
 
 const Register = () => {
@@ -9,7 +9,8 @@ const Register = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        role: 'user' // 'user' or 'admin'
+        role: 'user', // 'user' or 'admin'
+        adminSecret: ''
     });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -30,7 +31,13 @@ const Register = () => {
         setLoading(true);
 
         try {
-            await authAPI.register(formData.username, formData.email, formData.password, formData.role);
+            await authAPI.register(
+                formData.username,
+                formData.email,
+                formData.password,
+                formData.role,
+                formData.adminSecret
+            );
             navigate('/');
         } catch (err) {
             setError(err.message);
@@ -150,6 +157,27 @@ const Register = () => {
                             />
                         </div>
                     </div>
+
+                    {formData.role === 'admin' && (
+                        <div>
+                            <label className="block text-sm font-medium text-purple-300 mb-2 ml-1 flex items-center gap-1.5">
+                                <ShieldCheck className="w-4 h-4 text-purple-400" />
+                                Admin Security Passcode
+                            </label>
+                            <div className="relative group">
+                                <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-purple-400/70 group-focus-within:text-purple-400 transition-colors" />
+                                <input
+                                    name="adminSecret"
+                                    type="password"
+                                    required={formData.role === 'admin'}
+                                    value={formData.adminSecret}
+                                    onChange={handleChange}
+                                    className="w-full bg-purple-950/40 shadow-sm border border-purple-500/40 rounded-xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-purple-400 focus:bg-purple-900/40 transition-all"
+                                    placeholder="Enter Admin Passcode (e.g. traffitech-admin-2026)"
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     <button
                         type="submit"
