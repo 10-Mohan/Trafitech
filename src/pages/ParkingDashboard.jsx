@@ -289,19 +289,38 @@ const ParkingDashboard = () => {
 
     const handlePaymentSuccess = async (paymentData) => {
         try {
-            // Update slot status locally
-            setSlots(slots.map(s => (selectedSlot && s.id === selectedSlot.id) ? { ...s, status: 'reserved' } : s));
-            setCompletedBooking(currentBooking || paymentData);
+            const finalBooking = currentBooking || paymentData;
+            const targetSlotId = selectedSlot?.id;
+            const vehicleNum = finalBooking?.vehicleNumber || 'KA-01-AB-1234';
+
+            // 1. Instantly lock and update slot status locally to reserved
+            setSlots(prevSlots => prevSlots.map(s => {
+                if (targetSlotId && s.id === targetSlotId) {
+                    return {
+                        ...s,
+                        status: 'reserved',
+                        vehicleId: vehicleNum
+                    };
+                }
+                return s;
+            }));
+
+            setCompletedBooking(finalBooking);
             setShowPaymentModal(false);
 
             notifications.success(
                 'Booking Confirmed!',
-                `Your parking slot ${selectedSlot?.title || ''} has been reserved successfully and saved to your account.`
+                `Your parking slot ${selectedSlot?.title || ''} is now reserved for ${vehicleNum}.`
             );
 
-            // Fetch active slots again to show real-time database state
-            if (selectedParkingZone) {
-                loadZoneSlots(selectedParkingZone.id);
+            // 2. Persist payment status update to backend asynchronously
+            const targetBookingId = finalBooking?._id || finalBooking?.id;
+            if (targetBookingId && !String(targetBookingId).startsWith('bk_local_')) {
+                try {
+                    await bookingAPI.update(targetBookingId, { paymentStatus: 'completed' });
+                } catch (e) {
+                    console.warn("Backend booking status sync warning:", e.message);
+                }
             }
         } catch (err) {
             notifications.error('Booking Error', err.message || 'Could not complete booking workflow.');
