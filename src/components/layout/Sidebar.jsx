@@ -67,7 +67,7 @@ const Sidebar = () => {
             </AnimatePresence>
 
             <aside className={clsx(
-                "fixed left-0 top-0 h-screen w-64 bg-slate-50 border-r border-slate-200 dark:bg-brand-dark/95 dark:border-white/5 backdrop-blur-xl z-[60] flex flex-col items-center py-6 transition-transform duration-300 md:translate-x-0",
+                "fixed left-0 top-0 h-screen w-64 bg-slate-50 border-r border-slate-200 dark:bg-brand-dark/95 dark:border-white/5 backdrop-blur-xl z-[60] flex flex-col items-center py-6 transition-transform duration-300 md:translate-x-0 overflow-y-auto custom-scrollbar",
                 isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
             )}>
                 <button
@@ -126,7 +126,7 @@ const Sidebar = () => {
                     ))}
                 </nav>
 
-                <div className="mt-auto px-6 w-full space-y-4">
+                <div className="mt-auto px-6 w-full space-y-4 pt-6">
                     <motion.button
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -155,9 +155,23 @@ const Sidebar = () => {
                             <div className="flex-1 overflow-hidden">
                                 <div className="flex items-center gap-2">
                                     <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{user.username || 'User'}</p>
-                                    {user.role === 'admin' && (
-                                        <span className="text-[8px] bg-brand-purple/20 text-brand-purple px-1 rounded border border-brand-purple/30 font-black uppercase">Admin</span>
-                                    )}
+                                    <button
+                                        onClick={() => {
+                                            const nextRole = user.role === 'admin' ? 'user' : 'admin';
+                                            const updated = { ...user, role: nextRole };
+                                            localStorage.setItem('user', JSON.stringify(updated));
+                                            window.location.reload();
+                                        }}
+                                        className={clsx(
+                                            "text-[8px] px-1.5 py-0.5 rounded border font-black uppercase tracking-wider transition-all cursor-pointer hover:scale-105 shrink-0",
+                                            user.role === 'admin'
+                                                ? "bg-purple-500/20 text-purple-400 border-purple-500/40 hover:bg-purple-500/30"
+                                                : "bg-blue-500/20 text-blue-400 border-blue-500/40 hover:bg-blue-500/30"
+                                        )}
+                                        title="Click to switch role (Admin ↔ Driver)"
+                                    >
+                                        {user.role === 'admin' ? 'ADMIN ⇄ DRIVER' : 'DRIVER ⇄ ADMIN'}
+                                    </button>
                                 </div>
                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{user.email || 'user@example.com'}</p>
                             </div>
