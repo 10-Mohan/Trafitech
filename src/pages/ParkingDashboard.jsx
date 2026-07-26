@@ -237,6 +237,23 @@ const ParkingDashboard = () => {
         }
     };
 
+    const checkInSlot = () => {
+        if (selectedSlot && selectedSlot.status === 'reserved') {
+            const updatedSlot = {
+                ...selectedSlot,
+                status: 'occupied'
+            };
+
+            setSlots(prevSlots => prevSlots.map(s => s.id === selectedSlot.id ? updatedSlot : s));
+            setSelectedSlot(updatedSlot);
+
+            notifications.success(
+                'Vehicle Checked In!',
+                `Slot ${selectedSlot.title} is now OCCUPIED by vehicle ${selectedSlot.vehicleId || 'KA-01-AB-1234'}.`
+            );
+        }
+    };
+
     const confirmExit = () => {
         if (exitSlot) {
             setSlots(slots.map(s => s.id === exitSlot.id ? { ...s, status: 'free', vehicleId: null } : s));
@@ -708,12 +725,27 @@ const ParkingDashboard = () => {
                                         )}
                                     </div>
 
+                                    {selectedSlot.status === 'reserved' && (
+                                        <button
+                                            onClick={checkInSlot}
+                                            className="w-full py-3 mt-4 bg-brand-green text-brand-dark font-bold rounded-xl hover:bg-brand-green/90 hover:scale-[1.02] transition-all flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(0,255,157,0.2)]"
+                                        >
+                                            <CheckCircle2 size={20} />
+                                            🚗 Vehicle Arrived (Mark Occupied)
+                                        </button>
+                                    )}
+
                                     <button
                                         onClick={releaseSlot}
-                                        className="w-full py-3 mt-4 bg-red-500/10 text-red-500 border border-red-500/20 font-bold rounded-xl hover:bg-red-500/20 transition-all flex items-center justify-center gap-2"
+                                        className={clsx(
+                                            "w-full py-3 font-bold rounded-xl transition-all flex items-center justify-center gap-2",
+                                            selectedSlot.status === 'reserved'
+                                                ? "mt-2 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20"
+                                                : "mt-4 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20"
+                                        )}
                                     >
                                         <CheckCircle2 size={20} />
-                                        Release Slot (Clear)
+                                        {selectedSlot.status === 'reserved' ? 'Cancel / Exit Slot' : 'Release / Exit Slot (Clear)'}
                                     </button>
 
                                     <button
