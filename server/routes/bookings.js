@@ -121,6 +121,33 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
+// Update booking details (e.g. paymentStatus, vehicleId) - Protected
+router.put('/:id', auth, async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id);
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+
+        const plain = toPlain(booking);
+        const userId = String(plain.user || '');
+        if (userId !== String(req.user.id) && req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Not authorized to update this booking' });
+        }
+
+        const { paymentStatus, paymentId, paymentMethod, paidAt } = req.body;
+        if (paymentStatus) booking.paymentStatus = paymentStatus;
+        if (paymentId) booking.paymentId = paymentId;
+        if (paymentMethod) booking.paymentMethod = paymentMethod;
+        if (paidAt) booking.paidAt = paidAt;
+
+        const updated = await booking.save();
+        res.json(toPlain(updated));
+    } catch (err) {
+        res.status(500).json({ message: err.message || 'Server error', error: err.message });
+    }
+});
+
 // Cancel a booking and process Stripe refund
 router.post('/:id/cancel', auth, async (req, res) => {
     try {

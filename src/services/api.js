@@ -96,6 +96,14 @@ export const bookingAPI = {
         });
         return handleResponse(response);
     },
+    update: async (bookingId, updateData) => {
+        const response = await fetch(`${API_URL}/bookings/${bookingId}`, {
+            method: 'PUT',
+            headers: getHeaders(),
+            body: JSON.stringify(updateData)
+        });
+        return handleResponse(response);
+    },
     cancel: async (bookingId) => {
         const response = await fetch(`${API_URL}/bookings/${bookingId}/cancel`, {
             method: 'POST',

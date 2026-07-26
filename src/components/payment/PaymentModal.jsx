@@ -79,37 +79,18 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
         setProcessing(true);
         setProcessingStep('Encrypting security payload...');
 
-        // Step simulation updates
         setTimeout(() => setProcessingStep('Verifying token with bank...'), 800);
         setTimeout(() => setProcessingStep('Authorizing transaction...'), 1600);
-
-        let resolved = false;
-        const failSafeTimer = setTimeout(() => {
-            if (!resolved) {
-                resolved = true;
-                setSuccess(true);
-                setProcessing(false);
-                setTimeout(() => {
-                    onSuccess({
-                        ...booking,
-                        paymentId: 'tx_' + Date.now(),
-                        paymentMethod: paymentMethod,
-                        paymentStatus: 'completed',
-                        paidAt: new Date().toISOString()
-                    });
-                }, 1400);
-            }
-        }, 3200);
 
         try {
             const targetBookingId = booking?._id || booking?.id || booking?.bookingId;
 
             let clientSecret = null;
-            if (targetBookingId && !targetBookingId.startsWith('bk_local_') && stripe && elements && paymentMethod === 'card') {
+            if (targetBookingId && !String(targetBookingId).startsWith('bk_local_') && stripe && elements && paymentMethod === 'card') {
                 try {
                     const response = await Promise.race([
                         bookingAPI.createPaymentIntent(targetBookingId),
-                        new Promise((_, reject) => setTimeout(() => reject(new Error('Backend timeout')), 2000))
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('Backend payment intent timeout')), 2500))
                     ]);
                     if (response && response.clientSecret) {
                         clientSecret = response.clientSecret;
@@ -119,73 +100,58 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
                 }
             }
 
-            if (!clientSecret || clientSecret === 'MOCK_DEMO_SECRET' || paymentMethod !== 'card') {
-                if (!resolved) {
-                    resolved = true;
-                    clearTimeout(failSafeTimer);
-                    setTimeout(() => {
+            // Real Stripe payment processing if clientSecret exists
+            if (clientSecret && clientSecret !== 'MOCK_DEMO_SECRET' && stripe && elements) {
+                const cardEl = elements.getElement(CardElement);
+                if (cardEl) {
+                    const result = await stripe.confirmCardPayment(clientSecret, {
+                        payment_method: {
+                            card: cardEl,
+                            billing_details: { name: cardHolder || 'Guest User' },
+                        },
+                    });
+
+                    if (result.error) {
+                        setProcessing(false);
+                        setError(result.error.message || 'Payment authorization failed');
+                        return;
+                    }
+
+                    if (result.paymentIntent?.status === 'succeeded') {
                         setSuccess(true);
                         setProcessing(false);
                         setTimeout(() => {
                             onSuccess({
                                 ...booking,
-                                paymentId: 'tx_demo_' + Date.now(),
-                                paymentMethod: paymentMethod,
-                                paymentStatus: 'completed',
-                                paidAt: new Date().toISOString()
-                            });
-                        }, 1400);
-                    }, 1200);
-                }
-                return;
-            }
-
-            // Real Stripe payment processing
-            const cardEl = elements.getElement(CardElement);
-            if (cardEl) {
-                const result = await stripe.confirmCardPayment(clientSecret, {
-                    payment_method: {
-                        card: cardEl,
-                        billing_details: { name: cardHolder || 'Guest User' },
-                    },
-                });
-
-                if (!resolved) {
-                    resolved = true;
-                    clearTimeout(failSafeTimer);
-                    if (result.paymentIntent?.status === 'succeeded' || !result.error) {
-                        setSuccess(true);
-                        setProcessing(false);
-                        setTimeout(() => {
-                            onSuccess({
-                                ...booking,
-                                paymentId: result.paymentIntent?.id || ('tx_real_' + Date.now()),
+                                paymentId: result.paymentIntent.id,
                                 paymentMethod: 'card',
                                 paymentStatus: 'completed',
                                 paidAt: new Date().toISOString()
                             });
                         }, 1400);
-                    } else {
-                        throw new Error(result.error?.message || 'Payment authorization failed');
+                        return;
                     }
                 }
             }
-        } catch (err) {
-            if (!resolved) {
-                resolved = true;
-                clearTimeout(failSafeTimer);
+
+            // Demo / Test payment authorization for local bookings
+            setTimeout(() => {
                 setSuccess(true);
                 setProcessing(false);
                 setTimeout(() => {
                     onSuccess({
                         ...booking,
-                        paymentId: 'tx_verified_' + Date.now(),
+                        paymentId: 'tx_demo_' + Date.now(),
                         paymentMethod: paymentMethod,
                         paymentStatus: 'completed',
                         paidAt: new Date().toISOString()
                     });
                 }, 1400);
-            }
+            }, 1200);
+
+        } catch (err) {
+            setProcessing(false);
+            setError(err.message || 'Payment processing failed. Please check your card details and try again.');
         }
     };
 
