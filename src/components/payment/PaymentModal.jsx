@@ -362,7 +362,7 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
                                             </div>
                                         ) : (
                                             /* BACK OF CARD */
-                                            <div className="flex flex-col justify-between h-full relative z-10 rotate-180 transform scale-x-[-1]">
+                                            <div className="flex flex-col justify-between h-full relative z-10 [transform:rotateY(180deg)]">
                                                 <div className="w-full h-8 bg-slate-950 -mx-5 mt-1 border-y border-slate-800"></div>
                                                 <div className="my-2">
                                                     <div className="bg-white/10 p-2 rounded flex justify-end items-center">
