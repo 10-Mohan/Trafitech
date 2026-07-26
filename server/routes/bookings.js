@@ -121,7 +121,7 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
-// Update booking details (e.g. paymentStatus, vehicleId) - Protected
+// Update booking details (e.g. paymentStatus, vehicleId) - Protected with Server-Side Stripe Verification
 router.put('/:id', auth, async (req, res) => {
     try {
         const booking = await Booking.findById(req.params.id);
@@ -136,6 +136,27 @@ router.put('/:id', auth, async (req, res) => {
         }
 
         const { paymentStatus, paymentId, paymentMethod, paidAt } = req.body;
+
+        // If client requests marking booking as completed/paid
+        if (paymentStatus === 'completed' || paymentStatus === 'paid') {
+            // Check if paymentId is a real Stripe PaymentIntent ID (starts with pi_)
+            if (paymentId && String(paymentId).startsWith('pi_') && process.env.STRIPE_SECRET_KEY) {
+                try {
+                    const intent = await stripe.paymentIntents.retrieve(paymentId);
+                    if (intent.status !== 'succeeded') {
+                        return res.status(400).json({
+                            message: `Payment verification failed. PaymentIntent status is '${intent.status}', expected 'succeeded'.`
+                        });
+                    }
+                } catch (stripeErr) {
+                    return res.status(400).json({
+                        message: 'Payment verification failed: Invalid or unverified Stripe PaymentIntent.',
+                        error: stripeErr.message
+                    });
+                }
+            }
+        }
+
         if (paymentStatus) booking.paymentStatus = paymentStatus;
         if (paymentId) booking.paymentId = paymentId;
         if (paymentMethod) booking.paymentMethod = paymentMethod;
