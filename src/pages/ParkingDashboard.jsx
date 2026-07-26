@@ -23,9 +23,9 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 const defaultSpots = [
-    { id: 'mall', pos: [12.9736, 77.5966], label: "City Mall Parking", available: 12, originalPrice: 50, price: 50, amenities: ['Covered', 'EV Charging'], distance: 0.3 },
-    { id: 'metro', pos: [12.9701, 77.5956], label: "Metro Station Lot", available: 5, originalPrice: 40, price: 40, amenities: ['Open Air'], distance: 0.2 },
-    { id: 'park', pos: [12.9726, 77.5926], label: "Central Park Garage", available: 18, originalPrice: 45, price: 45, amenities: ['Covered'], distance: 0.4 },
+    { id: 'mall', pos: [12.9736, 77.5966], label: "City Mall Parking", available: 17, originalPrice: 50, price: 50, amenities: ['Covered', 'EV Charging'], distance: 0.3 },
+    { id: 'metro', pos: [12.9701, 77.5956], label: "Metro Station Lot", available: 17, originalPrice: 40, price: 40, amenities: ['Open Air'], distance: 0.2 },
+    { id: 'park', pos: [12.9726, 77.5926], label: "Central Park Garage", available: 17, originalPrice: 45, price: 45, amenities: ['Covered'], distance: 0.4 },
 ];
 
 const ParkingDashboard = () => {
@@ -158,6 +158,14 @@ const ParkingDashboard = () => {
     };
 
     const [slots, setSlots] = useState(() => generateSlots('mall'));
+
+    const getZoneAvailableCount = (zoneId) => {
+        if (selectedParkingZone?.id === zoneId && Array.isArray(slots) && slots.length > 0) {
+            return slots.filter(s => s.status === 'free').length;
+        }
+        const zoneSlots = generateSlots(zoneId);
+        return zoneSlots.filter(s => s.status === 'free').length;
+    };
 
     const loadZoneSlots = async (zoneId) => {
         const safeZoneId = (typeof zoneId === 'string' && zoneId) ? zoneId : 'mall';
@@ -497,39 +505,41 @@ const ParkingDashboard = () => {
                         Nearby Parking Zones
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {sortedSpots.map((spot) => (
-                            <div
-                                key={spot.id}
-                                onClick={() => handleZoneSelect(spot)}
-                                className={clsx(
-                                    "p-4 rounded-xl border transition-all cursor-pointer relative overflow-hidden",
-                                    selectedParkingZone?.id === spot.id
-                                        ? "bg-brand-blue/10 border-brand-blue shadow-[0_0_15px_rgba(0,243,255,0.2)]"
-                                        : spot.available > 0
-                                            ? "bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10  hover:bg-slate-50 dark:hover:bg-white/10 hover:border-brand-blue/50"
-                                            : "bg-red-500/5 border-red-500/20 opacity-60"
-                                )}
-                            >
-                                {selectedParkingZone?.id === spot.id && (
-                                    <div className="absolute top-0 right-0 p-1.5 bg-brand-blue rounded-bl-xl">
-                                        <CheckCircle2 size={12} className="text-brand-dark" />
+                        {sortedSpots.map((spot) => {
+                            const spotFreeCount = getZoneAvailableCount(spot.id);
+                            return (
+                                <div
+                                    key={spot.id}
+                                    onClick={() => handleZoneSelect(spot)}
+                                    className={clsx(
+                                        "p-4 rounded-xl border transition-all cursor-pointer relative overflow-hidden",
+                                        selectedParkingZone?.id === spot.id
+                                            ? "bg-brand-blue/10 border-brand-blue shadow-[0_0_15px_rgba(0,243,255,0.2)]"
+                                            : spotFreeCount > 0
+                                                ? "bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10  hover:bg-slate-50 dark:hover:bg-white/10 hover:border-brand-blue/50"
+                                                : "bg-red-500/5 border-red-500/20 opacity-60"
+                                    )}
+                                >
+                                    {selectedParkingZone?.id === spot.id && (
+                                        <div className="absolute top-0 right-0 p-1.5 bg-brand-blue rounded-bl-xl">
+                                            <CheckCircle2 size={12} className="text-brand-dark" />
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h4 className="font-bold text-slate-800 dark:text-white text-sm">{spot.label}</h4>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+                                                <MapPin size={12} />
+                                                {spot.distance.toFixed(1)} km away
+                                            </p>
+                                        </div>
+                                        <div className={clsx(
+                                            "px-2 py-1 rounded-full text-xs font-bold",
+                                            spotFreeCount > 0 ? "bg-brand-green/20 text-brand-green" : "bg-red-500/20 text-red-500"
+                                        )}>
+                                            {spotFreeCount > 0 ? `${spotFreeCount} Free` : 'Full'}
+                                        </div>
                                     </div>
-                                )}
-                                <div className="flex justify-between items-start mb-3">
-                                    <div>
-                                        <h4 className="font-bold text-slate-800 dark:text-white text-sm">{spot.label}</h4>
-                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
-                                            <MapPin size={12} />
-                                            {spot.distance.toFixed(1)} km away
-                                        </p>
-                                    </div>
-                                    <div className={clsx(
-                                        "px-2 py-1 rounded-full text-xs font-bold",
-                                        spot.available > 0 ? "bg-brand-green/20 text-brand-green" : "bg-red-500/20 text-red-500"
-                                    )}>
-                                        {spot.available > 0 ? `${spot.available} Free` : 'Full'}
-                                    </div>
-                                </div>
 
                                 <div className="flex flex-wrap gap-1 mb-3">
                                     {spot.amenities.map((amenity, idx) => (
@@ -558,7 +568,8 @@ const ParkingDashboard = () => {
                                     )}
                                 </div>
                             </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             )}
