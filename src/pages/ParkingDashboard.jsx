@@ -224,16 +224,15 @@ const ParkingDashboard = () => {
 
     const releaseSlot = () => {
         if (selectedSlot) {
-            // Calculate random duration and price for demo
-            const duration = Math.floor(Math.random() * 5) + 1; // 1-6 hours
-            const price = selectedParkingZone?.price || 50;
-            const amount = duration * price;
+            setSlots(prevSlots => prevSlots.map(s => s.id === selectedSlot.id ? { ...s, status: 'free', vehicleId: null } : s));
 
-            setExitSlot({
-                ...selectedSlot,
-                duration,
-                amount
-            });
+            notifications.success(
+                'Slot Released',
+                `Slot ${selectedSlot.title} is now free. Thank you for parking with TraffiTech!`
+            );
+
+            setSelectedSlot(null);
+            setExitSlot(null);
         }
     };
 
@@ -745,7 +744,7 @@ const ParkingDashboard = () => {
                                         )}
                                     >
                                         <CheckCircle2 size={20} />
-                                        {selectedSlot.status === 'reserved' ? 'Cancel / Exit Slot' : 'Release / Exit Slot (Clear)'}
+                                        {selectedSlot.status === 'reserved' ? 'Cancel Reservation' : 'Release Slot (Exit Parking)'}
                                     </button>
 
                                     <button
