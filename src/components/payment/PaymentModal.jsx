@@ -11,7 +11,7 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
     const [paymentMethod, setPaymentMethod] = useState('card'); // 'card', 'upi', 'wallet'
     const [cardHolder, setCardHolder] = useState('GUEST DRIVER');
     const [cardNumber, setCardNumber] = useState('4532 •••• •••• 8912');
-    const [cardExpiry] = useState('12/28');
+    const [cardExpiry, setCardExpiry] = useState('12/28');
     const [cardCvc, setCardCvc] = useState('•••');
     const [isFlipped, setIsFlipped] = useState(false);
 
@@ -392,44 +392,53 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
                                             onChange={(e) => setCardHolder(e.target.value.toUpperCase())}
                                             onFocus={() => setIsFlipped(false)}
                                             placeholder="GUEST DRIVER"
-                                            className="w-full px-4 py-2.5 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-brand-blue"
+                                            className="w-full px-4 py-2.5 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-semibold text-slate-800 dark:text-white focus:outline-none focus:border-brand-blue transition-all"
                                         />
                                     </div>
 
-                                    {elements ? (
+                                    <div>
+                                        <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Card Number</label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                onChange={handleNumberChange}
+                                                onFocus={() => setIsFlipped(false)}
+                                                placeholder="4532 8910 1112 1314"
+                                                maxLength={19}
+                                                className="w-full px-4 py-2.5 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-mono text-slate-800 dark:text-white focus:outline-none focus:border-brand-blue transition-all"
+                                            />
+                                            <span className="absolute right-3 top-2.5 text-xs font-black tracking-wider text-brand-blue bg-brand-blue/10 px-2 py-0.5 rounded border border-brand-blue/30">
+                                                {getCardBrand(cardNumber)}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
                                         <div>
-                                            <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Stripe Card Input</label>
-                                            <div className="p-3.5 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl focus-within:border-brand-blue">
-                                                <CardElement options={cardElementOptions} />
-                                            </div>
+                                            <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Expiry Date</label>
+                                            <input
+                                                type="text"
+                                                maxLength={5}
+                                                onChange={(e) => setCardExpiry(e.target.value || '12/28')}
+                                                onFocus={() => setIsFlipped(false)}
+                                                placeholder="MM/YY"
+                                                defaultValue="12/28"
+                                                className="w-full px-4 py-2.5 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-mono text-slate-800 dark:text-white focus:outline-none focus:border-brand-blue transition-all"
+                                            />
                                         </div>
-                                    ) : (
-                                        <div className="grid grid-cols-3 gap-2">
-                                            <div className="col-span-2">
-                                                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">Card Number</label>
-                                                <input
-                                                    type="text"
-                                                    onChange={handleNumberChange}
-                                                    onFocus={() => setIsFlipped(false)}
-                                                    placeholder="4532 8910 1112 1314"
-                                                    maxLength={19}
-                                                    className="w-full px-4 py-2.5 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-mono text-slate-800 dark:text-white focus:outline-none focus:border-brand-blue"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">CVC</label>
-                                                <input
-                                                    type="text"
-                                                    maxLength={4}
-                                                    onChange={(e) => setCardCvc(e.target.value || '•••')}
-                                                    onFocus={() => setIsFlipped(true)}
-                                                    onBlur={() => setIsFlipped(false)}
-                                                    placeholder="123"
-                                                    className="w-full px-3 py-2.5 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-mono text-slate-800 dark:text-white text-center focus:outline-none focus:border-brand-blue"
-                                                />
-                                            </div>
+                                        <div>
+                                            <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1">CVV / CVC Number</label>
+                                            <input
+                                                type="password"
+                                                maxLength={4}
+                                                onChange={(e) => setCardCvc(e.target.value || '•••')}
+                                                onFocus={() => setIsFlipped(true)}
+                                                onBlur={() => setIsFlipped(false)}
+                                                placeholder="123"
+                                                className="w-full px-4 py-2.5 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-mono text-slate-800 dark:text-white text-center focus:outline-none focus:border-brand-blue transition-all"
+                                            />
                                         </div>
-                                    )}
+                                    </div>
                                 </div>
                             )}
 
