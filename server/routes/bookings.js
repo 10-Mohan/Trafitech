@@ -139,8 +139,15 @@ router.put('/:id', auth, async (req, res) => {
 
         // If client requests marking booking as completed/paid
         if (paymentStatus === 'completed' || paymentStatus === 'paid') {
-            // Check if paymentId is a real Stripe PaymentIntent ID (starts with pi_)
-            if (paymentId && String(paymentId).startsWith('pi_')) {
+            const isProduction = process.env.NODE_ENV === 'production' || !!process.env.STRIPE_SECRET_KEY;
+
+            // Strict Deny-By-Default: Require valid, Stripe-verified pi_... PaymentIntent ID
+            if (isProduction) {
+                if (!paymentId || !String(paymentId).startsWith('pi_')) {
+                    return res.status(400).json({
+                        message: 'Payment verification failed: A valid, verified Stripe PaymentIntent ID (starting with pi_) is required to mark a booking as completed.'
+                    });
+                }
                 if (!process.env.STRIPE_SECRET_KEY) {
                     return res.status(500).json({
                         message: 'Server configuration error: STRIPE_SECRET_KEY environment variable is required to verify real Stripe transactions.'
@@ -150,7 +157,7 @@ router.put('/:id', auth, async (req, res) => {
                     const intent = await stripe.paymentIntents.retrieve(paymentId);
                     if (intent.status !== 'succeeded') {
                         return res.status(400).json({
-                            message: `Payment verification failed. PaymentIntent status is '${intent.status}', expected 'succeeded'.`
+                            message: `Payment verification failed. Stripe PaymentIntent status is '${intent.status}', expected 'succeeded'.`
                         });
                     }
                 } catch (stripeErr) {
@@ -158,6 +165,11 @@ router.put('/:id', auth, async (req, res) => {
                         message: 'Payment verification failed: Invalid or unverified Stripe PaymentIntent.',
                         error: stripeErr.message
                     });
+                }
+            } else {
+                // Non-production local development fallback check
+                if (!paymentId) {
+                    return res.status(400).json({ message: 'Payment verification failed: Missing paymentId.' });
                 }
             }
         }
