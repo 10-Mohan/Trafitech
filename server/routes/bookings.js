@@ -140,7 +140,12 @@ router.put('/:id', auth, async (req, res) => {
         // If client requests marking booking as completed/paid
         if (paymentStatus === 'completed' || paymentStatus === 'paid') {
             // Check if paymentId is a real Stripe PaymentIntent ID (starts with pi_)
-            if (paymentId && String(paymentId).startsWith('pi_') && process.env.STRIPE_SECRET_KEY) {
+            if (paymentId && String(paymentId).startsWith('pi_')) {
+                if (!process.env.STRIPE_SECRET_KEY) {
+                    return res.status(500).json({
+                        message: 'Server configuration error: STRIPE_SECRET_KEY environment variable is required to verify real Stripe transactions.'
+                    });
+                }
                 try {
                     const intent = await stripe.paymentIntents.retrieve(paymentId);
                     if (intent.status !== 'succeeded') {

@@ -63,4 +63,19 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
+
+    // Environment Variables Audit Log on Boot
+    if (process.env.NODE_ENV === 'production') {
+        const missingKeys = [];
+        if (!process.env.JWT_SECRET) missingKeys.push('JWT_SECRET');
+        if (!process.env.ADMIN_SECRET_KEY) missingKeys.push('ADMIN_SECRET_KEY');
+        if (!process.env.STRIPE_SECRET_KEY) missingKeys.push('STRIPE_SECRET_KEY');
+        if (!process.env.MONGODB_URI) missingKeys.push('MONGODB_URI');
+
+        if (missingKeys.length > 0) {
+            console.warn(`⚠️ PRODUCTION ENV CONFIG NOTICE: Missing Render environment variables: ${missingKeys.join(', ')}`);
+        } else {
+            console.log('✅ Production Environment Audit Passed: All production secrets configured.');
+        }
+    }
 });
