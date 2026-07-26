@@ -36,6 +36,17 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
         setCardNumber(formatted);
     };
 
+    const handleExpiryChange = (e) => {
+        const raw = e.target.value.replace(/\D/g, '').slice(0, 4);
+        if (raw.length >= 3) {
+            setCardExpiry(`${raw.slice(0, 2)}/${raw.slice(2)}`);
+        } else if (raw.length === 2 && e.nativeEvent.inputType !== 'deleteContentBackward') {
+            setCardExpiry(`${raw}/`);
+        } else {
+            setCardExpiry(raw);
+        }
+    };
+
     const handleSubmit = async (e) => {
         if (e) e.preventDefault();
 
@@ -451,7 +462,7 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
                                                 type="text"
                                                 maxLength={5}
                                                 value={cardExpiry}
-                                                onChange={(e) => setCardExpiry(e.target.value)}
+                                                onChange={handleExpiryChange}
                                                 onFocus={() => setIsFlipped(false)}
                                                 placeholder="MM/YY"
                                                 className="w-full px-4 py-2.5 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-mono text-slate-800 dark:text-white focus:outline-none focus:border-brand-blue transition-all"
