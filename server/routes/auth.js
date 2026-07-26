@@ -4,6 +4,7 @@ const User = require('../models/User');
 const admin = require('../middleware/admin');
 const auth = require('../middleware/auth');
 const { getJwtSecret } = require('../config/jwt');
+const { getAdminSecret } = require('../config/adminSecret');
 const router = express.Router();
 
 // Register User
@@ -18,7 +19,7 @@ router.post('/register', async (req, res) => {
 
         let userRole = 'user';
         if (role === 'admin') {
-            const validAdminSecret = process.env.ADMIN_SECRET_KEY || 'traffitech-admin-2026';
+            const validAdminSecret = getAdminSecret();
             if (!adminSecret || adminSecret !== validAdminSecret) {
                 return res.status(403).json({ message: 'Invalid or missing Admin Passcode. Cannot create Administrator account.' });
             }
