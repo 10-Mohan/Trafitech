@@ -65,7 +65,8 @@ server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
 
     // Environment Variables Audit Log on Boot
-    if (process.env.NODE_ENV === 'production') {
+    const isProdEnv = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
+    if (isProdEnv) {
         const missingKeys = [];
         if (!process.env.JWT_SECRET) missingKeys.push('JWT_SECRET');
         if (!process.env.ADMIN_SECRET_KEY) missingKeys.push('ADMIN_SECRET_KEY');

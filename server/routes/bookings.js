@@ -159,7 +159,7 @@ router.put('/:id', auth, async (req, res) => {
 
         // If client requests marking booking as completed/paid
         if (paymentStatus === 'completed' || paymentStatus === 'paid') {
-            const isProduction = process.env.NODE_ENV === 'production' || !!process.env.STRIPE_SECRET_KEY;
+            const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true' || !!process.env.STRIPE_SECRET_KEY;
 
             // Strict Deny-By-Default: Require valid, Stripe-verified pi_... PaymentIntent ID
             if (isProduction) {

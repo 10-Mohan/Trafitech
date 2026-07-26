@@ -7,7 +7,7 @@ const getAdminSecret = () => {
         return process.env.ADMIN_SECRET_KEY;
     }
 
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production' || process.env.RENDER === 'true') {
         console.error("FATAL ERROR: ADMIN_SECRET_KEY environment variable is required in production!");
         process.exit(1);
     }
