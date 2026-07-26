@@ -71,6 +71,7 @@ server.listen(PORT, () => {
         if (!process.env.JWT_SECRET) missingKeys.push('JWT_SECRET');
         if (!process.env.ADMIN_SECRET_KEY) missingKeys.push('ADMIN_SECRET_KEY');
         if (!process.env.STRIPE_SECRET_KEY) missingKeys.push('STRIPE_SECRET_KEY');
+        if (!process.env.STRIPE_WEBHOOK_SECRET) missingKeys.push('STRIPE_WEBHOOK_SECRET');
         if (!process.env.MONGODB_URI) missingKeys.push('MONGODB_URI');
 
         if (missingKeys.length > 0) {
