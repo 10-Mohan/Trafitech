@@ -20,9 +20,31 @@ import { Elements } from '@stripe/react-stripe-js';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_TYooMQauvdEDq54NiTphI7jx');
 
+const parseJwt = (token) => {
+  try {
+    if (!token || typeof token !== 'string') return null;
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+    const base64Url = parts[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (_err) {
+    return null;
+  }
+};
+
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  const payload = parseJwt(token);
+  if (!payload) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -34,7 +56,8 @@ const AdminRoute = ({ children }) => {
   if (!token) {
     return <Navigate to="/login" replace />;
   }
-  if (user.role !== 'admin') {
+  const payload = parseJwt(token);
+  if (!payload || payload.role !== 'admin' || user.role !== 'admin') {
     return <Navigate to="/" replace />;
   }
   return children;
