@@ -6,6 +6,7 @@ const jsonDb = new JsonDB('bookings');
 // 1. Mongoose Schema
 const bookingSchema = new mongoose.Schema({
     user: { type: mongoose.Schema.Types.Mixed, ref: 'User' },
+    userEmail: String,
     bookingId: { type: String, required: true },
     slotId: { type: String, required: true },
     parkingZone: mongoose.Schema.Types.Mixed,

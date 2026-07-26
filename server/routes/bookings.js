@@ -12,15 +12,34 @@ const toPlain = (doc) => {
     return doc;
 };
 
-// Get user bookings
+// Get user bookings for each registered user
 router.get('/', auth, async (req, res) => {
     try {
-        const bookings = await Booking.find({ user: req.user.id });
-        const plainBookings = bookings.map(toPlain);
+        const userId = String(req.user.id || '');
+        const userEmail = (req.user.email || '').toLowerCase();
+
+        const allBookings = await Booking.find({});
+        const plainBookings = allBookings.map(toPlain);
+
+        const userBookings = plainBookings.filter(b => {
+            if (!b) return false;
+
+            // Match user ID (handling string, number, or object representation)
+            const bUser = b.user;
+            const bUserId = typeof bUser === 'object' ? String(bUser.id || bUser._id || '') : String(bUser || '');
+            if (bUserId && userId && bUserId === userId) return true;
+
+            // Match user email fallback
+            const bEmail = (b.userEmail || b.email || (typeof bUser === 'object' ? bUser.email : '') || '').toLowerCase();
+            if (userEmail && bEmail && bEmail === userEmail) return true;
+
+            return false;
+        });
+
         // Sort manually by timestamp desc
-        const sorted = plainBookings.sort((a, b) => {
-            const aTime = a.timestamp || 0;
-            const bTime = b.timestamp || 0;
+        const sorted = userBookings.sort((a, b) => {
+            const aTime = a.timestamp || a.createdAt || 0;
+            const bTime = b.timestamp || b.createdAt || 0;
             return new Date(bTime) - new Date(aTime);
         });
         res.json(sorted);
@@ -109,6 +128,7 @@ router.post('/', auth, async (req, res) => {
                 slotId: slotId,
                 totalPrice: calculatedPrice,
                 user: req.user.id,
+                userEmail: req.user.email,
                 timestamp: new Date()
             });
 
