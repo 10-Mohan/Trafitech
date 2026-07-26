@@ -35,7 +35,8 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/traffi
 mongoose.connect(MONGODB_URI)
     .then(() => console.log('✅ Connected to MongoDB Atlas (Production Cloud DB)'))
     .catch((err) => {
-        console.warn('⚠️ MongoDB Atlas not connected. Using Local JSON DB fallback.');
+        console.warn('⚠️ MongoDB Atlas connection error details:', err?.message || err);
+        console.warn('⚠️ Using Local JSON DB fallback.');
         if (process.env.NODE_ENV === 'production') {
             console.warn('🚨 PRODUCTION PERSISTENCE WARNING: MONGODB_URI is not connected in production mode. Data written to JSON fallback DB will be ephemeral across server restarts on Render. Ensure MONGODB_URI is configured in Render environment variables for cloud persistence.');
         } else {
