@@ -23,6 +23,11 @@ server/.env
 server/.env.*
 !server/.env.example
 
+# Runtime Data Files
+server/data/
+data/
+*.json.bak
+
 # Test coverage reports
 coverage
 .nyc_output

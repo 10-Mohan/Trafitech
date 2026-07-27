@@ -21,6 +21,16 @@ router.get('/', auth, async (req, res) => {
         const allBookings = await Booking.find({});
         const plainBookings = allBookings.map(toPlain);
 
+        // Admins can see all bookings across all users
+        if (req.user.role === 'admin') {
+            const sortedAdmin = plainBookings.sort((a, b) => {
+                const aTime = a.timestamp || a.createdAt || 0;
+                const bTime = b.timestamp || b.createdAt || 0;
+                return new Date(bTime) - new Date(aTime);
+            });
+            return res.json(sortedAdmin);
+        }
+
         const userBookings = plainBookings.filter(b => {
             if (!b) return false;
 
