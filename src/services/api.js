@@ -40,10 +40,15 @@ const getHeaders = () => {
     };
 };
 
-const fetchWithRetry = async (url, options = {}, retries = 5, delayMs = 2500) => {
+const fetchWithRetry = async (url, options = {}, retries = 3, delayMs = 1500, timeoutMs = 6000) => {
     for (let attempt = 0; attempt <= retries; attempt++) {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        const fetchOptions = { ...options, signal: controller.signal };
+
         try {
-            const response = await fetch(url, options);
+            const response = await fetch(url, fetchOptions);
+            clearTimeout(timer);
 
             // If Render backend is spinning up (502/503/504), retry up to `retries` times
             if ([502, 503, 504].includes(response.status) && attempt < retries) {
@@ -54,15 +59,20 @@ const fetchWithRetry = async (url, options = {}, retries = 5, delayMs = 2500) =>
 
             return await handleResponse(response);
         } catch (err) {
+            clearTimeout(timer);
+            const isTimeout = err.name === 'AbortError' || (err.message && err.message.includes('aborted'));
             const isRetryable = attempt < retries && (
-                err.message.includes('502') ||
-                err.message.includes('503') ||
-                err.message.includes('504') ||
-                err.message.includes('Failed to fetch') ||
-                err.message.includes('NetworkError')
+                isTimeout ||
+                (err.message && (
+                    err.message.includes('502') ||
+                    err.message.includes('503') ||
+                    err.message.includes('504') ||
+                    err.message.includes('Failed to fetch') ||
+                    err.message.includes('NetworkError')
+                ))
             );
             if (isRetryable) {
-                console.warn(`[Render Warmup] Network notice: ${err.message}. Retrying attempt ${attempt + 1}/${retries} in ${delayMs}ms...`);
+                console.warn(`[Render Warmup] Attempt ${attempt + 1}/${retries} notice (${isTimeout ? 'Timeout 6s' : err.message}). Retrying in ${delayMs}ms...`);
                 await new Promise(r => setTimeout(r, delayMs));
                 continue;
             }
