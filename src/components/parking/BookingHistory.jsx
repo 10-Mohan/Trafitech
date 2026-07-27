@@ -10,18 +10,20 @@ const BookingHistory = () => {
     const [error, setError] = useState('');
     const [filter, setFilter] = useState('all'); // all, upcoming, completed, cancelled
 
+    const fetchBookings = async () => {
+        try {
+            setLoading(true);
+            setError('');
+            const data = await bookingAPI.getAll();
+            setBookings(data);
+        } catch (err) {
+            setError(err.message || 'Failed to fetch bookings');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchBookings = async () => {
-            try {
-                setLoading(true);
-                const data = await bookingAPI.getAll();
-                setBookings(data);
-            } catch (err) {
-                setError(err.message || 'Failed to fetch bookings');
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchBookings();
     }, []);
 
