@@ -109,7 +109,7 @@ const BookingHistory = () => {
                     <AlertCircle size={48} className="mx-auto text-red-500 mb-4" />
                     <p className="text-red-400 font-medium">{error}</p>
                     <button
-                        onClick={() => window.location.reload()}
+                        onClick={fetchBookings}
                         className="mt-4 px-6 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg border border-red-500/30 transition-all"
                     >
                         Try Again

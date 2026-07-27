@@ -32,12 +32,12 @@ app.use(express.json());
 
 // Hybrid Connection Logic
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/traffitech';
-mongoose.connect(MONGODB_URI)
+mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 4000 })
     .then(() => console.log('✅ Connected to MongoDB Atlas (Production Cloud DB)'))
     .catch((err) => {
         console.warn('⚠️ MongoDB Atlas connection error details:', err?.message || err);
         console.warn('⚠️ Using Local JSON DB fallback.');
-        if (process.env.NODE_ENV === 'production') {
+        if (process.env.NODE_ENV === 'production' || process.env.RENDER === 'true') {
             console.warn('🚨 PRODUCTION PERSISTENCE WARNING: MONGODB_URI is not connected in production mode. Data written to JSON fallback DB will be ephemeral across server restarts on Render. Ensure MONGODB_URI is configured in Render environment variables for cloud persistence.');
         } else {
             console.log('✅ Zero-Dependency Fallback Mode Active');
