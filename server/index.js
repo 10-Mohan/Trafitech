@@ -61,8 +61,8 @@ app.get('/', (req, res) => {
 
 // Port Configuration
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${PORT} (0.0.0.0 interface bound)`);
 
     // Environment Variables Audit Log on Boot
     const isProdEnv = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';

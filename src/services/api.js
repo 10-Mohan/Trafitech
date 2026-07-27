@@ -40,7 +40,7 @@ const getHeaders = () => {
     };
 };
 
-const fetchWithRetry = async (url, options = {}, retries = 3, delayMs = 2000) => {
+const fetchWithRetry = async (url, options = {}, retries = 5, delayMs = 2500) => {
     for (let attempt = 0; attempt <= retries; attempt++) {
         try {
             const response = await fetch(url, options);
