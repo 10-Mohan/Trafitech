@@ -28,48 +28,6 @@ L.Icon.Default.mergeOptions({
     shadowUrl: iconShadow,
 });
 
-const places = [
-  {
-    id: 1,
-    name: "The Metropolitan Museum of Art",
-    label: "Museum",
-    category: "Museum",
-    rating: 4.8,
-    reviews: 12453,
-    hours: "10:00 AM - 5:00 PM",
-    image:
-      "https://images.unsplash.com/photo-1575223970966-76ae61ee7838?w=300&h=200&fit=crop",
-    lng: -73.9632,
-    lat: 40.7794,
-  },
-  {
-    id: 2,
-    name: "Brooklyn Bridge",
-    label: "Landmark",
-    category: "Landmark",
-    rating: 4.9,
-    reviews: 8234,
-    hours: "Open 24 hours",
-    image:
-      "https://images.unsplash.com/photo-1496588152823-86ff7695e68f?w=300&h=200&fit=crop",
-    lng: -73.9969,
-    lat: 40.7061,
-  },
-  {
-    id: 3,
-    name: "Grand Central Terminal",
-    label: "Transit",
-    category: "Transit",
-    rating: 4.7,
-    reviews: 5621,
-    hours: "5:15 AM - 2:00 AM",
-    image:
-      "https://images.unsplash.com/photo-1534430480872-3498386e7856?w=300&h=200&fit=crop",
-    lng: -73.9772,
-    lat: 40.7527,
-  },
-];
-
 // Custom Marker Generator
 const customIcon = (type) => {
     let colorClass = 'bg-blue-500';
@@ -91,18 +49,20 @@ const customIcon = (type) => {
 const RecenterMap = ({ position }) => {
     const map = useMap();
     useEffect(() => {
-        map.flyTo(position, 15);
+        if (position && Array.isArray(position) && position.length === 2) {
+            map.flyTo(position, 15);
+        }
     }, [position, map]);
     return null;
 };
 
 const LiveCityMap = () => {
     const [mapMode, setMapMode] = useState('places'); // 'places' or 'signals'
-    const [userPosition, setUserPosition] = useState([12.9716, 77.5946]); // Default: Bangalore
+    const [userPosition, setUserPosition] = useState([12.9716, 77.5946]); // Default fallback
     const [parkingSpots, setParkingSpots] = useState([]);
     const [status, setStatus] = useState('initializing');
 
-    useEffect(() => {
+    const locateUser = () => {
         setStatus('locating');
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -112,7 +72,7 @@ const LiveCityMap = () => {
                     setUserPosition(newPos);
                     setStatus('ready');
 
-                    // Generate "Nearby" parking spots based on real location
+                    // Generate "Nearby" parking spots based on real live location
                     setParkingSpots([
                         { id: 'p1', pos: [latitude + 0.002, longitude + 0.002], label: "Mall Parking", available: 12 },
                         { id: 'p2', pos: [latitude - 0.0015, longitude + 0.001], label: "Metro Station", available: 5 },
@@ -122,12 +82,60 @@ const LiveCityMap = () => {
                 (err) => {
                     console.error("Location access denied", err);
                     setStatus('error');
-                }
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
         } else {
             setStatus('error');
         }
+    };
+
+    useEffect(() => {
+        locateUser();
     }, []);
+
+    // Generate places relative to real user live position
+    const places = [
+      {
+        id: 1,
+        name: "The Metropolitan Art & Cultural Center",
+        label: "Museum",
+        category: "Museum",
+        rating: 4.8,
+        reviews: 12453,
+        hours: "10:00 AM - 5:00 PM",
+        image:
+          "https://images.unsplash.com/photo-1575223970966-76ae61ee7838?w=300&h=200&fit=crop",
+        lng: userPosition[1] + 0.003,
+        lat: userPosition[0] + 0.003,
+      },
+      {
+        id: 2,
+        name: "City Landmark Suspension Bridge",
+        label: "Landmark",
+        category: "Landmark",
+        rating: 4.9,
+        reviews: 8234,
+        hours: "Open 24 hours",
+        image:
+          "https://images.unsplash.com/photo-1496588152823-86ff7695e68f?w=300&h=200&fit=crop",
+        lng: userPosition[1] + 0.004,
+        lat: userPosition[0] - 0.002,
+      },
+      {
+        id: 3,
+        name: "Grand Central Transit Hub",
+        label: "Transit",
+        category: "Transit",
+        rating: 4.7,
+        reviews: 5621,
+        hours: "5:15 AM - 2:00 AM",
+        image:
+          "https://images.unsplash.com/photo-1534430480872-3498386e7856?w=300&h=200&fit=crop",
+        lng: userPosition[1] - 0.003,
+        lat: userPosition[0] + 0.002,
+      },
+    ];
 
     const trafficPoints = [
         { id: 1, pos: [userPosition[0] + 0.001, userPosition[1] + 0.001], status: 'red', label: "Junction A" },
@@ -137,7 +145,7 @@ const LiveCityMap = () => {
     return (
         <div className="w-full rounded-xl relative z-0 bg-slate-900 ring-1 ring-white/10 flex flex-col overflow-hidden">
             {/* View Mode Switcher Header */}
-            <div className="p-3 bg-slate-950/80 border-b border-white/10 flex items-center justify-between z-10">
+            <div className="p-3 bg-slate-950/80 border-b border-white/10 flex items-center justify-between z-10 flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => setMapMode('places')}
@@ -166,8 +174,15 @@ const LiveCityMap = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
+                    <button
+                        onClick={locateUser}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-blue/20 text-brand-blue border border-brand-blue/30 hover:bg-brand-blue hover:text-white transition-all flex items-center gap-1.5 shadow-sm"
+                    >
+                        <LocateFixed size={14} className={status === 'locating' ? 'animate-spin' : 'animate-pulse'} />
+                        Locate Me
+                    </button>
                     <span className="text-[11px] font-semibold text-slate-400 hidden sm:inline">
-                        {mapMode === 'places' ? 'Interactive Rich Card Popups' : 'Encrypted GPS Nodes'}
+                        {status === 'ready' ? `GPS: ${userPosition[0].toFixed(2)}°, ${userPosition[1].toFixed(2)}°` : 'Searching GPS...'}
                     </span>
                 </div>
             </div>
@@ -175,7 +190,28 @@ const LiveCityMap = () => {
             {/* Render Selected Map Mode */}
             {mapMode === 'places' ? (
                 <div className="h-[460px] w-full relative">
-                    <Map center={[-73.98, 40.74]} zoom={11}>
+                    <Map center={[userPosition[1], userPosition[0]]} zoom={14}>
+                        {/* Live User Location Pin */}
+                        <MapMarker longitude={userPosition[1]} latitude={userPosition[0]}>
+                            <MarkerContent>
+                                <div className="size-6 cursor-pointer rounded-full border-2 border-white bg-blue-500 shadow-lg shadow-blue-500/80 animate-pulse flex items-center justify-center">
+                                    <div className="size-2 rounded-full bg-white"></div>
+                                </div>
+                                <MarkerLabel position="bottom">📍 Your Live Location</MarkerLabel>
+                            </MarkerContent>
+                            <MarkerPopup className="w-56 p-3">
+                                <div className="text-xs font-bold text-brand-blue flex items-center gap-1.5 mb-1">
+                                    <LocateFixed size={14} className="text-emerald-400 animate-pulse" />
+                                    Your Live GPS Location
+                                </div>
+                                <p className="text-[11px] text-slate-300">
+                                    Latitude: {userPosition[0].toFixed(4)}° N<br/>
+                                    Longitude: {userPosition[1].toFixed(4)}° E
+                                </p>
+                            </MarkerPopup>
+                        </MapMarker>
+
+                        {/* Nearby Places */}
                         {places.map((place) => (
                             <MapMarker key={place.id} longitude={place.lng} latitude={place.lat}>
                                 <MarkerContent>
@@ -240,7 +276,7 @@ const LiveCityMap = () => {
 
                         {/* User Location */}
                         <Marker position={userPosition} icon={customIcon('user')}>
-                            <Popup className="glass-popup"><div className="text-brand-blue font-bold">You are Here</div></Popup>
+                            <Popup className="glass-popup"><div className="text-brand-blue font-bold">📍 Your Live Location</div></Popup>
                         </Marker>
                         <Circle center={userPosition} radius={500} pathOptions={{ color: '#00f3ff', fillColor: '#00f3ff', fillOpacity: 0.1 }} />
 
@@ -274,7 +310,7 @@ const LiveCityMap = () => {
                             {status === 'ready' && <LocateFixed size={16} className="text-brand-green animate-pulse-fast" />}
                             {status === 'error' && <span className="w-3 h-3 rounded-full bg-brand-red shadow-[0_0_10px_#ff0055]"></span>}
                             <span className="text-sm font-bold tracking-tight text-slate-800 dark:text-white uppercase">
-                                {status === 'locating' ? "Bypassing Firewall..." : status === 'ready' ? "Encrypted GPS Link" : "Signal Jammed"}
+                                {status === 'locating' ? "Acquiring GPS Signal..." : status === 'ready' ? "Live GPS Connected" : "GPS Signal Unavailable"}
                             </span>
                         </div>
                     </div>
