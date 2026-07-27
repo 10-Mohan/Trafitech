@@ -23,6 +23,10 @@ const RecenterMap = ({ center, zoom }) => {
     if (center && Array.isArray(center) && center.length === 2) {
       map.flyTo(center, zoom || map.getZoom());
     }
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+    return () => clearTimeout(timer);
   }, [center, zoom, map]);
   return null;
 };
@@ -32,21 +36,21 @@ export const normalizeCoords = (coord1, coord2) => {
   let lat = 40.74;
   let lng = -73.98;
 
-  if (coord1 !== undefined && coord2 !== undefined) {
-    // If passed as separate numbers (e.g. lat, lng or lng, lat)
+  if (Array.isArray(coord1) && coord1.length === 2) {
+    const c0 = Number(coord1[0]);
+    const c1 = Number(coord1[1]);
+    // GeoJSON / Mapbox format: [lng, lat] where c0 is lng (e.g. -73.98) and c1 is lat (e.g. 40.74)
+    if (Math.abs(c0) > 90 || (c0 < 0 && Math.abs(c0) > Math.abs(c1))) {
+      lat = c1;
+      lng = c0;
+    } else {
+      lat = c0;
+      lng = c1;
+    }
+  } else if (coord1 !== undefined && coord2 !== undefined) {
     const val1 = Number(coord1);
     const val2 = Number(coord2);
-    if (Math.abs(val1) > 90 && Math.abs(val2) <= 90) {
-      lng = val1;
-      lat = val2;
-    } else {
-      lat = val1;
-      lng = val2;
-    }
-  } else if (Array.isArray(coord1) && coord1.length === 2) {
-    const val1 = Number(coord1[0]);
-    const val2 = Number(coord2[1]);
-    if (Math.abs(val1) > 90 && Math.abs(val2) <= 90) {
+    if (Math.abs(val1) > 90 || (val1 < 0 && Math.abs(val1) > Math.abs(val2))) {
       lng = val1;
       lat = val2;
     } else {
@@ -65,11 +69,7 @@ export const Map = ({
   className = '',
   style = {}
 }) => {
-  const [lat, lng] = Array.isArray(center)
-    ? (Math.abs(center[0]) > 90 ? [center[1], center[0]] : [center[0], center[1]])
-    : [40.74, -73.98];
-
-  const leafletCenter = [lat, lng];
+  const leafletCenter = normalizeCoords(center);
 
   return (
     <div
