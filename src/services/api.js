@@ -40,27 +40,60 @@ const getHeaders = () => {
     };
 };
 
+const fetchWithRetry = async (url, options = {}, retries = 3, delayMs = 2000) => {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            const response = await fetch(url, options);
+
+            // If Render backend is spinning up (502/503/504), retry up to `retries` times
+            if ([502, 503, 504].includes(response.status) && attempt < retries) {
+                console.warn(`[Render Warmup] Status ${response.status}. Retrying attempt ${attempt + 1}/${retries} in ${delayMs}ms...`);
+                await new Promise(r => setTimeout(r, delayMs));
+                continue;
+            }
+
+            return await handleResponse(response);
+        } catch (err) {
+            const isRetryable = attempt < retries && (
+                err.message.includes('502') ||
+                err.message.includes('503') ||
+                err.message.includes('504') ||
+                err.message.includes('Failed to fetch') ||
+                err.message.includes('NetworkError')
+            );
+            if (isRetryable) {
+                console.warn(`[Render Warmup] Network notice: ${err.message}. Retrying attempt ${attempt + 1}/${retries} in ${delayMs}ms...`);
+                await new Promise(r => setTimeout(r, delayMs));
+                continue;
+            }
+            throw err;
+        }
+    }
+};
+
 export const authAPI = {
     login: async (email, password, role) => {
-        const response = await fetch(`${API_URL}/auth/login`, {
+        const data = await fetchWithRetry(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, role })
         });
-        const data = await handleResponse(response);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        if (data?.token) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+        }
         return data;
     },
     register: async (username, email, password, role = 'user', adminSecret = '') => {
-        const response = await fetch(`${API_URL}/auth/register`, {
+        const data = await fetchWithRetry(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, email, password, role, adminSecret })
         });
-        const data = await handleResponse(response);
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        if (data?.token) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+        }
         return data;
     },
     logout: () => {
@@ -68,88 +101,76 @@ export const authAPI = {
         localStorage.removeItem('user');
     },
     getUsers: async () => {
-        const response = await fetch(`${API_URL}/auth`, {
+        return fetchWithRetry(`${API_URL}/auth`, {
             headers: getHeaders()
         });
-        return handleResponse(response);
     }
 };
 
 export const bookingAPI = {
     getAll: async () => {
-        const response = await fetch(`${API_URL}/bookings`, {
+        return fetchWithRetry(`${API_URL}/bookings`, {
             headers: getHeaders()
         });
-        return handleResponse(response);
     },
     getActiveSlots: async (zoneId) => {
-        const response = await fetch(`${API_URL}/bookings/active-slots?zoneId=${zoneId}`, {
+        return fetchWithRetry(`${API_URL}/bookings/active-slots?zoneId=${zoneId}`, {
             headers: getHeaders()
         });
-        return handleResponse(response);
     },
     create: async (bookingData) => {
-        const response = await fetch(`${API_URL}/bookings`, {
+        return fetchWithRetry(`${API_URL}/bookings`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify(bookingData)
         });
-        return handleResponse(response);
     },
     update: async (bookingId, updateData) => {
-        const response = await fetch(`${API_URL}/bookings/${bookingId}`, {
+        return fetchWithRetry(`${API_URL}/bookings/${bookingId}`, {
             method: 'PUT',
             headers: getHeaders(),
             body: JSON.stringify(updateData)
         });
-        return handleResponse(response);
     },
     cancel: async (bookingId) => {
-        const response = await fetch(`${API_URL}/bookings/${bookingId}/cancel`, {
+        return fetchWithRetry(`${API_URL}/bookings/${bookingId}/cancel`, {
             method: 'POST',
             headers: getHeaders()
         });
-        return handleResponse(response);
     },
     createPaymentIntent: async (bookingId) => {
-        const response = await fetch(`${API_URL}/payments/create-payment-intent`, {
+        return fetchWithRetry(`${API_URL}/payments/create-payment-intent`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify({ bookingId })
         });
-        return handleResponse(response);
     }
 };
 
 export const rapidsAnalyticsAPI = {
     getData: async () => {
-        const response = await fetch(`${API_URL}/rapids-analytics/data`, {
+        return fetchWithRetry(`${API_URL}/rapids-analytics/data`, {
             headers: getHeaders()
         });
-        return handleResponse(response);
     },
     runBenchmark: async () => {
-        const response = await fetch(`${API_URL}/rapids-analytics/run-benchmark`, {
+        return fetchWithRetry(`${API_URL}/rapids-analytics/run-benchmark`, {
             method: 'POST',
             headers: getHeaders()
         });
-        return handleResponse(response);
     },
     query: async (sqlQuery) => {
-        const response = await fetch(`${API_URL}/rapids-analytics/query`, {
+        return fetchWithRetry(`${API_URL}/rapids-analytics/query`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify({ query: sqlQuery })
         });
-        return handleResponse(response);
     },
     askGemini: async (prompt, dataContext) => {
-        const response = await fetch(`${API_URL}/rapids-analytics/gemini`, {
+        return fetchWithRetry(`${API_URL}/rapids-analytics/gemini`, {
             method: 'POST',
             headers: getHeaders(),
             body: JSON.stringify({ prompt, dataContext })
         });
-        return handleResponse(response);
     }
 };
-
