@@ -2,19 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import L, { divIcon } from 'leaflet';
 import { clsx } from 'clsx';
-import { LocateFixed, Loader2, MapPin, Building2, Star, Navigation, Clock, ExternalLink } from 'lucide-react';
-
-import {
-  Map,
-  MapMarker,
-  MarkerContent,
-  MarkerLabel,
-  MarkerPopup,
-} from "../ui/map";
-import { Button } from "../ui/button";
-import Image from "next/image";
+import { LocateFixed, Loader2 } from 'lucide-react';
 
 // Fix Leaflet issue completely
 import iconMarker from 'leaflet/dist/images/marker-icon.png';
@@ -28,23 +18,38 @@ L.Icon.Default.mergeOptions({
     shadowUrl: iconShadow,
 });
 
+// Custom Marker Generator
+const customIcon = (type) => {
+    let colorClass = 'bg-blue-500';
+    let shadowClass = 'shadow-blue-500/50';
+
+    if (type === 'red') { colorClass = 'bg-red-500'; shadowClass = 'shadow-red-500/50'; }
+    if (type === 'green') { colorClass = 'bg-green-500'; shadowClass = 'shadow-green-500/50'; }
+    if (type === 'parking') { colorClass = 'bg-purple-500'; shadowClass = 'shadow-purple-500/50'; }
+    if (type === 'user') { colorClass = 'bg-brand-blue animate-pulse'; shadowClass = 'shadow-brand-blue/50'; }
+
+    return divIcon({
+        className: 'custom-icon',
+        html: `<div class="w-4 h-4 rounded-full border-2 border-white shadow-lg ${colorClass} ${shadowClass}"></div>`,
+        iconSize: [16, 16]
+    });
+};
+
 // Component to recenter map when position changes
 const RecenterMap = ({ position }) => {
     const map = useMap();
     useEffect(() => {
-        if (position && Array.isArray(position) && position.length === 2) {
-            map.flyTo(position, 15);
-        }
+        map.flyTo(position, 15);
     }, [position, map]);
     return null;
 };
 
 const LiveCityMap = () => {
-    const [mapMode, setMapMode] = useState('places'); // 'places' or 'signals'
-    const [userPosition, setUserPosition] = useState([12.9716, 77.5946]); // Default fallback
-    const [status, setStatus] = useState('initializing');
+    const [userPosition, setUserPosition] = useState([12.9716, 77.5946]); // Default: Bangalore
+    const [parkingSpots, setParkingSpots] = useState([]);
+    const [status, setStatus] = useState('initializing'); // initializing, locating, ready, error
 
-    const locateUser = () => {
+    useEffect(() => {
         setStatus('locating');
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -53,309 +58,128 @@ const LiveCityMap = () => {
                     const newPos = [latitude, longitude];
                     setUserPosition(newPos);
                     setStatus('ready');
+
+                    // Generate "Nearby" parking spots based on real location
+                    setParkingSpots([
+                        { id: 'p1', pos: [latitude + 0.002, longitude + 0.002], label: "Mall Parking", available: 12 },
+                        { id: 'p2', pos: [latitude - 0.0015, longitude + 0.001], label: "Metro Station", available: 5 },
+                        { id: 'p3', pos: [latitude + 0.001, longitude - 0.002], label: "Public Park Lot", available: 0 }, // Full
+                    ]);
                 },
                 (err) => {
                     console.error("Location access denied", err);
                     setStatus('error');
-                },
-                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                }
             );
         } else {
             setStatus('error');
         }
-    };
-
-    useEffect(() => {
-        locateUser();
     }, []);
 
-    // Generate places relative to real user live position
-    const places = [
-      {
-        id: 1,
-        name: "The Metropolitan Art & Cultural Center",
-        label: "Museum",
-        category: "Museum",
-        rating: 4.8,
-        reviews: 12453,
-        hours: "10:00 AM - 5:00 PM",
-        image:
-          "https://images.unsplash.com/photo-1575223970966-76ae61ee7838?w=300&h=200&fit=crop",
-        lng: userPosition[1] + 0.003,
-        lat: userPosition[0] + 0.003,
-      },
-      {
-        id: 2,
-        name: "City Landmark Suspension Bridge",
-        label: "Landmark",
-        category: "Landmark",
-        rating: 4.9,
-        reviews: 8234,
-        hours: "Open 24 hours",
-        image:
-          "https://images.unsplash.com/photo-1496588152823-86ff7695e68f?w=300&h=200&fit=crop",
-        lng: userPosition[1] + 0.004,
-        lat: userPosition[0] - 0.002,
-      },
-      {
-        id: 3,
-        name: "Grand Central Transit Hub",
-        label: "Transit",
-        category: "Transit",
-        rating: 4.7,
-        reviews: 5621,
-        hours: "5:15 AM - 2:00 AM",
-        image:
-          "https://images.unsplash.com/photo-1534430480872-3498386e7856?w=300&h=200&fit=crop",
-        lng: userPosition[1] - 0.003,
-        lat: userPosition[0] + 0.002,
-      },
-    ];
-
-    const trafficSignalsList = [
-        { id: 'sig-N', lat: userPosition[0] + 0.002, lng: userPosition[1] + 0.001, label: "North Junction A", status: 'red', density: 78, queueLength: '14 vehicles' },
-        { id: 'sig-S', lat: userPosition[0] - 0.002, lng: userPosition[1] - 0.001, label: "South Junction B", status: 'green', density: 32, queueLength: '3 vehicles' },
-        { id: 'sig-E', lat: userPosition[0] + 0.001, lng: userPosition[1] + 0.003, label: "East Express Way C", status: 'green', density: 45, queueLength: '5 vehicles' },
-        { id: 'sig-W', lat: userPosition[0] - 0.001, lng: userPosition[1] - 0.003, label: "West Boulevard D", status: 'red', density: 88, queueLength: '19 vehicles' },
-    ];
-
-    const parkingNodesList = [
-        { id: 'p1', lat: userPosition[0] + 0.003, lng: userPosition[1] + 0.002, label: "Mall Multi-Level Lot", available: 12, total: 50 },
-        { id: 'p2', lat: userPosition[0] - 0.0025, lng: userPosition[1] + 0.0015, label: "Central Metro Park", available: 5, total: 30 },
-        { id: 'p3', lat: userPosition[0] + 0.0015, lng: userPosition[1] - 0.0025, label: "Public Park Square", available: 0, total: 40 },
+    const trafficPoints = [
+        { id: 1, pos: [userPosition[0] + 0.001, userPosition[1] + 0.001], status: 'red', label: "Junction A" },
+        { id: 2, pos: [userPosition[0] - 0.002, userPosition[1] - 0.001], status: 'green', label: "Junction B" },
     ];
 
     return (
         <div className="w-full rounded-xl relative z-0 bg-slate-900 ring-1 ring-white/10 flex flex-col overflow-hidden">
-            {/* View Mode Switcher Header */}
-            <div className="p-3 bg-slate-950/80 border-b border-white/10 flex items-center justify-between z-10 flex-wrap gap-2">
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => setMapMode('places')}
-                        className={clsx(
-                            "px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5",
-                            mapMode === 'places'
-                                ? "bg-rose-500 text-white shadow-lg shadow-rose-500/30"
-                                : "bg-white/5 text-slate-400 hover:text-white"
-                        )}
-                    >
-                        <Building2 size={14} />
-                        Landmarks & Places
-                    </button>
-                    <button
-                        onClick={() => setMapMode('signals')}
-                        className={clsx(
-                            "px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5",
-                            mapMode === 'signals'
-                                ? "bg-brand-blue text-white shadow-lg shadow-brand-blue/30"
-                                : "bg-white/5 text-slate-400 hover:text-white"
-                        )}
-                    >
-                        <MapPin size={14} />
-                        Live Signals Network
-                    </button>
-                </div>
+            {/* Map Wrapper */}
+            <div className="w-full h-96 min-h-[400px] relative overflow-hidden">
+                {/* Map Container */}
+                <MapContainer center={userPosition} zoom={15} scrollWheelZoom={true} className="w-full h-full" style={{ background: '#0f172a', height: '100%', minHeight: '400px', width: '100%' }}>
+                    <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
 
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={locateUser}
-                        className="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-blue/20 text-brand-blue border border-brand-blue/30 hover:bg-brand-blue hover:text-white transition-all flex items-center gap-1.5 shadow-sm"
-                    >
-                        <LocateFixed size={14} className={status === 'locating' ? 'animate-spin' : 'animate-pulse'} />
-                        Locate Me
-                    </button>
-                    <span className="text-[11px] font-semibold text-slate-400 hidden sm:inline">
-                        {status === 'ready' ? `GPS: ${userPosition[0].toFixed(2)}°, ${userPosition[1].toFixed(2)}°` : 'Searching GPS...'}
-                    </span>
-                </div>
-            </div>
+                    <RecenterMap position={userPosition} />
 
-            {/* Render Selected Map Mode */}
-            {mapMode === 'places' ? (
-                <div className="h-[460px] w-full relative">
-                    <Map center={[userPosition[1], userPosition[0]]} zoom={14}>
-                        {/* Live User Location Pin */}
-                        <MapMarker longitude={userPosition[1]} latitude={userPosition[0]}>
-                            <MarkerContent>
-                                <div className="size-6 cursor-pointer rounded-full border-2 border-white bg-blue-500 shadow-lg shadow-blue-500/80 animate-pulse flex items-center justify-center">
-                                    <div className="size-2 rounded-full bg-white"></div>
+                    {/* User Location */}
+                    <Marker position={userPosition} icon={customIcon('user')}>
+                        <Popup className="glass-popup"><div className="text-brand-blue font-bold">You are Here</div></Popup>
+                    </Marker>
+                    <Circle center={userPosition} radius={500} pathOptions={{ color: '#00f3ff', fillColor: '#00f3ff', fillOpacity: 0.1 }} />
+
+                    {/* Traffic Signals */}
+                    {trafficPoints.map(point => (
+                        <Marker key={point.id} position={point.pos} icon={customIcon(point.status)}>
+                            <Popup className="glass-popup">
+                                <div className="text-slate-900 font-bold">{point.label}</div>
+                                <div className={clsx("text-xs font-bold uppercase", point.status === 'red' ? "text-red-600" : "text-green-600")}>
+                                    Signal: {point.status}
                                 </div>
-                                <MarkerLabel position="bottom">📍 Your Live Location</MarkerLabel>
-                            </MarkerContent>
-                            <MarkerPopup className="w-56 p-3">
-                                <div className="text-xs font-bold text-brand-blue flex items-center gap-1.5 mb-1">
-                                    <LocateFixed size={14} className="text-emerald-400 animate-pulse" />
-                                    Your Live GPS Location
+                            </Popup>
+                        </Marker>
+                    ))}
+
+                    {/* Parking Spots */}
+                    {parkingSpots.map(spot => (
+                        <Marker key={spot.id} position={spot.pos} icon={customIcon('parking')}>
+                            <Popup className="glass-popup">
+                                <div className="text-slate-900 font-bold">{spot.label}</div>
+                                <div className="text-purple-700 font-bold text-xs">{spot.available > 0 ? `${spot.available} Slots Free` : 'FULL'}</div>
+                            </Popup>
+                        </Marker>
+                    ))}
+                </MapContainer>
+
+                {/* Status Overlays */}
+                <div className="absolute top-4 right-4 z-[400] flex flex-col gap-3 items-end">
+                    {/* GPS Status */}
+                    <div className="glass-panel px-3 py-2 rounded-xl flex items-center gap-3 border border-white/20 shadow-2xl">
+                        {status === 'locating' && <Loader2 size={16} className="animate-spin text-brand-blue" />}
+                        {status === 'ready' && <LocateFixed size={16} className="text-brand-green animate-pulse-fast" />}
+                        {status === 'error' && <span className="w-3 h-3 rounded-full bg-brand-red shadow-[0_0_10px_#ff0055]"></span>}
+                        <span className="text-sm font-bold tracking-tight text-slate-800 dark:text-white uppercase">
+                            {status === 'locating' ? "Bypassing Firewall..." : status === 'ready' ? "Encrypted GPS Link" : "Signal Jammed"}
+                        </span>
+                    </div>
+
+                    {/* Map Legend (Desktop/Tablet only) */}
+                    <div className="hidden md:block glass-panel p-4 rounded-2xl border border-slate-200 dark:border-white/10 shadow-2xl min-w-[180px] animate-in slide-in-from-right-4 duration-500">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 mb-3 ml-1">Traffic Intelligence</h4>
+                        <div className="space-y-3">
+                            <div className="flex items-center gap-3 group cursor-help">
+                                <div className="w-4 h-4 rounded-full border-2 border-white bg-brand-blue shadow-[0_0_10px_rgba(0,243,255,0.6)] animate-pulse"></div>
+                                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-slate-800 dark:text-white transition-colors">Current Ops Center</span>
+                            </div>
+                            <div className="flex items-center gap-3 group cursor-help">
+                                <div className="w-4 h-4 rounded-full border-2 border-white bg-brand-purple shadow-[0_0_10px_rgba(188,19,254,0.6)]"></div>
+                                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-slate-800 dark:text-white transition-colors">Tactical Parking</span>
+                            </div>
+                            <div className="flex items-center gap-3 group cursor-help">
+                                <div className="flex gap-1.5">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-brand-red shadow-[0_0_5px_#ff0055]"></div>
+                                    <div className="w-2.5 h-2.5 rounded-full bg-brand-green shadow-[0_0_5px_#00ff9d]"></div>
                                 </div>
-                                <p className="text-[11px] text-slate-300">
-                                    Latitude: {userPosition[0].toFixed(4)}° N<br/>
-                                    Longitude: {userPosition[1].toFixed(4)}° E
-                                </p>
-                            </MarkerPopup>
-                        </MapMarker>
-
-                        {/* Nearby Places */}
-                        {places.map((place) => (
-                            <MapMarker key={place.id} longitude={place.lng} latitude={place.lat}>
-                                <MarkerContent>
-                                    <div className="size-5 cursor-pointer rounded-full border-2 border-white bg-rose-500 shadow-lg transition-transform hover:scale-110" />
-                                    <MarkerLabel position="bottom">{place.label}</MarkerLabel>
-                                </MarkerContent>
-                                <MarkerPopup className="w-64 p-0">
-                                    <div className="relative h-32 overflow-hidden rounded-t-md">
-                                        <Image
-                                            fill
-                                            src={place.image}
-                                            alt={place.name}
-                                            className="object-cover"
-                                        />
-                                    </div>
-                                    <div className="space-y-2 p-3">
-                                        <div>
-                                            <p className="text-slate-400 pb-0.5 text-[11px] font-medium tracking-wide uppercase">
-                                                {place.category}
-                                            </p>
-                                            <h3 className="text-slate-100 leading-tight font-semibold text-sm">
-                                                {place.name}
-                                            </h3>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-xs">
-                                            <div className="flex items-center gap-1">
-                                                <Star className="size-3.5 fill-amber-400 text-amber-400" />
-                                                <span className="font-medium text-slate-200">{place.rating}</span>
-                                                <span className="text-slate-400">
-                                                    ({place.reviews.toLocaleString()})
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="text-slate-400 flex items-center gap-1.5 text-xs">
-                                            <Clock className="size-3.5" />
-                                            <span>{place.hours}</span>
-                                        </div>
-                                        <div className="flex gap-2 pt-1">
-                                            <Button size="sm" className="flex-1 bg-rose-500 hover:bg-rose-600 text-xs">
-                                                <Navigation className="size-3.5" />
-                                                Directions
-                                            </Button>
-                                            <Button size="icon-sm" variant="outline" className="border-slate-700">
-                                                <ExternalLink className="size-3.5" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </MarkerPopup>
-                            </MapMarker>
-                        ))}
-                    </Map>
-                </div>
-            ) : (
-                <div className="h-[460px] w-full relative">
-                    <Map center={[userPosition[1], userPosition[0]]} zoom={14}>
-                        {/* Live User Location Pin */}
-                        <MapMarker longitude={userPosition[1]} latitude={userPosition[0]}>
-                            <MarkerContent>
-                                <div className="size-6 cursor-pointer rounded-full border-2 border-white bg-blue-500 shadow-lg shadow-blue-500/80 animate-pulse flex items-center justify-center">
-                                    <div className="size-2 rounded-full bg-white"></div>
-                                </div>
-                                <MarkerLabel position="bottom">📍 Your Live Location</MarkerLabel>
-                            </MarkerContent>
-                            <MarkerPopup className="w-56 p-3">
-                                <div className="text-xs font-bold text-brand-blue flex items-center gap-1.5 mb-1">
-                                    <LocateFixed size={14} className="text-emerald-400 animate-pulse" />
-                                    Your Live GPS Location
-                                </div>
-                                <p className="text-[11px] text-slate-300">
-                                    Latitude: {userPosition[0].toFixed(4)}° N<br/>
-                                    Longitude: {userPosition[1].toFixed(4)}° E
-                                </p>
-                            </MarkerPopup>
-                        </MapMarker>
-
-                        {/* Traffic Signal Nodes */}
-                        {trafficSignalsList.map(signal => (
-                            <MapMarker key={signal.id} longitude={signal.lng} latitude={signal.lat}>
-                                <MarkerContent>
-                                    <div className={clsx(
-                                        "size-6 cursor-pointer rounded-full border-2 border-white flex items-center justify-center font-bold text-[10px] text-white shadow-lg transition-transform hover:scale-110",
-                                        signal.status === 'red' ? "bg-red-500 shadow-red-500/80 animate-pulse" : "bg-emerald-500 shadow-emerald-500/80"
-                                    )}>
-                                        {signal.status === 'red' ? 'STOP' : 'GO'}
-                                    </div>
-                                    <MarkerLabel position="bottom">{signal.label}</MarkerLabel>
-                                </MarkerContent>
-                                <MarkerPopup className="w-56 p-3">
-                                    <div className="flex items-center justify-between border-b border-slate-700/60 pb-2 mb-2">
-                                        <span className="text-xs font-bold text-slate-100">{signal.label}</span>
-                                        <span className={clsx(
-                                            "px-2 py-0.5 text-[10px] font-black uppercase rounded",
-                                            signal.status === 'red' ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                                        )}>
-                                            {signal.status}
-                                        </span>
-                                    </div>
-                                    <div className="space-y-1.5 text-xs text-slate-300">
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-400">Traffic Density:</span>
-                                            <span className="font-bold text-slate-200">{signal.density}%</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-slate-400">Queue Length:</span>
-                                            <span className="font-medium text-slate-200">{signal.queueLength}</span>
-                                        </div>
-                                        <div className="w-full bg-slate-800 rounded-full h-1.5 mt-1 overflow-hidden">
-                                            <div
-                                                className={clsx("h-full rounded-full", signal.density > 70 ? "bg-red-500" : "bg-emerald-500")}
-                                                style={{ width: `${signal.density}%` }}
-                                            ></div>
-                                        </div>
-                                    </div>
-                                </MarkerPopup>
-                            </MapMarker>
-                        ))}
-
-                        {/* Tactical Parking Nodes */}
-                        {parkingNodesList.map(spot => (
-                            <MapMarker key={spot.id} longitude={spot.lng} latitude={spot.lat}>
-                                <MarkerContent>
-                                    <div className="size-6 cursor-pointer rounded-full border-2 border-white bg-purple-600 shadow-lg shadow-purple-500/80 flex items-center justify-center font-black text-[11px] text-white transition-transform hover:scale-110">
-                                        P
-                                    </div>
-                                    <MarkerLabel position="bottom">{spot.label}</MarkerLabel>
-                                </MarkerContent>
-                                <MarkerPopup className="w-56 p-3">
-                                    <div className="text-xs font-bold text-slate-100 border-b border-slate-700/60 pb-1.5 mb-2 flex items-center gap-1.5">
-                                        <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-                                        {spot.label}
-                                    </div>
-                                    <div className="flex items-center justify-between text-xs mb-1">
-                                        <span className="text-slate-400">Slots Available:</span>
-                                        <span className={clsx("font-bold", spot.available > 0 ? "text-emerald-400" : "text-red-400")}>
-                                            {spot.available > 0 ? `${spot.available} / ${spot.total} Free` : 'FULL'}
-                                        </span>
-                                    </div>
-                                    <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                                        <div
-                                            className={clsx("h-full rounded-full", spot.available > 0 ? "bg-purple-500" : "bg-red-500")}
-                                            style={{ width: `${((spot.total - spot.available) / spot.total) * 100}%` }}
-                                        ></div>
-                                    </div>
-                                </MarkerPopup>
-                            </MapMarker>
-                        ))}
-                    </Map>
-
-                    {/* Status Overlays */}
-                    <div className="absolute top-4 right-4 z-[400] flex flex-col gap-3 items-end">
-                        <div className="glass-panel px-3 py-2 rounded-xl flex items-center gap-3 border border-white/20 shadow-2xl">
-                            {status === 'locating' && <Loader2 size={16} className="animate-spin text-brand-blue" />}
-                            {status === 'ready' && <LocateFixed size={16} className="text-brand-green animate-pulse-fast" />}
-                            {status === 'error' && <span className="w-3 h-3 rounded-full bg-brand-red shadow-[0_0_10px_#ff0055]"></span>}
-                            <span className="text-sm font-bold tracking-tight text-slate-800 dark:text-white uppercase">
-                                {status === 'locating' ? "Acquiring GPS Signal..." : status === 'ready' ? "Live GPS Connected" : "GPS Signal Unavailable"}
-                            </span>
+                                <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-slate-800 dark:text-white transition-colors">Signal Nodes</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            )}
+            </div>
+
+            {/* Mobile Map Legend (Visible only on Mobile below md breakpoint) */}
+            <div className="md:hidden p-4 bg-white/5 border-t border-slate-200 dark:border-white/10 flex flex-col gap-3">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 ml-1">Traffic Intelligence</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded-full border-2 border-white bg-brand-blue shadow-[0_0_8px_rgba(0,243,255,0.6)] animate-pulse flex-shrink-0"></div>
+                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Current Ops Center</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="w-4 h-4 rounded-full border-2 border-white bg-brand-purple shadow-[0_0_8px_rgba(188,19,254,0.6)] flex-shrink-0"></div>
+                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Tactical Parking</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <div className="flex gap-1 flex-shrink-0">
+                            <div className="w-2.5 h-2.5 rounded-full bg-brand-red shadow-[0_0_5px_#ff0055]"></div>
+                            <div className="w-2.5 h-2.5 rounded-full bg-brand-green shadow-[0_0_5px_#00ff9d]"></div>
+                        </div>
+                        <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Signal Nodes</span>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };
