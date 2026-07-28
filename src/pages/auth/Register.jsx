@@ -173,7 +173,7 @@ const Register = () => {
                                     value={formData.adminSecret}
                                     onChange={handleChange}
                                     className="w-full bg-purple-950/40 shadow-sm border border-purple-500/40 rounded-xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-purple-400 focus:bg-purple-900/40 transition-all"
-                                    placeholder="Enter Admin Passcode (e.g. traffitech-admin-2026)"
+                                    placeholder="Enter Admin Security Passcode"
                                 />
                             </div>
                         </div>
