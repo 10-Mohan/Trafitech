@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import L, { divIcon } from 'leaflet';
+import L from 'leaflet';
 import { clsx } from 'clsx';
 import { LocateFixed, Loader2, MapPin, Building2, Star, Navigation, Clock, ExternalLink } from 'lucide-react';
 
@@ -28,23 +28,6 @@ L.Icon.Default.mergeOptions({
     shadowUrl: iconShadow,
 });
 
-// Custom Marker Generator
-const customIcon = (type) => {
-    let colorClass = 'bg-blue-500';
-    let shadowClass = 'shadow-blue-500/50';
-
-    if (type === 'red') { colorClass = 'bg-red-500'; shadowClass = 'shadow-red-500/50'; }
-    if (type === 'green') { colorClass = 'bg-green-500'; shadowClass = 'shadow-green-500/50'; }
-    if (type === 'parking') { colorClass = 'bg-purple-500'; shadowClass = 'shadow-purple-500/50'; }
-    if (type === 'user') { colorClass = 'bg-brand-blue animate-pulse'; shadowClass = 'shadow-brand-blue/50'; }
-
-    return divIcon({
-        className: 'custom-icon',
-        html: `<div class="w-4 h-4 rounded-full border-2 border-white shadow-lg ${colorClass} ${shadowClass}"></div>`,
-        iconSize: [16, 16]
-    });
-};
-
 // Component to recenter map when position changes
 const RecenterMap = ({ position }) => {
     const map = useMap();
@@ -59,7 +42,6 @@ const RecenterMap = ({ position }) => {
 const LiveCityMap = () => {
     const [mapMode, setMapMode] = useState('places'); // 'places' or 'signals'
     const [userPosition, setUserPosition] = useState([12.9716, 77.5946]); // Default fallback
-    const [parkingSpots, setParkingSpots] = useState([]);
     const [status, setStatus] = useState('initializing');
 
     const locateUser = () => {
@@ -71,13 +53,6 @@ const LiveCityMap = () => {
                     const newPos = [latitude, longitude];
                     setUserPosition(newPos);
                     setStatus('ready');
-
-                    // Generate "Nearby" parking spots based on real live location
-                    setParkingSpots([
-                        { id: 'p1', pos: [latitude + 0.002, longitude + 0.002], label: "Mall Parking", available: 12 },
-                        { id: 'p2', pos: [latitude - 0.0015, longitude + 0.001], label: "Metro Station", available: 5 },
-                        { id: 'p3', pos: [latitude + 0.001, longitude - 0.002], label: "Public Park Lot", available: 0 },
-                    ]);
                 },
                 (err) => {
                     console.error("Location access denied", err);
@@ -137,9 +112,17 @@ const LiveCityMap = () => {
       },
     ];
 
-    const trafficPoints = [
-        { id: 1, pos: [userPosition[0] + 0.001, userPosition[1] + 0.001], status: 'red', label: "Junction A" },
-        { id: 2, pos: [userPosition[0] - 0.002, userPosition[1] - 0.001], status: 'green', label: "Junction B" },
+    const trafficSignalsList = [
+        { id: 'sig-N', lat: userPosition[0] + 0.002, lng: userPosition[1] + 0.001, label: "North Junction A", status: 'red', density: 78, queueLength: '14 vehicles' },
+        { id: 'sig-S', lat: userPosition[0] - 0.002, lng: userPosition[1] - 0.001, label: "South Junction B", status: 'green', density: 32, queueLength: '3 vehicles' },
+        { id: 'sig-E', lat: userPosition[0] + 0.001, lng: userPosition[1] + 0.003, label: "East Express Way C", status: 'green', density: 45, queueLength: '5 vehicles' },
+        { id: 'sig-W', lat: userPosition[0] - 0.001, lng: userPosition[1] - 0.003, label: "West Boulevard D", status: 'red', density: 88, queueLength: '19 vehicles' },
+    ];
+
+    const parkingNodesList = [
+        { id: 'p1', lat: userPosition[0] + 0.003, lng: userPosition[1] + 0.002, label: "Mall Multi-Level Lot", available: 12, total: 50 },
+        { id: 'p2', lat: userPosition[0] - 0.0025, lng: userPosition[1] + 0.0015, label: "Central Metro Park", available: 5, total: 30 },
+        { id: 'p3', lat: userPosition[0] + 0.0015, lng: userPosition[1] - 0.0025, label: "Public Park Square", available: 0, total: 40 },
     ];
 
     return (
@@ -265,43 +248,100 @@ const LiveCityMap = () => {
                     </Map>
                 </div>
             ) : (
-                <div className="w-full h-96 min-h-[400px] relative overflow-hidden">
-                    <MapContainer center={userPosition} zoom={15} scrollWheelZoom={true} className="w-full h-full" style={{ background: '#0f172a', height: '100%', minHeight: '400px', width: '100%' }}>
-                        <TileLayer
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
+                <div className="h-[460px] w-full relative">
+                    <Map center={[userPosition[1], userPosition[0]]} zoom={14}>
+                        {/* Live User Location Pin */}
+                        <MapMarker longitude={userPosition[1]} latitude={userPosition[0]}>
+                            <MarkerContent>
+                                <div className="size-6 cursor-pointer rounded-full border-2 border-white bg-blue-500 shadow-lg shadow-blue-500/80 animate-pulse flex items-center justify-center">
+                                    <div className="size-2 rounded-full bg-white"></div>
+                                </div>
+                                <MarkerLabel position="bottom">📍 Your Live Location</MarkerLabel>
+                            </MarkerContent>
+                            <MarkerPopup className="w-56 p-3">
+                                <div className="text-xs font-bold text-brand-blue flex items-center gap-1.5 mb-1">
+                                    <LocateFixed size={14} className="text-emerald-400 animate-pulse" />
+                                    Your Live GPS Location
+                                </div>
+                                <p className="text-[11px] text-slate-300">
+                                    Latitude: {userPosition[0].toFixed(4)}° N<br/>
+                                    Longitude: {userPosition[1].toFixed(4)}° E
+                                </p>
+                            </MarkerPopup>
+                        </MapMarker>
 
-                        <RecenterMap position={userPosition} />
-
-                        {/* User Location */}
-                        <Marker position={userPosition} icon={customIcon('user')}>
-                            <Popup className="glass-popup"><div className="text-brand-blue font-bold">📍 Your Live Location</div></Popup>
-                        </Marker>
-                        <Circle center={userPosition} radius={500} pathOptions={{ color: '#00f3ff', fillColor: '#00f3ff', fillOpacity: 0.1 }} />
-
-                        {/* Traffic Signals */}
-                        {trafficPoints.map(point => (
-                            <Marker key={point.id} position={point.pos} icon={customIcon(point.status)}>
-                                <Popup className="glass-popup">
-                                    <div className="text-slate-900 font-bold">{point.label}</div>
-                                    <div className={clsx("text-xs font-bold uppercase", point.status === 'red' ? "text-red-600" : "text-green-600")}>
-                                        Signal: {point.status}
+                        {/* Traffic Signal Nodes */}
+                        {trafficSignalsList.map(signal => (
+                            <MapMarker key={signal.id} longitude={signal.lng} latitude={signal.lat}>
+                                <MarkerContent>
+                                    <div className={clsx(
+                                        "size-6 cursor-pointer rounded-full border-2 border-white flex items-center justify-center font-bold text-[10px] text-white shadow-lg transition-transform hover:scale-110",
+                                        signal.status === 'red' ? "bg-red-500 shadow-red-500/80 animate-pulse" : "bg-emerald-500 shadow-emerald-500/80"
+                                    )}>
+                                        {signal.status === 'red' ? 'STOP' : 'GO'}
                                     </div>
-                                </Popup>
-                            </Marker>
+                                    <MarkerLabel position="bottom">{signal.label}</MarkerLabel>
+                                </MarkerContent>
+                                <MarkerPopup className="w-56 p-3">
+                                    <div className="flex items-center justify-between border-b border-slate-700/60 pb-2 mb-2">
+                                        <span className="text-xs font-bold text-slate-100">{signal.label}</span>
+                                        <span className={clsx(
+                                            "px-2 py-0.5 text-[10px] font-black uppercase rounded",
+                                            signal.status === 'red' ? "bg-red-500/20 text-red-400 border border-red-500/30" : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                                        )}>
+                                            {signal.status}
+                                        </span>
+                                    </div>
+                                    <div className="space-y-1.5 text-xs text-slate-300">
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-400">Traffic Density:</span>
+                                            <span className="font-bold text-slate-200">{signal.density}%</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-slate-400">Queue Length:</span>
+                                            <span className="font-medium text-slate-200">{signal.queueLength}</span>
+                                        </div>
+                                        <div className="w-full bg-slate-800 rounded-full h-1.5 mt-1 overflow-hidden">
+                                            <div
+                                                className={clsx("h-full rounded-full", signal.density > 70 ? "bg-red-500" : "bg-emerald-500")}
+                                                style={{ width: `${signal.density}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
+                                </MarkerPopup>
+                            </MapMarker>
                         ))}
 
-                        {/* Parking Spots */}
-                        {parkingSpots.map(spot => (
-                            <Marker key={spot.id} position={spot.pos} icon={customIcon('parking')}>
-                                <Popup className="glass-popup">
-                                    <div className="text-slate-900 font-bold">{spot.label}</div>
-                                    <div className="text-purple-700 font-bold text-xs">{spot.available > 0 ? `${spot.available} Slots Free` : 'FULL'}</div>
-                                </Popup>
-                            </Marker>
+                        {/* Tactical Parking Nodes */}
+                        {parkingNodesList.map(spot => (
+                            <MapMarker key={spot.id} longitude={spot.lng} latitude={spot.lat}>
+                                <MarkerContent>
+                                    <div className="size-6 cursor-pointer rounded-full border-2 border-white bg-purple-600 shadow-lg shadow-purple-500/80 flex items-center justify-center font-black text-[11px] text-white transition-transform hover:scale-110">
+                                        P
+                                    </div>
+                                    <MarkerLabel position="bottom">{spot.label}</MarkerLabel>
+                                </MarkerContent>
+                                <MarkerPopup className="w-56 p-3">
+                                    <div className="text-xs font-bold text-slate-100 border-b border-slate-700/60 pb-1.5 mb-2 flex items-center gap-1.5">
+                                        <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                                        {spot.label}
+                                    </div>
+                                    <div className="flex items-center justify-between text-xs mb-1">
+                                        <span className="text-slate-400">Slots Available:</span>
+                                        <span className={clsx("font-bold", spot.available > 0 ? "text-emerald-400" : "text-red-400")}>
+                                            {spot.available > 0 ? `${spot.available} / ${spot.total} Free` : 'FULL'}
+                                        </span>
+                                    </div>
+                                    <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                        <div
+                                            className={clsx("h-full rounded-full", spot.available > 0 ? "bg-purple-500" : "bg-red-500")}
+                                            style={{ width: `${((spot.total - spot.available) / spot.total) * 100}%` }}
+                                        ></div>
+                                    </div>
+                                </MarkerPopup>
+                            </MapMarker>
                         ))}
-                    </MapContainer>
+                    </Map>
 
                     {/* Status Overlays */}
                     <div className="absolute top-4 right-4 z-[400] flex flex-col gap-3 items-end">
