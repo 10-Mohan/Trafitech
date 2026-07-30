@@ -57,16 +57,7 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
     };
 
     const handleExpiryChange = (e) => {
-        let raw = e.target.value.replace(/\D/g, '').slice(0, 4);
-        if (raw.length >= 2) {
-            const m = parseInt(raw.slice(0, 2), 10);
-            if (m > 12) {
-                raw = '12' + raw.slice(2);
-            } else if (m === 0 && raw.length === 2) {
-                raw = '01';
-            }
-        }
-
+        const raw = e.target.value.replace(/\D/g, '').slice(0, 4);
         if (raw.length >= 3) {
             setCardExpiry(`${raw.slice(0, 2)}/${raw.slice(2)}`);
         } else if (raw.length === 2 && e.nativeEvent.inputType !== 'deleteContentBackward') {
@@ -92,15 +83,15 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
                 return;
             }
             if (!cleanNum || cleanNum.length !== 12) {
-                setError("Card Number must contain exactly 12 digits (*)");
+                setError("Invalid card details: Card Number must contain exactly 12 digits (*)");
                 return;
             }
             if (!validateExpiryDate(cleanExpiry)) {
-                setError("Invalid Expiry Date. Month must be 01-12 and date cannot be in the past (*)");
+                setError("Invalid card details: Expiry Date month must be between 01-12 and date cannot be in the past (*)");
                 return;
             }
             if (!cleanCvc || cleanCvc.length < 3) {
-                setError("Valid 3-digit CVV number is required (*)");
+                setError("Invalid card details: Valid 3-digit CVV number is required (*)");
                 return;
             }
         }
