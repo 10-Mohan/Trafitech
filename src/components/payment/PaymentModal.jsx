@@ -30,14 +30,43 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
         return 'CARD';
     };
 
+    const validateExpiryDate = (expiryStr) => {
+        if (!expiryStr || !expiryStr.includes('/')) return false;
+        const parts = expiryStr.split('/');
+        if (parts.length !== 2) return false;
+        const month = parseInt(parts[0], 10);
+        const year = parseInt(parts[1], 10);
+
+        if (isNaN(month) || isNaN(year)) return false;
+        if (month < 1 || month > 12) return false;
+
+        const now = new Date();
+        const currentYear = parseInt(now.getFullYear().toString().slice(-2), 10);
+        const currentMonth = now.getMonth() + 1;
+
+        if (year < currentYear) return false;
+        if (year === currentYear && month < currentMonth) return false;
+
+        return true;
+    };
+
     const handleNumberChange = (e) => {
-        const val = e.target.value.replace(/\D/g, '').slice(0, 16);
+        const val = e.target.value.replace(/\D/g, '').slice(0, 12);
         const formatted = val.replace(/(.{4})/g, '$1 ').trim();
         setCardNumber(formatted);
     };
 
     const handleExpiryChange = (e) => {
-        const raw = e.target.value.replace(/\D/g, '').slice(0, 4);
+        let raw = e.target.value.replace(/\D/g, '').slice(0, 4);
+        if (raw.length >= 2) {
+            const m = parseInt(raw.slice(0, 2), 10);
+            if (m > 12) {
+                raw = '12' + raw.slice(2);
+            } else if (m === 0 && raw.length === 2) {
+                raw = '01';
+            }
+        }
+
         if (raw.length >= 3) {
             setCardExpiry(`${raw.slice(0, 2)}/${raw.slice(2)}`);
         } else if (raw.length === 2 && e.nativeEvent.inputType !== 'deleteContentBackward') {
@@ -62,12 +91,12 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
                 setError("Cardholder Name is required (*)");
                 return;
             }
-            if (!cleanNum || cleanNum.length < 12) {
-                setError("Card Number must contain at least 12 digits (*)");
+            if (!cleanNum || cleanNum.length !== 12) {
+                setError("Card Number must contain exactly 12 digits (*)");
                 return;
             }
-            if (!cleanExpiry || !cleanExpiry.includes('/') || cleanExpiry.length < 5) {
-                setError("Valid Expiry Date (MM/YY) is required (*)");
+            if (!validateExpiryDate(cleanExpiry)) {
+                setError("Invalid Expiry Date. Month must be 01-12 and date cannot be in the past (*)");
                 return;
             }
             if (!cleanCvc || cleanCvc.length < 3) {
@@ -343,7 +372,7 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
                                                 <div className="space-y-1 my-2">
                                                     <span className="text-[9px] uppercase tracking-widest text-slate-400">Card Number</span>
                                                     <p className="font-mono text-lg font-bold tracking-widest text-white drop-shadow">
-                                                        {cardNumber || '•••• •••• •••• ••••'}
+                                                        {cardNumber || '•••• •••• ••••'}
                                                     </p>
                                                     <div className="flex justify-between items-end">
                                                         <div>
@@ -409,8 +438,8 @@ const PaymentModal = ({ booking, onClose, onSuccess }) => {
                                                 value={cardNumber}
                                                 onChange={handleNumberChange}
                                                 onFocus={() => setIsFlipped(false)}
-                                                placeholder="•••• •••• •••• ••••"
-                                                maxLength={19}
+                                                placeholder="•••• •••• ••••"
+                                                maxLength={14}
                                                 className="w-full px-4 py-2.5 bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl text-sm font-mono text-slate-800 dark:text-white focus:outline-none focus:border-brand-blue transition-all"
                                             />
                                             <span className="absolute right-3 top-2.5 text-xs font-black tracking-wider text-brand-blue bg-brand-blue/10 px-2 py-0.5 rounded border border-brand-blue/30">
