@@ -76,6 +76,7 @@ Create a `.env` file inside the `server/` directory:
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/traffitech
 JWT_SECRET=your_super_secret_jwt_key
+ADMIN_SECRET_KEY=traffitech-admin-2026
 NODE_ENV=development
 STRIPE_SECRET_KEY=your_stripe_sk_test_key
 ```
@@ -88,7 +89,13 @@ npm run dev
 # Start the Frontend Vite Client (from root directory in a new terminal)
 npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) in your browser.
+### 🔑 Account Registration & Admin Passcode
+When creating a new account on the registration page:
+* **Driver Account:** Select **"Regular Driver"**, enter your email, username, and password.
+* **City Admin Account:** Select **"City Admin"**, enter your details, and provide the **Admin Security Passcode**:
+  ```text
+  traffitech-admin-2026
+  ```
 
 ---
 
