@@ -126,4 +126,4 @@ The project is fully set up for 24/7 cloud availability without requiring your l
 When creating a new account on the registration page:
 * **Driver Account:** Select **"Regular Driver"**, enter your email, username, and password.
 * **City Admin Account:** Select **"City Admin"**, enter your details, and provide the **Admin Security Passcode**:
-  `traffitech-admin-2026`
+  `traffitech-admin-pass-2026`
