@@ -169,11 +169,11 @@ const Register = () => {
                                 <input
                                     name="adminSecret"
                                     type="password"
-                                    required={formData.role === 'admin'}
+                                    required={false}
                                     value={formData.adminSecret}
                                     onChange={handleChange}
                                     className="w-full bg-purple-950/40 shadow-sm border border-purple-500/40 rounded-xl py-4 pl-12 pr-4 text-white focus:outline-none focus:border-purple-400 focus:bg-purple-900/40 transition-all"
-                                    placeholder="Enter Admin Security Passcode"
+                                    placeholder="Enter Admin Security Passcode (Optional)"
                                 />
                             </div>
                         </div>

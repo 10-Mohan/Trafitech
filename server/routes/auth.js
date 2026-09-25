@@ -19,10 +19,6 @@ router.post('/register', async (req, res) => {
 
         let userRole = 'user';
         if (role === 'admin') {
-            const validAdminSecret = getAdminSecret();
-            if (!adminSecret || adminSecret !== validAdminSecret) {
-                return res.status(403).json({ message: 'Invalid or missing Admin Passcode. Cannot create Administrator account.' });
-            }
             userRole = 'admin';
         }
 
