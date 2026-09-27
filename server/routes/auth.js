@@ -19,6 +19,9 @@ router.post('/register', async (req, res) => {
 
         let userRole = 'user';
         if (role === 'admin') {
+            if (adminSecret !== getAdminSecret()) {
+                return res.status(403).json({ message: 'Invalid admin secret' });
+            }
             userRole = 'admin';
         }
 
