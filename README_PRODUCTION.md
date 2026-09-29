@@ -5,6 +5,7 @@ Follow these steps to deploy your Smart Traffic & Parking system to the cloud fo
 ---
 
 ### Step 1: Create a Cloud Database (5 mins)
+
 1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create a free account.
 2. Create a new Cluster (Shared/Free).
 3. Under **Network Access**, allow access from "Everywhere" (0.0.0.0/0).
@@ -15,6 +16,7 @@ Follow these steps to deploy your Smart Traffic & Parking system to the cloud fo
 ---
 
 ### Step 2: Prepare for Upload
+
 1. Open the project folder on your computer.
 2. **DELETE** the `node_modules` folders (both in root and inside `server`). These are very large and reconstructed in the cloud.
 3. **DELETE** the `.env` files (keep them safe on your PC, you will copy the values into the cloud dashboard later).
@@ -23,6 +25,7 @@ Follow these steps to deploy your Smart Traffic & Parking system to the cloud fo
 ---
 
 ### Step 3: Deploy Backend (Render.com)
+
 1. Go to [Render](https://render.com) and sign up (GitHub login recommended).
 2. Click **New** > **Web Service**.
 3. You can either connect a GitHub repo or use "Manual Deploy" by uploading your ZIP.
@@ -36,6 +39,7 @@ Follow these steps to deploy your Smart Traffic & Parking system to the cloud fo
 ---
 
 ### Step 4: Deploy Frontend (Vercel.com)
+
 1. Go to [Vercel](https://vercel.com) and sign up.
 2. Click **Add New** > **Project**.
 3. Upload your project folder or connect GitHub.
@@ -47,4 +51,5 @@ Follow these steps to deploy your Smart Traffic & Parking system to the cloud fo
 ---
 
 ### ✅ Your Permanent Link
+
 Once Step 4 is done, Vercel will give you a permanent link (e.g. `traffitech.vercel.app`) that works **24/7**!

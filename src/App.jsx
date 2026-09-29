@@ -18,7 +18,9 @@ import { NotificationProvider } from './components/notifications/NotificationSys
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_TYooMQauvdEDq54NiTphI7jx');
+const stripePromise = loadStripe(
+  import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_TYooMQauvdEDq54NiTphI7jx'
+);
 
 const parseJwt = (token) => {
   try {
@@ -27,11 +29,17 @@ const parseJwt = (token) => {
     if (parts.length !== 3) return null;
     const base64Url = parts[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
+    const jsonPayload = decodeURIComponent(
+      window
+        .atob(base64)
+        .split('')
+        .map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join('')
+    );
     return JSON.parse(jsonPayload);
-  } catch (_err) {
+  } catch {
     return null;
   }
 };
@@ -72,22 +80,74 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 
-            <Route path="/" element={
-              <ProtectedRoute>
-                <DashboardLayout />
-              </ProtectedRoute>
-            }>
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }
+            >
               <Route index element={<Dashboard />} />
-              <Route path="traffic" element={<AdminRoute><TrafficDashboard /></AdminRoute>} />
-              <Route path="traffic-cv" element={<AdminRoute><TrafficCV /></AdminRoute>} />
+              <Route
+                path="traffic"
+                element={
+                  <AdminRoute>
+                    <TrafficDashboard />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="traffic-cv"
+                element={
+                  <AdminRoute>
+                    <TrafficCV />
+                  </AdminRoute>
+                }
+              />
               <Route path="parking" element={<ParkingDashboard />} />
               <Route path="citizen-portal" element={<CitizenPortal />} />
-              <Route path="analytics" element={<AdminRoute><Analytics /></AdminRoute>} />
-              <Route path="rapids-analytics" element={<AdminRoute><AcceleratedAnalytics /></AdminRoute>} />
-              <Route path="parking-analytics" element={<AdminRoute><ParkingAnalytics /></AdminRoute>} />
+              <Route
+                path="analytics"
+                element={
+                  <AdminRoute>
+                    <Analytics />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="rapids-analytics"
+                element={
+                  <AdminRoute>
+                    <AcceleratedAnalytics />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="parking-analytics"
+                element={
+                  <AdminRoute>
+                    <ParkingAnalytics />
+                  </AdminRoute>
+                }
+              />
               <Route path="booking-history" element={<BookingHistory />} />
-              <Route path="settings" element={<AdminRoute><Settings /></AdminRoute>} />
-              <Route path="admin-users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+              <Route
+                path="settings"
+                element={
+                  <AdminRoute>
+                    <Settings />
+                  </AdminRoute>
+                }
+              />
+              <Route
+                path="admin-users"
+                element={
+                  <AdminRoute>
+                    <AdminUsers />
+                  </AdminRoute>
+                }
+              />
               <Route path="user-admin" element={<Navigate to="/admin-users" replace />} />
             </Route>
           </Routes>

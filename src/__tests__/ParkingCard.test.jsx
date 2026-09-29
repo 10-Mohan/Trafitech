@@ -28,7 +28,14 @@ function ParkingCard({ zone, basePrice, availableSpots, currentHour }) {
 
 describe('ParkingCard', () => {
   it('displays the correct zone name', () => {
-    render(<ParkingCard zone="Zone A — Central Hub" basePrice={50} availableSpots={12} currentHour={14} />);
+    render(
+      <ParkingCard
+        zone="Zone A — Central Hub"
+        basePrice={50}
+        availableSpots={12}
+        currentHour={14}
+      />
+    );
     expect(screen.getByTestId('zone-name')).toHaveTextContent('Zone A — Central Hub');
   });
 

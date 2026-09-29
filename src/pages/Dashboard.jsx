@@ -1,209 +1,254 @@
 import React from 'react';
-import { Activity, Car, CircleParking, AlertTriangle, TrendingUp, Lightbulb, MapPin, Navigation, Leaf, ShieldAlert, Users, ArrowRight } from 'lucide-react';
+import {
+  Activity,
+  Car,
+  CircleParking,
+  AlertTriangle,
+  TrendingUp,
+  Lightbulb,
+  MapPin,
+  Navigation,
+  Leaf,
+  ShieldAlert,
+  Users,
+  ArrowRight,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import LiveCityMap from '../components/traffic/LiveCityMap';
 import { useNotifications } from '../components/notifications/NotificationSystem';
 
-const StatCard = ({ icon: Icon, title, value, subtext, color, trend }) => (
-    <div className="glass-card p-6 rounded-2xl relative overflow-hidden group">
-        <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full bg-brand-blue/10 blur-xl group-hover:bg-brand-blue/20 transition-all`}></div>
+const StatCard = ({ icon: Icon, title, value, subtext, trend }) => (
+  <div className="glass-card p-6 rounded-2xl relative overflow-hidden group">
+    <div
+      className={`absolute -right-4 -top-4 w-24 h-24 rounded-full bg-brand-blue/10 blur-xl group-hover:bg-brand-blue/20 transition-all`}
+    ></div>
 
-        <div className="flex justify-between items-start mb-4 relative z-10">
-            <div className={`p-3 rounded-xl bg-brand-blue/10 text-brand-blue`}>
-                <Icon size={24} />
-            </div>
-            {trend && (
-                <div className="flex items-center gap-1 text-xs font-semibold text-brand-green bg-brand-green/10 px-2 py-1 rounded-full">
-                    <TrendingUp size={12} /> {trend}
-                </div>
-            )}
+    <div className="flex justify-between items-start mb-4 relative z-10">
+      <div className={`p-3 rounded-xl bg-brand-blue/10 text-brand-blue`}>
+        <Icon size={24} />
+      </div>
+      {trend && (
+        <div className="flex items-center gap-1 text-xs font-semibold text-brand-green bg-brand-green/10 px-2 py-1 rounded-full">
+          <TrendingUp size={12} /> {trend}
         </div>
-
-        <div className="relative z-10">
-            <h3 className="text-slate-500 dark:text-slate-400 text-sm font-medium tracking-wide">{title}</h3>
-            <div className="text-3xl font-bold text-slate-800 dark:text-white mt-1 text-glow">{value}</div>
-            <p className="text-slate-500 dark:text-slate-400 text-xs mt-2">{subtext}</p>
-        </div>
+      )}
     </div>
+
+    <div className="relative z-10">
+      <h3 className="text-slate-500 dark:text-slate-400 text-sm font-medium tracking-wide">
+        {title}
+      </h3>
+      <div className="text-3xl font-bold text-slate-800 dark:text-white mt-1 text-glow">
+        {value}
+      </div>
+      <p className="text-slate-500 dark:text-slate-400 text-xs mt-2">{subtext}</p>
+    </div>
+  </div>
 );
 
 const Dashboard = () => {
-    const [time, setTime] = React.useState(new Date());
-    const { success, info } = useNotifications();
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const isAdmin = user.role === 'admin';
+  const [time, setTime] = React.useState(new Date());
+  const { success, info } = useNotifications();
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAdmin = user.role === 'admin';
 
-    React.useEffect(() => {
-        const timer = setInterval(() => setTime(new Date()), 1000);
-        return () => clearInterval(timer);
-    }, []);
+  React.useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
-    return (
-        <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">City Overview</h1>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">Real-time monitoring system active</p>
-                </div>
-                <div className="text-right">
-                    <p className="text-sm text-slate-500 dark:text-slate-400">Current Time</p>
-                    <p className="text-xl font-mono text-brand-blue">{time.toLocaleTimeString()}</p>
-                </div>
-            </div>
-
-            {/* Admin Exclusive Command Hub Banner */}
-            {isAdmin && (
-                <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-950/60 via-purple-900/40 to-indigo-950/60 border border-purple-500/40 shadow-xl space-y-4 animate-in fade-in slide-in-from-top-4">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-purple-500/20">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-purple-500/20 text-purple-400 rounded-xl border border-purple-500/30">
-                                <ShieldAlert size={24} />
-                            </div>
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-purple-500 text-white tracking-widest shadow-[0_0_10px_rgba(168,85,247,0.5)]">
-                                        Admin Control Active
-                                    </span>
-                                    <span className="text-xs text-purple-300 font-mono">Logged in as {user.username || 'Administrator'}</span>
-                                </div>
-                                <h3 className="text-lg font-bold text-white mt-1">Municipal Traffic Administration Console</h3>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Link
-                                to="/admin-users"
-                                className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-purple-500/30 flex items-center gap-2"
-                            >
-                                <Users size={14} />
-                                Manage All Users
-                                <ArrowRight size={14} />
-                            </Link>
-                            <button
-                                onClick={() => success('System Diagnostic', 'All 12 intersection nodes operational. Database connection active.')}
-                                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition-all border border-white/10"
-                            >
-                                System Health Check
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                        <div className="p-2.5 rounded-lg bg-black/30 border border-purple-500/20">
-                            <p className="text-purple-300 font-mono text-[10px] uppercase">Access Privileges</p>
-                            <p className="font-bold text-white mt-0.5">Super Administrator</p>
-                        </div>
-                        <div className="p-2.5 rounded-lg bg-black/30 border border-purple-500/20">
-                            <p className="text-purple-300 font-mono text-[10px] uppercase">User Management</p>
-                            <p className="font-bold text-white mt-0.5">Full CRUD & Permissions</p>
-                        </div>
-                        <div className="p-2.5 rounded-lg bg-black/30 border border-purple-500/20">
-                            <p className="text-purple-300 font-mono text-[10px] uppercase">Signal Control</p>
-                            <p className="font-bold text-white mt-0.5">SOS Emergency Corridor</p>
-                        </div>
-                        <div className="p-2.5 rounded-lg bg-black/30 border border-purple-500/20">
-                            <p className="text-purple-300 font-mono text-[10px] uppercase">Database Pipeline</p>
-                            <p className="font-bold text-white mt-0.5">Active Live Stream</p>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-
-            {/* Quick Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-6">
-                <StatCard
-                    icon={Lightbulb}
-                    title="Smart Lighting Savings"
-                    value="42%"
-                    subtext="Adaptive streetlights active"
-                    color="yellow"
-                    trend="+4%"
-                />
-                <StatCard
-                    icon={Activity}
-                    title="Avg. Traffic Density"
-                    value="42%"
-                    subtext="Moderate flow - Main St."
-                    color="blue"
-                    trend="+5%"
-                />
-                <StatCard
-                    icon={CircleParking}
-                    title="Parking Available"
-                    value="128"
-                    subtext="Total slots: 500"
-                    color="purple"
-                    trend="-12 spots"
-                />
-                <StatCard
-                    icon={Car}
-                    title="Active Vehicles"
-                    value="1,245"
-                    subtext="Detected across 12 zones"
-                    color="green"
-                />
-                <StatCard
-                    icon={Leaf}
-                    title="CO₂ Saved"
-                    value="248.5 kg"
-                    subtext="AI signal optimization"
-                    color="green"
-                    trend="-15% CO₂"
-                />
-                <StatCard
-                    icon={AlertTriangle}
-                    title="Active Alerts"
-                    value="3"
-                    subtext="2 Congestion, 1 Violation"
-                    color="red"
-                />
-            </div>
-
-            {/* Main Visual Area Simulation */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-[30rem]">
-                <div className="lg:col-span-2 glass-panel rounded-2xl p-1 relative overflow-hidden h-full flex flex-col">
-                    <div className="flex justify-between items-center px-4 py-2 bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 border-b border-slate-100 dark:border-white/5">
-                        <h3 className="text-sm font-bold text-slate-800 dark:text-white tracking-wide uppercase flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
-                            Live Traffic Feed
-                        </h3>
-                        <span className="text-xs text-slate-500 dark:text-slate-400">Cam-01 • Main Intersection</span>
-                    </div>
-                    <div className="flex-1 relative h-full">
-                        <LiveCityMap />
-                    </div>
-                </div>
-
-                <div className="flex flex-col gap-6 h-full overflow-hidden">
-
-
-                    <div className="glass-panel rounded-2xl p-5 border border-brand-blue/20 bg-brand-blue/5">
-                        <div className="flex items-center justify-between mb-3">
-                            <h3 className="text-md font-semibold text-brand-blue flex items-center gap-2">
-                                <MapPin size={18} /> Find My Car
-                            </h3>
-                            <span className="text-xs font-mono text-slate-500 dark:text-slate-400">Parked at 09:14 AM</span>
-                        </div>
-                        <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">Central Plaza • Zone B-04</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">~200m walking distance</p>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => success('Navigation Started', 'GPS route to Zone B-04 synced to your device.')}
-                                className="flex-1 bg-brand-blue hover:bg-brand-blue/80 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
-                                <Navigation size={14} /> Navigate
-                            </button>
-                            <button
-                                onClick={() => info('Session Extended', 'Parking session manually extended by 1 hour. Wallet charged ₹50.')}
-                                className="flex-1 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                                Extend
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-500 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
+            City Overview
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
+            Real-time monitoring system active
+          </p>
         </div>
-    );
+        <div className="text-right">
+          <p className="text-sm text-slate-500 dark:text-slate-400">Current Time</p>
+          <p className="text-xl font-mono text-brand-blue">{time.toLocaleTimeString()}</p>
+        </div>
+      </div>
+
+      {/* Admin Exclusive Command Hub Banner */}
+      {isAdmin && (
+        <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-950/60 via-purple-900/40 to-indigo-950/60 border border-purple-500/40 shadow-xl space-y-4 animate-in fade-in slide-in-from-top-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-purple-500/20">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-purple-500/20 text-purple-400 rounded-xl border border-purple-500/30">
+                <ShieldAlert size={24} />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-purple-500 text-white tracking-widest shadow-[0_0_10px_rgba(168,85,247,0.5)]">
+                    Admin Control Active
+                  </span>
+                  <span className="text-xs text-purple-300 font-mono">
+                    Logged in as {user.username || 'Administrator'}
+                  </span>
+                </div>
+                <h3 className="text-lg font-bold text-white mt-1">
+                  Municipal Traffic Administration Console
+                </h3>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/admin-users"
+                className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-purple-500/30 flex items-center gap-2"
+              >
+                <Users size={14} />
+                Manage All Users
+                <ArrowRight size={14} />
+              </Link>
+              <button
+                onClick={() =>
+                  success(
+                    'System Diagnostic',
+                    'All 12 intersection nodes operational. Database connection active.'
+                  )
+                }
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold rounded-xl transition-all border border-white/10"
+              >
+                System Health Check
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+            <div className="p-2.5 rounded-lg bg-black/30 border border-purple-500/20">
+              <p className="text-purple-300 font-mono text-[10px] uppercase">Access Privileges</p>
+              <p className="font-bold text-white mt-0.5">Super Administrator</p>
+            </div>
+            <div className="p-2.5 rounded-lg bg-black/30 border border-purple-500/20">
+              <p className="text-purple-300 font-mono text-[10px] uppercase">User Management</p>
+              <p className="font-bold text-white mt-0.5">Full CRUD & Permissions</p>
+            </div>
+            <div className="p-2.5 rounded-lg bg-black/30 border border-purple-500/20">
+              <p className="text-purple-300 font-mono text-[10px] uppercase">Signal Control</p>
+              <p className="font-bold text-white mt-0.5">SOS Emergency Corridor</p>
+            </div>
+            <div className="p-2.5 rounded-lg bg-black/30 border border-purple-500/20">
+              <p className="text-purple-300 font-mono text-[10px] uppercase">Database Pipeline</p>
+              <p className="font-bold text-white mt-0.5">Active Live Stream</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-6">
+        <StatCard
+          icon={Lightbulb}
+          title="Smart Lighting Savings"
+          value="42%"
+          subtext="Adaptive streetlights active"
+          color="yellow"
+          trend="+4%"
+        />
+        <StatCard
+          icon={Activity}
+          title="Avg. Traffic Density"
+          value="42%"
+          subtext="Moderate flow - Main St."
+          color="blue"
+          trend="+5%"
+        />
+        <StatCard
+          icon={CircleParking}
+          title="Parking Available"
+          value="128"
+          subtext="Total slots: 500"
+          color="purple"
+          trend="-12 spots"
+        />
+        <StatCard
+          icon={Car}
+          title="Active Vehicles"
+          value="1,245"
+          subtext="Detected across 12 zones"
+          color="green"
+        />
+        <StatCard
+          icon={Leaf}
+          title="CO₂ Saved"
+          value="248.5 kg"
+          subtext="AI signal optimization"
+          color="green"
+          trend="-15% CO₂"
+        />
+        <StatCard
+          icon={AlertTriangle}
+          title="Active Alerts"
+          value="3"
+          subtext="2 Congestion, 1 Violation"
+          color="red"
+        />
+      </div>
+
+      {/* Main Visual Area Simulation */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-[30rem]">
+        <div className="lg:col-span-2 glass-panel rounded-2xl p-1 relative overflow-hidden h-full flex flex-col">
+          <div className="flex justify-between items-center px-4 py-2 bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 border-b border-slate-100 dark:border-white/5">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-white tracking-wide uppercase flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+              Live Traffic Feed
+            </h3>
+            <span className="text-xs text-slate-500 dark:text-slate-400">
+              Cam-01 • Main Intersection
+            </span>
+          </div>
+          <div className="flex-1 relative h-full">
+            <LiveCityMap />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-6 h-full overflow-hidden">
+          <div className="glass-panel rounded-2xl p-5 border border-brand-blue/20 bg-brand-blue/5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-md font-semibold text-brand-blue flex items-center gap-2">
+                <MapPin size={18} /> Find My Car
+              </h3>
+              <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                Parked at 09:14 AM
+              </span>
+            </div>
+            <p className="text-sm text-slate-600 dark:text-slate-300 font-medium">
+              Central Plaza • Zone B-04
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+              ~200m walking distance
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() =>
+                  success('Navigation Started', 'GPS route to Zone B-04 synced to your device.')
+                }
+                className="flex-1 bg-brand-blue hover:bg-brand-blue/80 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+              >
+                <Navigation size={14} /> Navigate
+              </button>
+              <button
+                onClick={() =>
+                  info(
+                    'Session Extended',
+                    'Parking session manually extended by 1 hour. Wallet charged ₹50.'
+                  )
+                }
+                className="flex-1 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Extend
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default Dashboard;
-
