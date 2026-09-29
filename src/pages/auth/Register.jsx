@@ -104,7 +104,7 @@ const Register = () => {
                                 required
                                 value={formData.username}
                                 onChange={handleChange}
-                                className="w-full bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 border  rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
+                                className="w-full bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
                                 placeholder="johndoe"
                             />
                         </div>
@@ -120,7 +120,7 @@ const Register = () => {
                                 required
                                 value={formData.email}
                                 onChange={handleChange}
-                                className="w-full bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 border  rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
+                                className="w-full bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
                                 placeholder="name@example.com"
                             />
                         </div>
@@ -136,7 +136,7 @@ const Register = () => {
                                 required
                                 value={formData.password}
                                 onChange={handleChange}
-                                className="w-full bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 border  rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
+                                className="w-full bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
                                 placeholder="••••••••"
                             />
                         </div>
@@ -152,7 +152,7 @@ const Register = () => {
                                 required
                                 value={formData.confirmPassword}
                                 onChange={handleChange}
-                                className="w-full bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 border  rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
+                                className="w-full bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 rounded-xl py-4 pl-12 pr-4 text-slate-800 dark:text-white focus:outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all"
                                 placeholder="••••••••"
                             />
                         </div>
