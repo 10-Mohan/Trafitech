@@ -10,10 +10,16 @@
     "test:coverage": "jest --coverage --testEnvironment node"
   },
   "jest": {
-    "testMatch": ["**/tests/**/*.test.js"],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
     "testEnvironment": "node",
     "coverageDirectory": "coverage",
-    "collectCoverageFrom": ["*.js", "routes/**/*.js", "utils/**/*.js"]
+    "collectCoverageFrom": [
+      "*.js",
+      "routes/**/*.js",
+      "utils/**/*.js"
+    ]
   },
   "keywords": [],
   "author": "",

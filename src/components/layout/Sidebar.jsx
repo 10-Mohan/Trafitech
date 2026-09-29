@@ -1,5 +1,20 @@
 import React from 'react';
-import { LayoutDashboard, Car, CircleParking, BarChart3, Settings, ShieldAlert, History, PieChart, LogOut, User as UserIcon, X, Cpu, Eye, Smartphone } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Car,
+  CircleParking,
+  BarChart3,
+  Settings,
+  ShieldAlert,
+  History,
+  PieChart,
+  LogOut,
+  User as UserIcon,
+  X,
+  Cpu,
+  Eye,
+  Smartphone,
+} from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,161 +22,180 @@ import { authAPI } from '../../services/api';
 import { useApp } from '../../context/AppContext';
 
 const Sidebar = () => {
-    const navigate = useNavigate();
-    const { isMobileMenuOpen, closeMobileMenu } = useApp();
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const navigate = useNavigate();
+  const { isMobileMenuOpen, closeMobileMenu } = useApp();
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-    const handleLogout = () => {
-        authAPI.logout();
-        navigate('/login');
-    };
-    const navItems = [
-        { icon: LayoutDashboard, label: 'Overview', path: '/' },
-        { icon: CircleParking, label: 'Smart Parking', path: '/parking' },
-        { icon: Smartphone, label: 'Citizen Portal', path: '/citizen-portal' },
-        { icon: History, label: 'Booking History', path: '/booking-history' },
-        { icon: Car, label: 'Traffic Control', path: '/traffic', adminOnly: true },
-        { icon: Eye, label: 'Computer Vision', path: '/traffic-cv', adminOnly: true },
-        { icon: BarChart3, label: 'Analytics', path: '/analytics', adminOnly: true },
-        { icon: Cpu, label: 'RAPIDS Analytics', path: '/rapids-analytics', adminOnly: true },
-        { icon: PieChart, label: 'Parking Analytics', path: '/parking-analytics', adminOnly: true },
-        { icon: Settings, label: 'Settings', path: '/settings', adminOnly: true },
-        { icon: ShieldAlert, label: 'User Admin', path: '/admin-users', adminOnly: true },
-    ];
+  const handleLogout = () => {
+    authAPI.logout();
+    navigate('/login');
+  };
+  const navItems = [
+    { icon: LayoutDashboard, label: 'Overview', path: '/' },
+    { icon: CircleParking, label: 'Smart Parking', path: '/parking' },
+    { icon: Smartphone, label: 'Citizen Portal', path: '/citizen-portal' },
+    { icon: History, label: 'Booking History', path: '/booking-history' },
+    { icon: Car, label: 'Traffic Control', path: '/traffic', adminOnly: true },
+    { icon: Eye, label: 'Computer Vision', path: '/traffic-cv', adminOnly: true },
+    { icon: BarChart3, label: 'Analytics', path: '/analytics', adminOnly: true },
+    { icon: Cpu, label: 'RAPIDS Analytics', path: '/rapids-analytics', adminOnly: true },
+    { icon: PieChart, label: 'Parking Analytics', path: '/parking-analytics', adminOnly: true },
+    { icon: Settings, label: 'Settings', path: '/settings', adminOnly: true },
+    { icon: ShieldAlert, label: 'User Admin', path: '/admin-users', adminOnly: true },
+  ];
 
-    const filteredNavItems = navItems.filter(item => !item.adminOnly || user.role === 'admin');
+  const filteredNavItems = navItems.filter((item) => !item.adminOnly || user.role === 'admin');
 
+  return (
+    <>
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeMobileMenu}
+            className="fixed inset-0 bg-brand-dark/60 backdrop-blur-sm z-[55] md:hidden"
+          />
+        )}
+      </AnimatePresence>
 
-    return (
-        <>
-            {/* Mobile Overlay */}
-            <AnimatePresence>
-                {isMobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={closeMobileMenu}
-                        className="fixed inset-0 bg-brand-dark/60 backdrop-blur-sm z-[55] md:hidden"
+      <aside
+        className={clsx(
+          'fixed left-0 top-0 h-screen w-64 bg-slate-50 border-r border-slate-200 dark:bg-brand-dark/95 dark:border-white/5 backdrop-blur-xl z-[60] flex flex-col items-center py-6 transition-transform duration-300 md:translate-x-0 overflow-y-auto custom-scrollbar',
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        <button
+          onClick={closeMobileMenu}
+          className="absolute top-4 right-4 p-2 text-slate-500 md:hidden"
+        >
+          <X size={20} />
+        </button>
+
+        <div className="mb-10 text-center">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent tracking-widest">
+            TRAFI<span className="text-slate-800 dark:text-white"> TECH</span>
+          </h1>
+          <div className="flex items-center gap-2 justify-center mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 tracking-[0.2em]">
+              MANAGEMENT
+            </p>
+            <span className="px-1.5 py-0.5 rounded bg-brand-blue/10 text-[10px] text-brand-blue border border-brand-blue/20 font-bold flex items-center gap-1">
+              <ShieldAlert size={8} /> SECURE
+            </span>
+          </div>
+        </div>
+
+        <nav className="w-full px-4 space-y-2">
+          {filteredNavItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              onClick={closeMobileMenu}
+              className={({ isActive }) =>
+                clsx(
+                  'flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative',
+                  isActive
+                    ? 'bg-brand-blue/10 text-brand-blue shadow-[0_0_15px_rgba(0,243,255,0.2)]'
+                    : 'text-slate-500 dark:text-slate-400 hover:bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 hover:text-slate-800 dark:text-white'
+                )
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <div className="relative z-10 flex items-center gap-3">
+                    <item.icon
+                      size={20}
+                      className={clsx(
+                        'transition-transform group-hover:scale-110',
+                        isActive && 'text-brand-blue drop-shadow-[0_0_5px_rgba(0,243,255,0.8)]'
+                      )}
                     />
-                )}
-            </AnimatePresence>
+                    <span className="font-medium tracking-wide">{item.label}</span>
+                  </div>
+                  {isActive && (
+                    <motion.div
+                      layoutId="active-nav"
+                      className="absolute inset-0 bg-brand-blue/5 rounded-xl border border-brand-blue/20"
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </nav>
 
-            <aside className={clsx(
-                "fixed left-0 top-0 h-screen w-64 bg-slate-50 border-r border-slate-200 dark:bg-brand-dark/95 dark:border-white/5 backdrop-blur-xl z-[60] flex flex-col items-center py-6 transition-transform duration-300 md:translate-x-0 overflow-y-auto custom-scrollbar",
-                isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-            )}>
-                <button
-                    onClick={closeMobileMenu}
-                    className="absolute top-4 right-4 p-2 text-slate-500 md:hidden"
-                >
-                    <X size={20} />
-                </button>
-
-                <div className="mb-10 text-center">
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-brand-blue to-brand-purple bg-clip-text text-transparent tracking-widest">
-                        TRAFI<span className="text-slate-800 dark:text-white"> TECH</span>
-                    </h1>
-                    <div className="flex items-center gap-2 justify-center mt-1">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 tracking-[0.2em]">MANAGEMENT</p>
-                        <span className="px-1.5 py-0.5 rounded bg-brand-blue/10 text-[10px] text-brand-blue border border-brand-blue/20 font-bold flex items-center gap-1">
-                            <ShieldAlert size={8} /> SECURE
-                        </span>
-                    </div>
+        <div className="mt-auto px-6 w-full space-y-4 pt-6">
+          <div className="glass-card p-4 rounded-xl border-slate-100 dark:border-white/5 space-y-4">
+            <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-white/5">
+              <div className="w-10 h-10 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue border border-brand-blue/20">
+                <UserIcon size={20} />
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-bold text-slate-800 dark:text-white truncate">
+                    {user.username || 'User'}
+                  </p>
+                  <span
+                    className={clsx(
+                      'text-[9px] px-1.5 py-0.5 rounded border font-black uppercase tracking-wider shrink-0',
+                      user.role === 'admin'
+                        ? 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+                        : 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+                    )}
+                  >
+                    {user.role === 'admin' ? 'Admin' : 'Driver'}
+                  </span>
                 </div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                  {user.email || 'user@example.com'}
+                </p>
+              </div>
+            </div>
 
-                <nav className="w-full px-4 space-y-2">
-                    {filteredNavItems.map((item) => (
-                        <NavLink
-                            key={item.path}
-                            to={item.path}
-                            onClick={closeMobileMenu}
-                            className={({ isActive }) =>
-                                clsx(
-                                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative",
-                                    isActive
-                                        ? "bg-brand-blue/10 text-brand-blue shadow-[0_0_15px_rgba(0,243,255,0.2)]"
-                                        : "text-slate-500 dark:text-slate-400 hover:bg-white shadow-sm border border-slate-200 dark:border-white/10 dark:bg-white/5 dark:border-white/10 hover:text-slate-800 dark:text-white"
-                                )
-                            }
-                        >
-                            {({ isActive }) => (
-                                <>
-                                    <div className="relative z-10 flex items-center gap-3">
-                                        <item.icon
-                                            size={20}
-                                            className={clsx("transition-transform group-hover:scale-110", isActive && "text-brand-blue drop-shadow-[0_0_5px_rgba(0,243,255,0.8)]")}
-                                        />
-                                        <span className="font-medium tracking-wide">{item.label}</span>
-                                    </div>
-                                    {isActive && (
-                                        <motion.div
-                                            layoutId="active-nav"
-                                            className="absolute inset-0 bg-brand-blue/5 rounded-xl border border-brand-blue/20"
-                                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                                        />
-                                    )}
-                                </>
-                            )}
-                        </NavLink>
-                    ))}
-                </nav>
+            <button
+              onClick={handleLogout}
+              className="w-full py-2 flex items-center justify-center gap-2 bg-red-500/5 hover:bg-red-500/10 text-red-500 rounded-lg text-xs font-bold transition-all border border-red-500/10 hover:border-red-500/30"
+            >
+              <LogOut size={14} />
+              Sign Out
+            </button>
+          </div>
 
-                <div className="mt-auto px-6 w-full space-y-4 pt-6">
-
-                    <div className="glass-card p-4 rounded-xl border-slate-100 dark:border-white/5 space-y-4">
-                        <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-white/5">
-                            <div className="w-10 h-10 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue border border-brand-blue/20">
-                                <UserIcon size={20} />
-                            </div>
-                            <div className="flex-1 overflow-hidden">
-                                <div className="flex items-center gap-2">
-                                    <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{user.username || 'User'}</p>
-                                    <span className={clsx(
-                                        "text-[9px] px-1.5 py-0.5 rounded border font-black uppercase tracking-wider shrink-0",
-                                        user.role === 'admin'
-                                            ? "bg-purple-500/20 text-purple-400 border-purple-500/30"
-                                            : "bg-blue-500/20 text-blue-400 border-blue-500/30"
-                                    )}>
-                                        {user.role === 'admin' ? 'Admin' : 'Driver'}
-                                    </span>
-                                </div>
-                                <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{user.email || 'user@example.com'}</p>
-                            </div>
-                        </div>
-
-                        <button
-                            onClick={handleLogout}
-                            className="w-full py-2 flex items-center justify-center gap-2 bg-red-500/5 hover:bg-red-500/10 text-red-500 rounded-lg text-xs font-bold transition-all border border-red-500/10 hover:border-red-500/30"
-                        >
-                            <LogOut size={14} />
-                            Sign Out
-                        </button>
-                    </div>
-
-                    <div className="glass-card p-4 rounded-xl text-center border-brand-green/20">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">System Status</p>
-                        <div className="flex items-center justify-center gap-2">
-                            <span className="relative flex h-3 w-3">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-green"></span>
-                            </span>
-                            <span className="text-sm font-bold text-brand-green tracking-wider shadow-green-500/50">ONLINE</span>
-                        </div>
-                    </div>
-                    <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex flex-col items-center gap-2">
-                        <p className="text-[10px] text-slate-600 dark:text-slate-300 uppercase tracking-widest flex items-center gap-1">
-                            <ShieldAlert size={10} /> Encrypted Session
-                        </p>
-                        <div className="flex gap-4">
-                            <button className="text-[10px] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">Privacy</button>
-                            <button className="text-[10px] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">Ethics</button>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-        </>
-    );
+          <div className="glass-card p-4 rounded-xl text-center border-brand-green/20">
+            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">
+              System Status
+            </p>
+            <div className="flex items-center justify-center gap-2">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-brand-green"></span>
+              </span>
+              <span className="text-sm font-bold text-brand-green tracking-wider shadow-green-500/50">
+                ONLINE
+              </span>
+            </div>
+          </div>
+          <div className="pt-4 border-t border-slate-100 dark:border-white/5 flex flex-col items-center gap-2">
+            <p className="text-[10px] text-slate-600 dark:text-slate-300 uppercase tracking-widest flex items-center gap-1">
+              <ShieldAlert size={10} /> Encrypted Session
+            </p>
+            <div className="flex gap-4">
+              <button className="text-[10px] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
+                Privacy
+              </button>
+              <button className="text-[10px] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors">
+                Ethics
+              </button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </>
+  );
 };
 
 export default Sidebar;

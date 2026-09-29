@@ -16,23 +16,27 @@ TraffiTech is an end-to-end, AI-powered Progressive Web Application (PWA) design
 ## 🎯 Key Features
 
 ### 🚥 1. Traffic Control Center
-* **Active Corridor Preemption:** One-click emergency corridor override to clear lanes for EMTs/ambulances.
-* **Auto-Pilot Mode:** AI-driven cycle recommendations that adjust traffic light durations dynamically based on vehicle density.
-* **Live Intersection Map:** Interactive SVG visualization of road intersections with active car flow animations.
+
+- **Active Corridor Preemption:** One-click emergency corridor override to clear lanes for EMTs/ambulances.
+- **Auto-Pilot Mode:** AI-driven cycle recommendations that adjust traffic light durations dynamically based on vehicle density.
+- **Live Intersection Map:** Interactive SVG visualization of road intersections with active car flow animations.
 
 ### 🚗 2. Smart Parking Allocation
-* **Interactive Geolocation Map:** Real-time user localization with automatic discovery of nearby parking zones via Leaflet.
-* **Dynamic Surge Pricing:** Automatic price adjustments (1.5x multiplier) during high-demand peak hours.
-* **Integrated Booking & Payments:** Secure reservation of selected slots backed by Stripe API test payments.
-* **Digital Access Tickets:** Generates dynamic, secure QR codes for automated entry and exit authentication.
+
+- **Interactive Geolocation Map:** Real-time user localization with automatic discovery of nearby parking zones via Leaflet.
+- **Dynamic Surge Pricing:** Automatic price adjustments (1.5x multiplier) during high-demand peak hours.
+- **Integrated Booking & Payments:** Secure reservation of selected slots backed by Stripe API test payments.
+- **Digital Access Tickets:** Generates dynamic, secure QR codes for automated entry and exit authentication.
 
 ### 📊 3. Executive Analytics Dashboards
-* **System Analytics:** Interactive Recharts trendlines measuring traffic density vs. parking availability over 24 hours.
-* **Parking Analytics:** Real-time occupancy breakdown (Available, Occupied, Reserved) and revenue projections categorized by date ranges (week, month, year).
+
+- **System Analytics:** Interactive Recharts trendlines measuring traffic density vs. parking availability over 24 hours.
+- **Parking Analytics:** Real-time occupancy breakdown (Available, Occupied, Reserved) and revenue projections categorized by date ranges (week, month, year).
 
 ### 📱 4. Progressive Web App (PWA) Support
-* Fully responsive UI optimized for mobile viewports, landscape tablets, and desktop setups.
-* Offline capability and quick launch access via home screen installation.
+
+- Fully responsive UI optimized for mobile viewports, landscape tablets, and desktop setups.
+- Offline capability and quick launch access via home screen installation.
 
 ---
 
@@ -53,10 +57,12 @@ graph TD
 ## 💻 Local Setup & Development
 
 ### Prerequisites
-* [Node.js](https://nodejs.org/) (v16+)
-* npm (v8+)
+
+- [Node.js](https://nodejs.org/) (v16+)
+- npm (v8+)
 
 ### 1. Clone & Install Dependencies
+
 ```bash
 # Clone the repository
 git clone https://github.com/10-Mohan/Trafitech.git
@@ -71,7 +77,9 @@ npm install
 ```
 
 ### 2. Configure Environment Variables
+
 Create a `.env` file inside the `server/` directory:
+
 ```env
 PORT=5000
 MONGODB_URI=mongodb://localhost:27017/traffitech
@@ -82,6 +90,7 @@ STRIPE_SECRET_KEY=your_stripe_sk_test_key
 ```
 
 ### 3. Run Locally
+
 ```bash
 # Start the Backend Server (from server/ directory)
 npm run dev
@@ -89,10 +98,13 @@ npm run dev
 # Start the Frontend Vite Client (from root directory in a new terminal)
 npm run dev
 ```
+
 ### 🔑 Account Registration & Admin Passcode
+
 When creating a new account on the registration page:
-* **Driver Account:** Select **"Regular Driver"**, enter your email, username, and password.
-* **City Admin Account:** Select **"City Admin"**, enter your details, and provide the **Admin Security Passcode**:
+
+- **Driver Account:** Select **"Regular Driver"**, enter your email, username, and password.
+- **City Admin Account:** Select **"City Admin"**, enter your details, and provide the **Admin Security Passcode**:
   ```text
   traffitech-admin-2026
   ```
@@ -104,26 +116,31 @@ When creating a new account on the registration page:
 The project is fully set up for 24/7 cloud availability without requiring your local laptop to run:
 
 ### 1. Database (MongoDB Atlas)
-* Spin up a free cluster on MongoDB Atlas.
-* Set IP Access list to `0.0.0.0/0` (Allow access from anywhere).
-* Copy your connection string and insert your user credentials.
+
+- Spin up a free cluster on MongoDB Atlas.
+- Set IP Access list to `0.0.0.0/0` (Allow access from anywhere).
+- Copy your connection string and insert your user credentials.
 
 ### 2. Backend (Render.com)
-* Create a new Web Service pointing to your repository.
-* Set the Root Directory to `server`.
-* Set Build Command to `npm install` and Start Command to `node index.js`.
-* Input your `MONGODB_URI`, `JWT_SECRET`, and Stripe keys as environment variables.
+
+- Create a new Web Service pointing to your repository.
+- Set the Root Directory to `server`.
+- Set Build Command to `npm install` and Start Command to `node index.js`.
+- Input your `MONGODB_URI`, `JWT_SECRET`, and Stripe keys as environment variables.
 
 ### 3. Frontend (Vercel.com)
-* Connect your repository to Vercel.
-* Set the Build Command to `npm run build` and Output Directory to `dist`.
-* Add `VITE_API_URL` pointing to your Render service (`https://your-api.onrender.com/api`).
-* Vercel will automatically trigger deployments on every git push to your `main` branch.
+
+- Connect your repository to Vercel.
+- Set the Build Command to `npm run build` and Output Directory to `dist`.
+- Add `VITE_API_URL` pointing to your Render service (`https://your-api.onrender.com/api`).
+- Vercel will automatically trigger deployments on every git push to your `main` branch.
 
 ---
 
 ### 🔑 Account Registration & Admin Passcode
+
 When creating a new account on the registration page:
-* **Driver Account:** Select **"Regular Driver"**, enter your email, username, and password.
-* **City Admin Account:** Select **"City Admin"**, enter your details, and provide the **Admin Security Passcode**:
+
+- **Driver Account:** Select **"Regular Driver"**, enter your email, username, and password.
+- **City Admin Account:** Select **"City Admin"**, enter your details, and provide the **Admin Security Passcode**:
   `traffitech-admin-pass-2026`

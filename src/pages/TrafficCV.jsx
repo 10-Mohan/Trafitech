@@ -1,19 +1,48 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, Eye, AlertTriangle, Play, Pause, RefreshCw, BarChart2, ShieldAlert } from 'lucide-react';
+import {
+  Camera,
+  Eye,
+  AlertTriangle,
+  Play,
+  Pause,
+  RefreshCw,
+  BarChart2,
+  ShieldAlert,
+} from 'lucide-react';
 import { clsx } from 'clsx';
 
 const CAMERAS = [
-  { id: 'cam1', name: 'Camera 01 — North Intersection', location: 'Main Street & Broadway', defaultSpeed: '42 km/h' },
-  { id: 'cam2', name: 'Camera 02 — South Highway', location: 'Avenue Link Road', defaultSpeed: '68 km/h' },
-  { id: 'cam3', name: 'Camera 03 — East Market Street', location: 'Commercial Bazaar Area', defaultSpeed: '18 km/h' },
-  { id: 'cam4', name: 'Camera 04 — West Expressway', location: 'Flyover Exit Corridor', defaultSpeed: '85 km/h' },
+  {
+    id: 'cam1',
+    name: 'Camera 01 — North Intersection',
+    location: 'Main Street & Broadway',
+    defaultSpeed: '42 km/h',
+  },
+  {
+    id: 'cam2',
+    name: 'Camera 02 — South Highway',
+    location: 'Avenue Link Road',
+    defaultSpeed: '68 km/h',
+  },
+  {
+    id: 'cam3',
+    name: 'Camera 03 — East Market Street',
+    location: 'Commercial Bazaar Area',
+    defaultSpeed: '18 km/h',
+  },
+  {
+    id: 'cam4',
+    name: 'Camera 04 — West Expressway',
+    location: 'Flyover Exit Corridor',
+    defaultSpeed: '85 km/h',
+  },
 ];
 
 const TrafficCV = () => {
   const [selectedCam, setSelectedCam] = useState(CAMERAS[0]);
   const [isPlaying, setIsPlaying] = useState(true);
   const [vehicleCount, setVehicleCount] = useState(12);
-  const [pedestrianCount, setPedestrianCount] = useState(2);
+  const [pedestrianCount] = useState(2);
   const [detectedSpeed, setDetectedSpeed] = useState(42);
   const [violations, setViolations] = useState([]);
   const canvasRef = useRef(null);
@@ -117,8 +146,10 @@ const TrafficCV = () => {
       });
 
       // Draw simulated static Pedestrians
-      const pedX1 = 150, pedY1 = 80;
-      const pedX2 = 450, pedY2 = 280;
+      const pedX1 = 150,
+        pedY1 = 80;
+      const pedX2 = 450,
+        pedY2 = 280;
       ctx.strokeStyle = '#22c55e'; // green box for pedestrians
       ctx.lineWidth = 1.5;
       ctx.strokeRect(pedX1, pedY1, 20, 35);
@@ -200,8 +231,13 @@ const TrafficCV = () => {
             )}
           >
             <div className="flex items-center gap-2 mb-1">
-              <Camera size={16} className={selectedCam.id === cam.id ? 'text-brand-blue' : 'text-slate-400'} />
-              <span className="font-bold text-sm text-slate-800 dark:text-white">{cam.name.split(' — ')[0]}</span>
+              <Camera
+                size={16}
+                className={selectedCam.id === cam.id ? 'text-brand-blue' : 'text-slate-400'}
+              />
+              <span className="font-bold text-sm text-slate-800 dark:text-white">
+                {cam.name.split(' — ')[0]}
+              </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{cam.location}</p>
           </button>
@@ -257,16 +293,24 @@ const TrafficCV = () => {
             </h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
-                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest">Vehicles</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                  Vehicles
+                </p>
                 <p className="text-2xl font-bold text-brand-blue text-glow">{vehicleCount}</p>
               </div>
               <div className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
-                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest">Pedestrians</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                  Pedestrians
+                </p>
                 <p className="text-2xl font-bold text-brand-green text-glow">{pedestrianCount}</p>
               </div>
               <div className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 col-span-2">
-                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest">Estimated Velocity</p>
-                <p className="text-2xl font-bold text-brand-yellow text-glow">{detectedSpeed} km/h</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                  Estimated Velocity
+                </p>
+                <p className="text-2xl font-bold text-brand-yellow text-glow">
+                  {detectedSpeed} km/h
+                </p>
               </div>
             </div>
           </div>
@@ -278,7 +322,9 @@ const TrafficCV = () => {
             </h3>
             <div className="space-y-3 max-h-[160px] overflow-y-auto custom-scrollbar">
               {violations.length === 0 ? (
-                <p className="text-xs text-slate-500 dark:text-slate-400 py-6 text-center italic">No incident violations reported recently.</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 py-6 text-center italic">
+                  No incident violations reported recently.
+                </p>
               ) : (
                 violations.map((violation) => (
                   <div

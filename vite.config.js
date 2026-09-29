@@ -25,6 +25,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/__tests__/setup.js'],
     css: true,
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -32,4 +33,3 @@ export default defineConfig({
     },
   },
 });
-

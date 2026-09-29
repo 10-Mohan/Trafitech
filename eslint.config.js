@@ -27,7 +27,10 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^_' }],
+      'no-unused-vars': [
+        'warn',
+        { varsIgnorePattern: '^[A-Z_]|motion', argsIgnorePattern: '^[A-Z_]', caughtErrors: 'none' },
+      ],
       'no-debugger': 'error',
       'no-duplicate-imports': 'error',
       'no-console': 'off',
@@ -60,7 +63,10 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['warn', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^_' }],
+      'no-unused-vars': [
+        'warn',
+        { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^[A-Z_]', caughtErrors: 'none' },
+      ],
       'no-debugger': 'error',
       // Allow console in server/backend code (needed for server logs)
       'no-console': 'off',
@@ -93,4 +99,3 @@ export default defineConfig([
     },
   },
 ]);
-
