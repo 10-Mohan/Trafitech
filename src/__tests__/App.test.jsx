@@ -1,10 +1,12 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render } from '@testing-library/react';
 import App from '../App';
 
 // Mock heavy map/chart dependencies
 vi.mock('react-leaflet', () => ({
-  MapContainer: ({ children }) => <div data-testid="map-container">{children}</div>,
+  MapContainer: ({ children }) => (
+    <div data-testid="map-container">{children}</div>
+  ),
   TileLayer: () => <div />,
   Marker: () => <div />,
   Popup: ({ children }) => <div>{children}</div>,
@@ -12,7 +14,9 @@ vi.mock('react-leaflet', () => ({
 }));
 
 vi.mock('recharts', () => ({
-  LineChart: ({ children }) => <div data-testid="line-chart">{children}</div>,
+  LineChart: ({ children }) => (
+    <div data-testid="line-chart">{children}</div>
+  ),
   Line: () => <div />,
   XAxis: () => <div />,
   YAxis: () => <div />,
@@ -29,7 +33,6 @@ vi.mock('recharts', () => ({
 
 describe('App', () => {
   it('renders without crashing', () => {
-    // App already contains its own BrowserRouter — render directly
     render(<App />);
     expect(document.body).toBeTruthy();
   });
