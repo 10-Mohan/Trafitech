@@ -12,10 +12,10 @@ dotenv.config({ path: path.join(__dirname, '.env') });
 const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+  },
 });
 
 // Initialize Simulation Service
@@ -23,61 +23,72 @@ const simulation = new SimulationService(io);
 simulation.start();
 
 io.on('connection', (socket) => {
-    console.log('Client connected for IoT stream:', socket.id);
+  console.log('Client connected for IoT stream:', socket.id);
 });
 
 // Middleware
 app.use(cors());
+
+// Stripe Webhook Endpoint (requires raw unparsed Buffer before global express.json)
+app.use('/api/webhooks', express.raw({ type: 'application/json' }), require('./routes/webhooks'));
+
 app.use(express.json());
 
 // Hybrid Connection Logic
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/traffitech';
-mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 4000 })
-    .then(() => console.log('✅ Connected to MongoDB Atlas (Production Cloud DB)'))
-    .catch((err) => {
-        console.warn('⚠️ MongoDB Atlas connection error details:', err?.message || err);
-        console.warn('⚠️ Using Local JSON DB fallback.');
-        if (process.env.NODE_ENV === 'production' || process.env.RENDER === 'true') {
-            console.warn('🚨 PRODUCTION PERSISTENCE WARNING: MONGODB_URI is not connected in production mode. Data written to JSON fallback DB will be ephemeral across server restarts on Render. Ensure MONGODB_URI is configured in Render environment variables for cloud persistence.');
-        } else {
-            console.log('✅ Zero-Dependency Fallback Mode Active');
-        }
-    });
+mongoose
+  .connect(MONGODB_URI, { serverSelectionTimeoutMS: 4000 })
+  .then(() => console.log('✅ Connected to MongoDB Atlas (Production Cloud DB)'))
+  .catch((err) => {
+    console.warn('⚠️ MongoDB Atlas connection error details:', err?.message || err);
+    console.warn('⚠️ Using Local JSON DB fallback.');
+    if (process.env.NODE_ENV === 'production' || process.env.RENDER === 'true') {
+      console.warn(
+        '🚨 PRODUCTION PERSISTENCE WARNING: MONGODB_URI is not connected in production mode. Data written to JSON fallback DB will be ephemeral across server restarts on Render. Ensure MONGODB_URI is configured in Render environment variables for cloud persistence.'
+      );
+    } else {
+      console.log('✅ Zero-Dependency Fallback Mode Active');
+    }
+  });
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/payments', require('./routes/payments'));
-app.use('/api/webhooks', require('./routes/webhooks'));
 app.use('/api/rapids-analytics', require('./routes/rapidsAnalytics'));
 
 // Basic Route
 app.get('/', (req, res) => {
-    res.json({
-        message: 'TraffiTech API is running',
-        mode: mongoose.connection.readyState === 1 ? 'Production (Cloud DB)' : 'Development (Fallback JSON DB)'
-    });
+  res.json({
+    message: 'TraffiTech API is running',
+    mode:
+      mongoose.connection.readyState === 1
+        ? 'Production (Cloud DB)'
+        : 'Development (Fallback JSON DB)',
+  });
 });
 
 // Port Configuration
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server running on port ${PORT} (0.0.0.0 interface bound)`);
+  console.log(`🚀 Server running on port ${PORT} (0.0.0.0 interface bound)`);
 
-    // Environment Variables Audit Log on Boot
-    const isProdEnv = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
-    if (isProdEnv) {
-        const missingKeys = [];
-        if (!process.env.JWT_SECRET) missingKeys.push('JWT_SECRET');
-        if (!process.env.ADMIN_SECRET_KEY) missingKeys.push('ADMIN_SECRET_KEY');
-        if (!process.env.STRIPE_SECRET_KEY) missingKeys.push('STRIPE_SECRET_KEY');
-        if (!process.env.STRIPE_WEBHOOK_SECRET) missingKeys.push('STRIPE_WEBHOOK_SECRET');
-        if (!process.env.MONGODB_URI) missingKeys.push('MONGODB_URI');
+  // Environment Variables Audit Log on Boot
+  const isProdEnv = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
+  if (isProdEnv) {
+    const missingKeys = [];
+    if (!process.env.JWT_SECRET) missingKeys.push('JWT_SECRET');
+    if (!process.env.ADMIN_SECRET_KEY) missingKeys.push('ADMIN_SECRET_KEY');
+    if (!process.env.STRIPE_SECRET_KEY) missingKeys.push('STRIPE_SECRET_KEY');
+    if (!process.env.STRIPE_WEBHOOK_SECRET) missingKeys.push('STRIPE_WEBHOOK_SECRET');
+    if (!process.env.MONGODB_URI) missingKeys.push('MONGODB_URI');
 
-        if (missingKeys.length > 0) {
-            console.warn(`⚠️ PRODUCTION ENV CONFIG NOTICE: Missing Render environment variables: ${missingKeys.join(', ')}`);
-        } else {
-            console.log('✅ Production Environment Audit Passed: All production secrets configured.');
-        }
+    if (missingKeys.length > 0) {
+      console.warn(
+        `⚠️ PRODUCTION ENV CONFIG NOTICE: Missing Render environment variables: ${missingKeys.join(', ')}`
+      );
+    } else {
+      console.log('✅ Production Environment Audit Passed: All production secrets configured.');
     }
+  }
 });
