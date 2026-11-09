@@ -36,7 +36,7 @@ const Login = () => {
                     <div className="inline-flex items-center justify-center p-3 bg-blue-500/20 rounded-2xl mb-4 border border-blue-500/30">
                         <LogIn className="w-8 h-8 text-blue-400" />
                     </div>
-                    <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Welcome Back</h1>
+                    <h1 className="text-3xl font-bold text-slate-800 dark:text-white mb-2">Welcome Back to Trafitech</h1>
                     <p className="text-blue-200/60">Log in to manage your smart traffic session</p>
                 </div>
 
