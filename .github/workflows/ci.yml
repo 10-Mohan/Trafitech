@@ -1,8 +1,7 @@
+
 # =============================================
 # TraffiTech — GitHub Actions CI/CD Pipeline
 # =============================================
-# Triggers: Every push to main & all pull requests
-# Jobs: lint → test-frontend → test-backend → build
 
 name: TraffiTech CI
 
@@ -12,10 +11,11 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
-  # ─────────────────────────────────
   # Job 1: Code Linting & Formatting
-  # ─────────────────────────────────
   lint:
     name: Lint & Format Check
     runs-on: ubuntu-latest
@@ -27,8 +27,8 @@ jobs:
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -39,9 +39,7 @@ jobs:
       - name: Check Prettier formatting
         run: npm run format:check
 
-  # ─────────────────────────────────
-  # Job 2: Frontend Tests (Vitest)
-  # ─────────────────────────────────
+  # Job 2: Frontend Tests
   test-frontend:
     name: Frontend Tests (Vitest)
     runs-on: ubuntu-latest
@@ -54,8 +52,8 @@ jobs:
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -69,11 +67,10 @@ jobs:
         with:
           name: frontend-coverage
           path: coverage/
+          if-no-files-found: ignore
           retention-days: 7
 
-  # ─────────────────────────────────
-  # Job 3: Backend Tests (Jest)
-  # ─────────────────────────────────
+  # Job 3: Backend Tests
   test-backend:
     name: Backend Tests (Jest)
     runs-on: ubuntu-latest
@@ -86,8 +83,8 @@ jobs:
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
           cache-dependency-path: server/package-lock.json
 
       - name: Install backend dependencies
@@ -100,9 +97,7 @@ jobs:
         env:
           NODE_ENV: test
 
-  # ─────────────────────────────────
-  # Job 4: Production Build Verify
-  # ─────────────────────────────────
+  # Job 4: Production Build
   build:
     name: Verify Production Build
     runs-on: ubuntu-latest
@@ -115,8 +110,8 @@ jobs:
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -132,6 +127,11 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
+          name: traffitech-production-build
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
           name: dist
           path: dist/
           retention-days: 3
