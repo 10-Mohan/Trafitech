@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import App from '../App';
 
@@ -28,15 +28,20 @@ vi.mock('recharts', () => ({
 }));
 
 describe('App', () => {
-  it('renders without crashing', () => {
-    // App already contains its own BrowserRouter — render directly
-    render(<App />);
-    expect(document.body).toBeTruthy();
+  beforeEach(() => {
+    localStorage.clear();
   });
 
-  it('mounts and renders a non-empty body', () => {
+  it('renders without crashing and displays login for unauthenticated users', () => {
     render(<App />);
-    expect(document.querySelector('body')).not.toBeNull();
-    expect(document.body.innerHTML.length).toBeGreaterThan(0);
+    expect(screen.getByRole('heading', { level: 1, name: /welcome back/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+  });
+
+  it('mounts and renders authentication forms and navigation links', () => {
+    render(<App />);
+    expect(screen.getByPlaceholderText('name@example.com')).toBeInTheDocument();
+    expect(screen.getByText(/regular driver/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /create one now/i })).toBeInTheDocument();
   });
 });
